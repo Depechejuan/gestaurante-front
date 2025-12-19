@@ -9,6 +9,12 @@ function App() {
 		<>
 			<Router>
 				<Routes>
+					{/* 
+						Route = el componente que enruta al componente
+						path = El 'camino' al que llama el componente (ejemplo: www.web.com/login , el path sería ="/login")
+						element = El coponente como tal. <Componente />
+						IMPORTANTE* Cada componente debe estar reflejado en los import (arriba) con la ruta real
+					*/}
 					<Route path="/" element={<Home />} />
 				</Routes>
 			</Router>

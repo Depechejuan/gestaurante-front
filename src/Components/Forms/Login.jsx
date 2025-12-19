@@ -1,6 +1,10 @@
 function Login() {
     return (
-        <h1>Login</h1>
+        <form>
+            <h1>Login</h1>
+            <input type="text"></input>
+            <input type="password"></input>
+        </form>
     )
 }
 

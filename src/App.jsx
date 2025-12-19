@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './styles/App.css'
 import './styles/index.css'
 import Home from "./Pages/Home";
+import Login from './Components/Forms/Login';
 
 function App() {
 
@@ -16,6 +17,7 @@ function App() {
 						IMPORTANTE* Cada componente debe estar reflejado en los import (arriba) con la ruta real
 					*/}
 					<Route path="/" element={<Home />} />
+					<Route path="/login" element={<Login />}></Route>
 				</Routes>
 			</Router>
 		</>

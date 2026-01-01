@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import register from '../../services/register';
 
 const tipoOptions = [
     { value: 0, label: 'Administrador' },
@@ -6,7 +7,7 @@ const tipoOptions = [
     { value: 2, label: 'Cocinero' },
 ];
 
-const Register = () => {
+function Register() {
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -89,13 +90,14 @@ const Register = () => {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = (e) => {
+    async function handleSubmit(e) {
         e.preventDefault();
         
         if (validateForm()) {
             console.log('Datos del formulario:', formData);
-            alert('Registro enviado correctamente');
             
+            await register()
+            alert('Registro enviado correctamente');
             setFormData({
                 email: '',
                 password: '',

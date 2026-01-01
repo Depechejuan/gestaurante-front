@@ -1,8 +1,16 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+// Páginas
+import Home from "./Pages/Home";
+import Dashboard from './Pages/Dashboard';
+
+// Componentes
+import Login from './Components/Forms/Login';
+import Register from './Components/Forms/Register';
+
+// Estilos
 import './styles/App.css'
 import './styles/index.css'
-import Home from "./Pages/Home";
-import Login from './Components/Forms/Login';
 
 function App() {
 
@@ -18,6 +26,8 @@ function App() {
 					*/}
 					<Route path="/" element={<Home />} />
 					<Route path="/login" element={<Login />}></Route>
+					<Route path="/dashboard" element={<Dashboard />}></Route>
+					<Route path="/dashboard/register" element={<Register />}></Route>
 				</Routes>
 			</Router>
 		</>

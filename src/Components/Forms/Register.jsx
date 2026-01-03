@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import register from '../../services/register';
 
 const tipoOptions = [
     { value: 0, label: 'Administrador' },
@@ -6,8 +7,8 @@ const tipoOptions = [
     { value: 2, label: 'Cocinero' },
 ];
 
-const Register = () => {
-    const [formData, setFormData] = useState({
+function Register() {
+    const [form, setForm] = useState({
         email: '',
         password: '',
         firstName: '',
@@ -18,98 +19,39 @@ const Register = () => {
         tipo: 0,
     });
     const [errors, setErrors] = useState({});
+    const dniRegex = /^\d{8}-[A-Z]$/;
+    const nussRegex = /^\d{2}-\d{8}-\d$/;
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        
-        if (name === 'tipo') {
-            setFormData({
-                ...formData,
-                [name]: parseInt(value),
-            });
-        } else {
-            setFormData({
-                ...formData,
-                [name]: value,
-            });
-        }
-
-        if (errors[name]) {
-            setErrors({
-                ...errors,
-                [name]: '',
-            });
-        }
+        setForm({
+        ...form,
+        [name]: name === "tipo" ? Number(value) : value
+        });
     };
 
-    const validateForm = () => {
+    const validate = () => {
         const newErrors = {};
 
-        if (!formData.email) {
-            newErrors.email = 'El email es obligatorio';
-        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-            newErrors.email = 'Email inválido';
+        if (!dniRegex.test(form.dni)) {
+        newErrors.dni = "Formato DNI inválido (12345678-A)";
         }
 
-        // Validación de contraseña
-        if (!formData.password) {
-            newErrors.password = 'La contraseña es obligatoria';
-        } else if (formData.password.length < 8) {
-            newErrors.password = 'La contraseña debe tener al menos 8 caracteres';
-        } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/.test(formData.password)) {
-            newErrors.password = 'La contraseña debe contener mayúsculas, minúsculas, números y caracteres especiales';
-        }
-
-        // Validación de nombre
-        if (!formData.firstName.trim()) {
-            newErrors.firstName = 'El nombre es obligatorio';
-        }
-
-        // Validación de apellidos
-        if (!formData.firstLastName.trim()) {
-            newErrors.firstLastName = 'El primer apellido es obligatorio';
-        }
-
-        // Validación de DNI (formato español simple)
-        if (!formData.dni.trim()) {
-            newErrors.dni = 'El DNI es obligatorio';
-        } else if (!/^\d{8}-[A-Z]$/.test(formData.dni)) {
-            newErrors.dni = 'Formato de DNI inválido (ej: 48620440-G)';
-        }
-
-        // Validación de NUSS (formato español de número de la seguridad social)
-        if (!formData.nuss.trim()) {
-            newErrors.nuss = 'El NUSS es obligatorio';
-        } else if (!/^\d{2}-\d{8}-\d{1}$/.test(formData.nuss)) {
-            newErrors.nuss = 'Formato NUSS inválido (ej: 28-12345678-5)';
+        if (!nussRegex.test(form.nuss)) {
+        newErrors.nuss = "Formato NUSS inválido (28-12345678-5)";
         }
 
         setErrors(newErrors);
-
         return Object.keys(newErrors).length === 0;
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        
-        if (validateForm()) {
-            console.log('Datos del formulario:', formData);
-            alert('Registro enviado correctamente');
-            
-            setFormData({
-                email: '',
-                password: '',
-                firstName: '',
-                firstLastName: '',
-                secondLastName: '',
-                dni: '',
-                nuss: '',
-                tipo: 0,
-            });
-        }
+        if (!validate())
+            return;
+        register(form)
+        console.log("Objeto enviado al backend:", form);
     };
-
-
 
     return (
         <>
@@ -123,7 +65,7 @@ const Register = () => {
                         type="email"
                         id="email"
                         name="email"
-                        value={formData.email}
+                        value={form.email}
                         onChange={handleChange}
                         placeholder="ejemplo@gestaurante.com"
                         className={errors.email ? 'error' : ''}
@@ -135,7 +77,7 @@ const Register = () => {
                         type="password"
                         id="password"
                         name="password"
-                        value={formData.password}
+                        value={form.password}
                         onChange={handleChange}
                         placeholder="Mínimo 8 caracteres con mayúsculas, minúsculas, números y caracteres especiales"
                         className={errors.password ? 'error' : ''}
@@ -151,7 +93,7 @@ const Register = () => {
                         type="text"
                         id="firstName"
                         name="firstName"
-                        value={formData.firstName}
+                        value={form.firstName}
                         onChange={handleChange}
                         placeholder="Juan"
                         className={errors.firstName ? 'error' : ''}
@@ -163,7 +105,7 @@ const Register = () => {
                         type="text"
                         id="firstLastName"
                         name="firstLastName"
-                        value={formData.firstLastName}
+                        value={form.firstLastName}
                         onChange={handleChange}
                         placeholder="Pérez"
                         className={errors.firstLastName ? 'error' : ''}
@@ -175,7 +117,7 @@ const Register = () => {
                         type="text"
                         id="secondLastName"
                         name="secondLastName"
-                        value={formData.secondLastName}
+                        value={form.secondLastName}
                         onChange={handleChange}
                         placeholder="García"
                     />
@@ -185,9 +127,9 @@ const Register = () => {
                         type="text"
                         id="dni"
                         name="dni"
-                        value={formData.dni}
+                        value={form.dni}
                         onChange={handleChange}
-                        placeholder="48620440-G"
+                        placeholder="12345678-A"
                         className={errors.dni ? 'error' : ''}
                     />
                     {errors.dni && <span className="error-message">{errors.dni}</span>}
@@ -197,9 +139,9 @@ const Register = () => {
                         type="text"
                         id="nuss"
                         name="nuss"
-                        value={formData.nuss}
+                        value={form.nuss}
                         onChange={handleChange}
-                        placeholder="28-12345678-5"
+                        placeholder="12-12345678-1"
                         className={errors.nuss ? 'error' : ''}
                     />
                     {errors.nuss && <span className="error-message">{errors.nuss}</span>}
@@ -212,7 +154,7 @@ const Register = () => {
                 <select
                     id="tipo"
                     name="tipo"
-                    value={formData.tipo}
+                    value={form.tipo}
                     onChange={handleChange}
                 >
                     {tipoOptions.map((option) => (

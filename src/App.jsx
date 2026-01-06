@@ -25,15 +25,14 @@ function App() {
 		<>
 				<Routes>
 					{/* 
-						Route = el componente que enruta al componente
+						Route = el componente que enruta al componente que quedemos acceder
 						path = El 'camino' al que llama el componente (ejemplo: www.web.com/login , el path sería ="/login")
 						element = El coponente como tal. <Componente />
 						IMPORTANTE* Cada componente debe estar reflejado en los import (arriba) con la ruta real
 					*/}
 
-					
 					{/* CLIENTE */}
-						<Route element={<LayoutCliente />}>
+					<Route element={<LayoutCliente />}>
 						<Route path="/" element={<Home />} />
 						<Route path="/login" element={<Login />} />
 						{/* <Route path="/order" element={<Order />} /> */}
@@ -50,24 +49,15 @@ function App() {
 					</Route>
 
 					{/* ADMIN */}
-					<Route element={
-						<ProtectedRoute role={["Administrador"]}>
-							<LayoutAdmin />
-						</ProtectedRoute>
-						}>
-						<Route path="/dashboard" element={<Dashboard />} />
-						<Route path="/dashboard/register" element={<Register />} />
+					<Route element={<ProtectedRoute role={["Administrador"]} />}>
+						<Route path="dashboard" element={<LayoutAdmin />}>
+							<Route index element={<Dashboard />} />
+							<Route path="register" element={<Register />} />
+						</Route>
 					</Route>
-
-
-
-					{/* <Route path="/" element={<Home />} />
-					<Route path="/login" element={<Login />}></Route>
-					<Route path="/dashboard" element={<Dashboard />}></Route>
-					<Route path="/dashboard/register" element={<Register />}></Route> */}
 				</Routes>
 		</>
 	)
 }
 
-export default App
+export default App;

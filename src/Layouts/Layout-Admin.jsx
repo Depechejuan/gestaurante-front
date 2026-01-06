@@ -1,32 +1,31 @@
-import { Outlet, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
-import getToken from "../services/get-token";
+import { useEffect, Outlet } from "react-router-dom";
+
 import DashboardHeader from "../Components/Dashboard-Header";
-import getBasicUser from "../services/get-basic-user";
 import DashboardNav from "../Components/Dashboard-Nav";
 
 export default function LayoutAdmin() {
-    const navigate = useNavigate();
-    const token = getToken();
-
     useEffect(() => {
-        if (!token) navigate("/");
-    }, [token, navigate]);
+        document.body.classList.add("admin");
 
-    const user = getBasicUser(token)
-
+        return () => {
+            document.body.classList.remove("admin");
+        };
+    }, []);
+    
+    
     return (
         <>
+            <header>
+                <DashboardHeader user={"hola"} />
+            </header>
             <aside>
                 <DashboardNav />
             </aside>
-            <header>
-                <DashboardHeader user={user ? user : "hola"} />
-            </header>
 
-            <section>
+            <main className="dashboard-admin">
+                <h1>Hola</h1>
                 <Outlet />
-            </section>
+            </main>
         </>
     );
 }

@@ -1,7 +1,7 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../Auth/Auth-Context";
 
-export default function ProtectedRoute({ children, role }) {
+export default function ProtectedRoute({ role }) {
     const { user, loading } = useAuth();
 
     if (loading) return null;
@@ -14,12 +14,22 @@ export default function ProtectedRoute({ children, role }) {
         1: "Camarero",
         2: "Cocinero"
     };
-
+    console.log(role);
     const userRole = roleMap[user.tipo];
 
-    if (!role.includes(userRole)) {
+    let canAccess = false;
+    for (let i = 0; i < role.length; i++) {
+        if (role[i] == userRole) {
+            canAccess = true;
+            console.log("Access: True");
+            return <Outlet />;
+        }
+    }
+
+    if (!canAccess) {
+        console.log("Can't Access");
         return <Navigate to="/" replace />;
     }
 
-    return children;
+    return <Outlet />;
 }

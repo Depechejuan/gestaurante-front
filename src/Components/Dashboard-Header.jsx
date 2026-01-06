@@ -1,16 +1,13 @@
 import Logo from "./Logo";
 
-export default function DashboardHeader({user}) {
+export default function DashboardHeader({user, location}) {
     return (
-        
-        <header>
-            <div className="header-logo">
-                <Logo />
-            </div>
+        <>
+            <Logo name={location} />
             <div className="header-title">
                 <h1>Gestaurante</h1>
                 <h2>{user || "Hola"}</h2>
             </div>
-        </header>
+        </>
     )
 }

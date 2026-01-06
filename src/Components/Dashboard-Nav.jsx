@@ -1,15 +1,15 @@
+import { Link } from "react-router-dom";
+
 export default function DashboardNav() {
     return (
         <>
             <nav>
-                <ul>
-                    <li>Dashboard</li>
-                    <li>Empleados</li>
-                    <li>Carta</li>
-                    <li>Registrar</li>
-                    <li>Facturas</li>
-                    <li>Otros</li>
-                </ul>
+                <Link>Dashboard</Link>
+                <Link>Empleados</Link>
+                <Link>Carta</Link>
+                <Link>Registrar</Link>
+                <Link>Facturas</Link>
+                <Link>Otros</Link>
             </nav>
         </>
     )

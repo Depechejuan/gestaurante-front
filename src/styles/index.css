@@ -11,6 +11,9 @@
 
 	/* Opcional: acentos */
 	--color-acento: #c0392b;           /* Rojo oscuro para botones o llamadas a acción */
+
+	--color-links: #279E47;
+	--color-links-hover: #0181C7;
 }
 
 

@@ -21,11 +21,9 @@ function Login() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const response = await sendLogin(form)
-        console.log(response);
-        saveToken(response)
+        const response = await sendLogin(form);
+        saveToken(response.data);
         navigate("/dashboard")
-        console.log("Objeto enviado al backend:", form);
     };
 
     return (

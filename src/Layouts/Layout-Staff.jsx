@@ -12,8 +12,10 @@ export default function LayoutStaff() {
     
     return (
         <>
-            <header><Logo name={"staff"}/></header>
-            <StaffMenu />
+            <header>
+                <Logo name={"staff"}/>
+                <StaffMenu />
+            </header>
             <main>
                 <Outlet />
             </main>

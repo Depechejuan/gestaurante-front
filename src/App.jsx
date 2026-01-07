@@ -42,7 +42,6 @@ function App() {
 					<Route element={<ProtectedRoute role={["Camarero", "Cocinero", "Administrador"]} />}>
 						<Route path="staff" element={<LayoutStaff />}>
 							{/* <Route index element={<DashboardStaff />} /> */}
-							
 						</Route>
 
 					</Route>

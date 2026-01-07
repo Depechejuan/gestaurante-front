@@ -39,19 +39,18 @@ function App() {
 					</Route>
 
 					{/* STAFF */}
-					<Route element={
-						<ProtectedRoute role={["Camarero", "Cocinero"]}>
-							<Route element={<LayoutStaff />}/>
-							<Route path="/staff" element={<DashboardStaff />} />
-						</ProtectedRoute>
-					}>
-						{/* <Route path="/staff" element={<StaffDashboard />} /> */}
+					<Route element={<ProtectedRoute role={["Camarero", "Cocinero", "Administrador"]} />}>
+						<Route path="staff" element={<LayoutStaff />}>
+							{/* <Route index element={<DashboardStaff />} /> */}
+							
+						</Route>
+
 					</Route>
 
 					{/* ADMIN */}
 					<Route element={<ProtectedRoute role={["Administrador"]} />}>
 						<Route path="dashboard" element={<LayoutAdmin />}>
-							<Route index element={<Dashboard />} />
+							{/* <Route index element={<Dashboard />} /> */}
 							<Route path="register" element={<Register />} />
 						</Route>
 					</Route>

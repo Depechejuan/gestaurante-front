@@ -1,0 +1,19 @@
+.staff {
+    display: flex;
+    flex-direction: column;
+}
+
+.staff > header {
+    height: 5dvh;
+}
+
+.staff-logo {
+    height: 5dvh;
+    display: flex;
+    margin-bottom: 2dvw;
+}
+
+.staff-logo > img {
+    width: 100%;
+    height: 100%;
+}

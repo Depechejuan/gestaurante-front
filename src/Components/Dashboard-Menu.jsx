@@ -13,14 +13,14 @@ export default function DashboardMenu() {
     }
 
     return (
-            <nav>
-                <Link to="/dashboard">Dashboard</Link>
-                <Link>Empleados</Link>
-                <Link>Carta</Link>
-                <Link to="/dashboard/register">Registrar</Link>
-                <Link>Facturas</Link>
-                <Link>Otros</Link>
-                <Link onClick={handleLogOut}>Logout</Link>
-            </nav>
+        <nav>
+            <Link to="/dashboard">Dashboard</Link>
+            <Link>Empleados</Link>
+            <Link>Carta</Link>
+            <Link to="/dashboard/register">Registrar</Link>
+            <Link>Facturas</Link>
+            <Link>Otros</Link>
+            <Link onClick={handleLogOut}>Logout</Link>
+        </nav>
     )
 }

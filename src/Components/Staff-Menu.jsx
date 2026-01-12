@@ -1,11 +1,11 @@
-import { Link } from "react-router-dom";
+import { Link,useNavigate } from "react-router-dom";
 import useBodyClass from "../Hooks/useBodyClass";
 import { useState } from "react";
 import { useAuth } from '../Auth/Auth-Context.jsx'
 import deleteToken from "../services/delete-token.js";
 
 export default function StaffMenu() {
-    const [userType, setUserType] = useState(null)
+    const [userType, setUserType] = useState(null);
     const navigate = useNavigate();
     const { logout } = useAuth();
     useBodyClass("staff");

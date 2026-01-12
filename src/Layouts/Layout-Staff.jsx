@@ -9,7 +9,6 @@ import '../styles/Staff/main.css'
 export default function LayoutStaff() {
     useBodyClass("staff");
 
-    
     return (
         <>
             <header>

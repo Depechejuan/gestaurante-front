@@ -1,0 +1,198 @@
+.customer {
+    background-color: var(--color-bg-customer);
+    color: var(--color-text-customer);
+
+    display: flex;
+    flex-direction: column;
+}
+
+.customer > header {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.customer-logo {
+    height: 10dvh;
+    display: flex;
+    margin-bottom: 2dvw;
+}
+
+.customer-logo > img {
+    width: 100%;
+    height: 100%;
+}
+
+.customer > nav {
+    display: flex;
+    flex-direction: column;
+}
+
+.menu-icon {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    z-index: 10000;
+    cursor: pointer;
+}
+
+.mobile-navbar {
+    display: none;
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    background: transparent;
+    
+    min-width: 150px;
+    z-index: 9999;
+    padding: 10px;
+    text-align: right;
+}
+
+.mobile-navbar.open {
+    display: block;
+}
+
+.mobile-navbar ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.mobile-navbar li {
+    text-align: center;
+    background-color: black;
+    margin: 10px 0;
+}
+
+.mobile-navbar a {
+    text-decoration: none;
+    color: var(--color-links);
+    font-weight: 500;
+    display: block;
+    padding: 8px 12px;
+    white-space: nowrap;
+}
+
+/* ANOTACIÓN: Efectos hover para móvil (opcional) */
+.mobile-navbar a:hover {
+    /* background: rgba(0,0,0,0.05); */
+}
+
+.desktop-navbar {
+    display: none;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9998;
+}
+
+/* ANOTACIÓN: Fondo para el menú desktop aquí (si lo necesitas) */
+/* .desktop-navbar::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    left: -10px;
+    bottom: -10px;
+    background: tu-color-de-fondo;
+    border-radius: 8px;
+    z-index: -1;
+} */
+
+.desktop-navbar ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 25px;
+}
+
+.desktop-navbar li {
+    position: relative;
+}
+
+.desktop-navbar a {
+    text-decoration: none;
+    color: var(--color-links);
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 14px;
+    letter-spacing: 1px;
+    padding: 8px 0;
+    display: block;
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+/* ANOTACIÓN: Línea decorativa opcional en hover */
+.desktop-navbar a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #fcc23f; /* Color de acento */
+    transition: width 0.3s ease;
+}
+
+.desktop-navbar a:hover::after {
+    width: 100%;
+}
+
+.desktop-navbar a:hover {
+    color: #fcc23f; /* Color de acento al hover */
+}
+
+/* Desktop */
+@media screen and (min-width: 900px) {
+    .desktop-navbar {
+        display: block;
+    }
+    
+    .mobile-navbar {
+        display: none !important;
+    }
+}
+
+/* Mobile */
+@media screen and (max-width: 899px) {
+    .desktop-navbar {
+        display: none;
+    }
+    
+    .mobile-navbar {
+        /* Se muestra solo cuando tiene clase .open */
+        display: none;
+    }
+}
+
+body.menu-open {
+    overflow: hidden;
+}
+
+.mobile-navbar {
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.mobile-navbar.open {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+
+
+
+
+
+
+@media screen and (min-width: 900px) {
+    .menu-icon {
+        display: none;
+    }
+}

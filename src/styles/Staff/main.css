@@ -35,3 +35,72 @@
 .staff a:hover {
     color: var(--color-links-hover)
 }
+
+
+
+/* Icono del menú */
+.menu-icon-staff {
+    position: fixed;
+    bottom: 20px;      /* cambiado */
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    z-index: 10000;
+    cursor: pointer;
+}
+
+/* Navbar staff */
+.staff-navbar {
+    display: none;
+    position: fixed;
+    bottom: 70px;      /* aparece encima del icono */
+    right: 20px;
+    background: transparent;
+    min-width: 150px;
+    z-index: 9999;
+    padding: 10px;
+    text-align: right;
+
+    /* animación */
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.staff-navbar.open {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.staff-navbar ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.staff-navbar li {
+    text-align: center;
+    background-color: black;
+    margin: 10px 0;
+}
+
+/* Enlaces */
+.staff-navbar a {
+    text-decoration: none;
+    color: var(--color-links);
+    font-weight: 500;
+    display: block;
+    padding: 8px 12px;
+    white-space: nowrap;
+}
+
+/* Hover opcional */
+.staff-navbar a:hover {
+    /* background: rgba(0,0,0,0.05); */
+}
+
+/* Bloqueo de scroll cuando el menú está abierto */
+body.menu-open {
+    overflow: hidden;
+}

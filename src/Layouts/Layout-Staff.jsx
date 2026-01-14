@@ -2,9 +2,9 @@ import { Outlet } from "react-router-dom";
 import useBodyClass from "../Hooks/useBodyClass";
 
 import Logo from "../Components/Logo";
-import StaffMenu from "../Components/Staff-Menu";
 
 import '../styles/Staff/main.css'
+import NavBar from "../Components/NavBar";
 
 export default function LayoutStaff() {
     useBodyClass("staff");
@@ -13,7 +13,7 @@ export default function LayoutStaff() {
         <>
             <header>
                 <Logo name={"staff"}/>
-                <StaffMenu />
+                <NavBar input={"staff"} />
             </header>
             <main>
                 <Outlet />

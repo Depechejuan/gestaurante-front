@@ -3,7 +3,7 @@ import { Outlet } from "react-router-dom";
 import useBodyClass from "../Hooks/useBodyClass";
 
 import Logo from "../Components/Logo";
-import NavBar from "../Components/Nav-Bar";
+import NavBar from "../Components/NavBar";
 
 import '../styles/Customer/main.css'
 
@@ -14,7 +14,7 @@ export default function LayoutCliente() {
         <>
             <header>
                 <Logo name="customer"/>
-                <NavBar />
+                <NavBar input="customer" />
             </header>
             <main>
                 <Outlet />

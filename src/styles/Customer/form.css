@@ -7,12 +7,12 @@
     font-family: var(--font-customer-main);
 }
 
-.customer-form-title {
+/* .customer-form-title {
     margin-bottom: 20px;
     font-size: 1.5rem;
     color: var(--color-text-customer-primary);
     text-align: center;
-}
+} */
 
 .customer-form-group {
     display: flex;
@@ -64,4 +64,8 @@
 
 .customer-btn-primary:hover {
     filter: brightness(1.1);
+}
+
+.email-link {
+    color: var(--color-link-customer-visited);
 }

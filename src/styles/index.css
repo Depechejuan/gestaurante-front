@@ -27,12 +27,7 @@
 	--color-bg-customer-surface: #123c36;
 	--color-bg-customer-surface-alt: #124a6a;
 	--color-bg-customer-hover: #1b5e55;
-	/* --color-bg-customer-gradient: linear-gradient(
-		135deg,
-		#1fa97a 0%,
-		#1c7ed6 100%
-	); */
-		--color-bg-customer-gradient: linear-gradient(
+	--color-bg-customer-gradient: linear-gradient(
 		-20deg,
 		var(--color-bg-customer-main) 0%,
 		var(--color-bg-customer-secondary) 100%
@@ -60,8 +55,6 @@ body {
 	color: var(--color-texto-principal);
 	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	line-height: 1.6;
-	margin: 0;
-	padding: 0;
 }
 
 h1, h2, h3, h4, h5, h6 {

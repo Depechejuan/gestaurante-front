@@ -16,8 +16,7 @@ export default async function getBasicUser(token) {
             throw new Error("Something Went Wrong");
         }
 
-        const data = await response.json()
-        console.log(data);
+        const data = await response.json();
         return data;
     } catch (err) {
         console.error(err);

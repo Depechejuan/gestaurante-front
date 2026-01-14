@@ -18,6 +18,7 @@ import LayoutCliente from './Layouts/Layout-Clientes';
 import LayoutStaff from './Layouts/Layout-Staff';
 import LayoutAdmin from './Layouts/Layout-Admin';
 import Carta from './Components/Carta';
+import Contact from './Pages/Contact';
 
 function App() {
 
@@ -36,6 +37,7 @@ function App() {
 						<Route path="/" element={<Home />} />
 						<Route path="/login" element={<Login />} />
 						<Route path="/carta" element={<Carta />} />
+						<Route path="/contacto" element={<Contact />} />
 					</Route>
 
 					{/* STAFF */}

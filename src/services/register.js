@@ -1,6 +1,6 @@
 const host = import.meta.env.VITE_API_HOST;
 
-async function sendRegister(form, token) { // añadir TOKEN
+async function sendRegister(form, token) {
     try {
         const response = await fetch(`${host}/admin/register`, {
             method: "POST",

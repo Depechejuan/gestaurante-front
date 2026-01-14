@@ -27,8 +27,15 @@
     flex-direction: column;
 }
 
+#main-customer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 #main-customer h1, #main-customer h2, #main-customer p {
     color: var(--color-text-customer-primary);
+    text-align: center;
 }
 
 .secondary-color {

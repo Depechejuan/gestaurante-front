@@ -20,7 +20,7 @@ export default function CustomerMenu({isMenuOpen, closeMenu}) {
                         <Link to="/about" onClick={handleLinkClick}>Quienes Somos</Link>
                     </li>
                     <li>
-                        <Link to="/contact" onClick={handleLinkClick}>Contactar</Link>
+                        <Link to="/contacto" onClick={handleLinkClick}>Contactar</Link>
                     </li>
                 </ul>
             </nav>
@@ -38,7 +38,7 @@ export default function CustomerMenu({isMenuOpen, closeMenu}) {
                         <Link to="/about" onClick={handleLinkClick}>Quienes Somos</Link>
                     </li>
                     <li>
-                        <Link to="/contact" onClick={handleLinkClick}>Contactar</Link>
+                        <Link to="/contacto" onClick={handleLinkClick}>Contactar</Link>
                     </li>
                 </ul>
             </nav>

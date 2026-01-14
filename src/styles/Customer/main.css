@@ -27,6 +27,14 @@
     flex-direction: column;
 }
 
+#main-customer h1, #main-customer h2, #main-customer p {
+    color: var(--color-text-customer-primary);
+}
+
+.secondary-color {
+    color: var(--color-text-customer-secondary) !important;
+}
+
 .menu-icon-customer {
     position: fixed;
     top: 20px;

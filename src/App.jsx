@@ -17,6 +17,7 @@ import ProtectedRoute from "./Routes/ProtectedRoute";
 import LayoutCliente from './Layouts/Layout-Clientes';
 import LayoutStaff from './Layouts/Layout-Staff';
 import LayoutAdmin from './Layouts/Layout-Admin';
+import Carta from './Components/Carta';
 
 function App() {
 
@@ -34,7 +35,7 @@ function App() {
 					<Route element={<LayoutCliente />}>
 						<Route path="/" element={<Home />} />
 						<Route path="/login" element={<Login />} />
-						{/* <Route path="/order" element={<Order />} /> */}
+						<Route path="/carta" element={<Carta />} />
 					</Route>
 
 					{/* STAFF */}

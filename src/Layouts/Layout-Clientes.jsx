@@ -16,7 +16,7 @@ export default function LayoutCliente() {
                 <Logo name="customer"/>
                 <NavBar input="customer" />
             </header>
-            <main>
+            <main id="main-customer">
                 <Outlet />
             </main>
             <footer>Footer público</footer>

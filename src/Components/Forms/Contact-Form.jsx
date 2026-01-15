@@ -3,7 +3,6 @@ export default function ContactForm() {
     return(
         <>
             <form class="customer-contact-form">
-
                 <div class="customer-form-group">
                     <label for="name">Nombre</label>
                     <input type="text" id="name" name="name" placeholder="Tu nombre" required />

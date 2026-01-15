@@ -1,0 +1,71 @@
+.customer-contact-form {
+    width: 60dvw;
+    padding: 24px;
+    background: var(--color-bg-customer-surface);
+    border-radius: 16px;
+    box-shadow: var(--shadow-customer-medium);
+    font-family: var(--font-customer-main);
+}
+
+/* .customer-form-title {
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    color: var(--color-text-customer-primary);
+    text-align: center;
+} */
+
+.customer-form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 16px;
+}
+
+.customer-form-group label {
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+    color: var(--color-text-customer-secondary);
+}
+
+.customer-form-group input,
+.customer-form-group textarea {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--color-border-customer-default);
+    background-color: var(--color-bg-customer-main);
+    color: var(--color-text-customer-primary);
+    font-size: 0.95rem;
+    transition: var(--transition-customer-normal);
+}
+
+.customer-form-group input::placeholder,
+.customer-form-group textarea::placeholder {
+    color: var(--color-text-customer-muted);
+}
+
+.customer-form-group input:focus,
+.customer-form-group textarea:focus {
+    outline: none;
+    border-color: var(--color-border-customer-focus);
+    box-shadow: var(--shadow-customer-focus);
+}
+
+.customer-btn-primary {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: var(--color-bg-customer-gradient);
+    color: var(--color-text-customer-inverse);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-customer-normal);
+}
+
+.customer-btn-primary:hover {
+    filter: brightness(1.1);
+}
+
+.email-link {
+    color: var(--color-link-customer-visited);
+}

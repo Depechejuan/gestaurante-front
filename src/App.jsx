@@ -1,35 +1,62 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+// Páginas
+import Home from "./Pages/Home";
+import Dashboard from './Pages/Dashboard';
+
+// Componentes
+import Login from './Components/Forms/Login';
+import Register from './Components/Forms/Register';
+
+// Estilos
+import './styles/App.css'
+import './styles/index.css'
+
+// Otros
+import ProtectedRoute from "./Routes/ProtectedRoute";
+import LayoutCliente from './Layouts/Layout-Clientes';
+import LayoutStaff from './Layouts/Layout-Staff';
+import LayoutAdmin from './Layouts/Layout-Admin';
+import Carta from './Components/Carta';
+import Contact from './Pages/Contact';
 
 function App() {
-  const [count, setCount] = useState(0)
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+	return (
+		<>
+				<Routes>
+					{/* 
+						Route = el componente que enruta al componente que quedemos acceder
+						path = El 'camino' al que llama el componente (ejemplo: www.web.com/login , el path sería ="/login")
+						element = El coponente como tal. <Componente />
+						IMPORTANTE* Cada componente debe estar reflejado en los import (arriba) con la ruta real
+					*/}
+
+					{/* CLIENTE */}
+					<Route element={<LayoutCliente />}>
+						<Route path="/" element={<Home />} />
+						<Route path="/login" element={<Login />} />
+						<Route path="/carta" element={<Carta />} />
+						<Route path="/contacto" element={<Contact />} />
+					</Route>
+
+					{/* STAFF */}
+					<Route element={<ProtectedRoute role={["Camarero", "Cocinero", "Administrador"]} />}>
+						<Route path="staff" element={<LayoutStaff />}>
+							{/* <Route index element={<DashboardStaff />} /> */}
+						</Route>
+					</Route>
+
+					{/* ADMIN */}
+					<Route element={<ProtectedRoute role={["Administrador"]} />}>
+						<Route path="dashboard" element={<LayoutAdmin />}>
+							{/* <Route index element={<Dashboard />} /> */}
+							<Route path="register" element={<Register />} />
+						</Route>
+					</Route>
+				</Routes>
+		</>
+	)
 }
 
-export default App
+export default App;

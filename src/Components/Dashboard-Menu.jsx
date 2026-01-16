@@ -15,7 +15,7 @@ export default function DashboardMenu() {
     return (
         <nav>
             <Link to="/dashboard">Dashboard</Link>
-            <Link>Empleados</Link>
+            <Link to="/dashboard/empleados">Empleados</Link>
             <Link>Carta</Link>
             <Link to="/dashboard/register">Registrar</Link>
             <Link>Facturas</Link>

@@ -1,24 +1,21 @@
 const host = import.meta.env.VITE_API_HOST;
 
-async function sendRegister(form, token) {
+export default async function getEmpleado(id, token) {
     try {
-        const response = await fetch(`${host}/admin/register`, {
-            method: "POST",
+        const response = await fetch(`${host}/admin/user/${id}`,  {
+            method: "GET",
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token.token}`,
             },
-            body: JSON.stringify(form),
-        });
+        })
 
         if (!response.ok) {
             throw new Error("Something Went Wrong");
         }
-        const body = await response.json();
-        return body;
+        const data = await response.json()
+        return data.data;
     } catch (err) {
-        console.error(err);
+        console.log(err);
     }
 }
-
-export default sendRegister;

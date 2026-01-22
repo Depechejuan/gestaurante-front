@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import register from '../../services/register';
+import getToken from '../../services/get-token';
 
 const tipoOptions = [
     { value: 0, label: 'Administrador' },
@@ -21,6 +22,7 @@ function Register() {
     const [errors, setErrors] = useState({});
     const dniRegex = /^\d{8}-[A-Z]$/;
     const nussRegex = /^\d{2}-\d{8}-\d$/;
+    const token = getToken();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -49,7 +51,7 @@ function Register() {
         e.preventDefault();
         if (!validate())
             return;
-        register(form)
+        register(form, token)
         console.log("Objeto enviado al backend:", form);
     };
 

@@ -1,29 +1,23 @@
-import { useEffect, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 
-import DashboardHeader from "../Components/Dashboard-Header";
-import DashboardNav from "../Components/Dashboard-Nav";
+import DashboardMenu from "../Components/Dashboard-Menu";
+
+import '../styles/Admin/main.css'
+import useBodyClass from "../Hooks/useBodyClass";
+import Logo from "../Components/Logo";
 
 export default function LayoutAdmin() {
-    useEffect(() => {
-        document.body.classList.add("admin");
+    useBodyClass("admin");
 
-        return () => {
-            document.body.classList.remove("admin");
-        };
-    }, []);
-    
-    
     return (
         <>
-            <header>
-                <DashboardHeader user={"hola"} />
-            </header>
             <aside>
-                <DashboardNav />
+                <Logo name={"admin"} />
+                <DashboardMenu />
             </aside>
-
             <main className="dashboard-admin">
-                <h1>Hola</h1>
+                <h1>Admin Dashboard</h1>
+                <p>Bienvenido {}</p>
                 <Outlet />
             </main>
         </>

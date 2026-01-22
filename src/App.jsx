@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 // Páginas
 import Home from "./Pages/Home";
-import Dashboard from './Pages/Dashboard';
 
 // Componentes
 import Login from './Components/Forms/Login';
@@ -17,7 +16,10 @@ import ProtectedRoute from "./Routes/ProtectedRoute";
 import LayoutCliente from './Layouts/Layout-Clientes';
 import LayoutStaff from './Layouts/Layout-Staff';
 import LayoutAdmin from './Layouts/Layout-Admin';
-import DashboardStaff from './Pages/Dashboard-Staff';
+import Carta from './Components/Carta';
+import Contact from './Pages/Contact';
+import Empleados from './Components/Empleados';
+import UniqueEmpleado from './Components/UniqueEmpleado';
 
 function App() {
 
@@ -35,24 +37,24 @@ function App() {
 					<Route element={<LayoutCliente />}>
 						<Route path="/" element={<Home />} />
 						<Route path="/login" element={<Login />} />
-						{/* <Route path="/order" element={<Order />} /> */}
+						<Route path="/carta" element={<Carta />} />
+						<Route path="/contacto" element={<Contact />} />
 					</Route>
 
 					{/* STAFF */}
-					<Route element={
-						<ProtectedRoute role={["Camarero", "Cocinero"]}>
-							<Route element={<LayoutStaff />}/>
-							<Route path="/staff" element={<DashboardStaff />} />
-						</ProtectedRoute>
-					}>
-						{/* <Route path="/staff" element={<StaffDashboard />} /> */}
+					<Route element={<ProtectedRoute role={["Camarero", "Cocinero", "Administrador"]} />}>
+						<Route path="staff" element={<LayoutStaff />}>
+							{/* <Route index element={<DashboardStaff />} /> */}
+						</Route>
 					</Route>
 
 					{/* ADMIN */}
 					<Route element={<ProtectedRoute role={["Administrador"]} />}>
 						<Route path="dashboard" element={<LayoutAdmin />}>
-							<Route index element={<Dashboard />} />
 							<Route path="register" element={<Register />} />
+							<Route path="empleados" element={<Empleados />} />
+							<Route path="empleados/:id" element={<UniqueEmpleado />} />
+							{/* <Route index element={<Dashboard />} /> */}
 						</Route>
 					</Route>
 				</Routes>

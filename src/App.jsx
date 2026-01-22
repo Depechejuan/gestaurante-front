@@ -19,6 +19,7 @@ import LayoutAdmin from './Layouts/Layout-Admin';
 import Carta from './Components/Carta';
 import Contact from './Pages/Contact';
 import Empleados from './Components/Empleados';
+import UniqueEmpleado from './Components/UniqueEmpleado';
 
 function App() {
 
@@ -52,7 +53,7 @@ function App() {
 						<Route path="dashboard" element={<LayoutAdmin />}>
 							<Route path="register" element={<Register />} />
 							<Route path="empleados" element={<Empleados />} />
-
+							<Route path="empleados/:id" element={<UniqueEmpleado />} />
 							{/* <Route index element={<Dashboard />} /> */}
 						</Route>
 					</Route>

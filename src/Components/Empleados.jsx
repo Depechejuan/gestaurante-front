@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react"
+import { Link, useNavigate } from "react-router-dom";
 import getToken from "../services/get-token"
 import getEmpleados from "../services/get-empleados";
+import "../styles/Admin/users.css"
 
 export default function Empleados() {
     const [users, setUsers] = useState([]);
@@ -8,6 +10,7 @@ export default function Empleados() {
     const [error, setError] = useState(null)
     const [token] = useState(() => getToken());
 
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (!token) {
@@ -23,7 +26,6 @@ export default function Empleados() {
                 setLoading(true)
                 setError(null)
                 const data = await getEmpleados(token);
-                console.log(data);
                 if (isMounted) {
                     setUsers(data)
                     setLoading(false)
@@ -45,16 +47,29 @@ export default function Empleados() {
     if (loading) return <progress></progress>
     if (error) return <p>{error}</p> // Llevar a un componente
 
+
+    const rol = ["Administrador", "Camarero", "Cocinero"];
     return (
-        <main>
+        <>
             <h2>Listado de Usuarios</h2>
+            <hr></hr>
+            
             {
                 users.map(user => (
-                <article key={user.id} className="user-basic">
-                    <p className="user-name">{user.nombre}</p>
-                </article>
+                    <article key={user.id} className="user-basic">
+                        <div className="user-info">
+                            <Link to={`/dashboard/empleados/${user.id}`}>
+                                <p className="user-rol">{rol[user.tipo]}</p>
+                                <p className="user-name">{user.nombre} {user.apellido1} {user.apellido2}</p>
+                                <p>{user.email}</p>
+                            </Link>
+                        </div>
+                            {/* <div className="user-button">
+                                <button onClick={handleEdit(user.id)}>Editar</button>
+                            </div> */}
+                    </article>
                 ))
             }
-        </main>
+        </>
     )
 }

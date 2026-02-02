@@ -69,3 +69,11 @@
 .email-link {
     color: var(--color-link-customer-visited);
 }
+
+
+
+/* FORMULARIO EDIT USER */
+.edit-form {
+    display: flex;
+    flex-direction: column;
+}

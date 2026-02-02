@@ -47,18 +47,17 @@ function Register() {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validate())
             return;
-        register(form, token)
+        await register(form, token)
         console.log("Objeto enviado al backend:", form);
     };
 
     return (
         <>
             <h1>Registro de Usuario</h1>
-
             <form onSubmit={handleSubmit} className="register-form">
                 <div className="form-group">
                     <h2>Datos Login</h2>

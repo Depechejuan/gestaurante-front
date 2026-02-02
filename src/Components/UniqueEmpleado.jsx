@@ -66,8 +66,10 @@ export default function UniqueEmpleado() {
 
             <button onClick={showForm}>Editar</button>
             {isShowed && (
-                <EditUser />
+                <EditUser user={user}/>
             )}
+
+            
         </article>
     )
 }

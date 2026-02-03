@@ -10,12 +10,12 @@ export default function PlatosAdmin() {
         <section>
             <h1>Carta</h1>
             <p>Lista de platos</p>
-            {platos.map(plato => (
+            {/* {platos.map(plato => (
                 <PlatoAdminCard // Definir el Componente PlatoAdminCard
                     key={plato.id}
                     plato={plato}
                 />
-            ))}
+            ))} */}
         </section>
     );
 }

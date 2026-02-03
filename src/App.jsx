@@ -27,6 +27,7 @@ import UniquePedido from './Pages/UniquePedido';
 import Facturas from './Pages/Facturas';
 import UniqueFactura from './Pages/UniqueFactura';
 import PlatosAdmin from './Pages/PlatosAdmin';
+import UniquePlatoAdmin from './Pages/UniquePlatoAdmin';
 
 function App() {
 
@@ -69,7 +70,7 @@ function App() {
 							<Route path="facturas" element={<Facturas />} />
 							<Route path="facturas/:id" element={<UniqueFactura />} />
 							<Route path="carta" element={<PlatosAdmin />} />
-							
+							<Route path="plato/:id" element={<UniquePlatoAdmin />} />
 							{/* <Route index element={<Dashboard />} /> */}
 						</Route>
 					</Route>

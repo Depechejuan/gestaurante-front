@@ -20,6 +20,13 @@ import Carta from './Components/Carta';
 import Contact from './Pages/Contact';
 import Empleados from './Components/Empleados';
 import UniqueEmpleado from './Components/UniqueEmpleado';
+import About from './Pages/About';
+import Mesas from './Pages/Mesas';
+import Pedidos from './Pages/Pedidos';
+import UniquePedido from './Pages/UniquePedido';
+import Facturas from './Pages/Facturas';
+import UniqueFactura from './Pages/UniqueFactura';
+import PlatosAdmin from './Pages/PlatosAdmin';
 
 function App() {
 
@@ -38,12 +45,17 @@ function App() {
 						<Route path="/" element={<Home />} />
 						<Route path="/login" element={<Login />} />
 						<Route path="/carta" element={<Carta />} />
+						<Route path="/about" element={<About />} />
 						<Route path="/contacto" element={<Contact />} />
 					</Route>
 
 					{/* STAFF */}
 					<Route element={<ProtectedRoute role={["Camarero", "Cocinero", "Administrador"]} />}>
 						<Route path="staff" element={<LayoutStaff />}>
+							<Route path="mesas" element={<Mesas />} />
+							<Route path="pedidos" element={<Pedidos />} />
+							<Route path="pedidos/:id" element={<UniquePedido />} />
+							
 							{/* <Route index element={<DashboardStaff />} /> */}
 						</Route>
 					</Route>
@@ -54,6 +66,10 @@ function App() {
 							<Route path="register" element={<Register />} />
 							<Route path="empleados" element={<Empleados />} />
 							<Route path="empleados/:id" element={<UniqueEmpleado />} />
+							<Route path="facturas" element={<Facturas />} />
+							<Route path="facturas/:id" element={<UniqueFactura />} />
+							<Route path="carta" element={<PlatosAdmin />} />
+							
 							{/* <Route index element={<Dashboard />} /> */}
 						</Route>
 					</Route>

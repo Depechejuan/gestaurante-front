@@ -16,7 +16,6 @@ import ProtectedRoute from "./Routes/ProtectedRoute";
 import LayoutCliente from './Layouts/Layout-Clientes';
 import LayoutStaff from './Layouts/Layout-Staff';
 import LayoutAdmin from './Layouts/Layout-Admin';
-import Carta from './Components/Carta';
 import Contact from './Pages/Contact';
 import Empleados from './Components/Empleados';
 import UniqueEmpleado from './Components/UniqueEmpleado';
@@ -28,6 +27,7 @@ import Facturas from './Pages/Facturas';
 import UniqueFactura from './Pages/UniqueFactura';
 import PlatosAdmin from './Pages/PlatosAdmin';
 import UniquePlatoAdmin from './Pages/UniquePlatoAdmin';
+import PlatosPublic from './Pages/PlatosPublic';
 
 function App() {
 
@@ -45,7 +45,7 @@ function App() {
 					<Route element={<LayoutCliente />}>
 						<Route path="/" element={<Home />} />
 						<Route path="/login" element={<Login />} />
-						<Route path="/carta" element={<Carta />} />
+						<Route path="/carta" element={<PlatosPublic />} />
 						<Route path="/about" element={<About />} />
 						<Route path="/contacto" element={<Contact />} />
 					</Route>

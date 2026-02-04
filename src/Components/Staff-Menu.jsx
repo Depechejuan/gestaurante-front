@@ -30,10 +30,10 @@ export default function StaffMenu({isMenuOpen, closeMenu}) {
                         </li>
                     )}
                     <li>
-                        <Link to="/" onClick={handleLinkClick}>Mesas</Link>
+                        <Link to="/staff/mesas" onClick={handleLinkClick}>Mesas</Link>
                     </li>
                     <li>
-                        <Link to="/carta" onClick={handleLinkClick}>Pedidos</Link>
+                        <Link to="/staff/pedidos" onClick={handleLinkClick}>Pedidos</Link>
                     </li>
                     <li>
                         <Link onClick={handleLogOut}>Logout</Link>

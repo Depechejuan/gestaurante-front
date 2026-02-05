@@ -175,7 +175,12 @@
 }
 .rest-container {
     width: 45dvw;
-    border: 3px solid rgb(30, 113, 28);
+    border: 3px solid;
+    border-image: linear-gradient(
+        45deg,
+        #236b60,
+        #1e711c
+    ) 1;
     margin-right: 5%;
     margin-left: 2%;
 }

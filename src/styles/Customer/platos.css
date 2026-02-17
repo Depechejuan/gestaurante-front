@@ -1,0 +1,44 @@
+.platos-list {
+    display: flex;
+}
+.plato-unique {
+    display: flex;
+    flex-direction: row;
+    width: 80dvw;
+}
+
+
+
+.plato-pic {
+    border: 1px solid red;
+    width: 15dvw;
+    aspect-ratio: 1/1;
+}
+
+.plato-info {
+    width: 55dvw;
+}
+
+.plato-cart {
+    display: flex;
+    flex-direction: row;
+    width: auto;
+    justify-content: end;
+}
+
+.plato-amount {
+    margin-right: 1dvw;
+}
+.plato-desc {
+    margin-left: 1dvw;
+    margin-right: 1dvw;
+}
+.cart {
+    margin-left: 10px;
+}
+
+
+h3 {
+    text-align: center;
+    color: var(--color-link-customer);
+}

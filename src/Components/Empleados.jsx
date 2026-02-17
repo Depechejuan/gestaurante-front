@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom";
+
 import getToken from "../services/get-token"
 import getEmpleados from "../services/get-empleados";
+import PhotoContainer from "./PhotoContainer";
+
 import "../styles/Admin/users.css"
+
+import anon from '../assets/img/empty-user.png'
 
 export default function Empleados() {
     const [users, setUsers] = useState([]);
@@ -53,22 +58,18 @@ export default function Empleados() {
         <>
             <h2>Listado de Usuarios</h2>
             <hr></hr>
-            
-            {
-                users.map(user => (
-                    <article key={user.id} className="user-basic">
+            {users.map(user => (
+                <article key={user.id} className="user-basic">
+                    <Link to={`/dashboard/empleados/${user.id}`} className="user-container" state={{user}}>
+                        <PhotoContainer photoURL={user.imageURL ? user.imageURL : anon} style="user-photo" alt={user.nombre} />
                         <div className="user-info">
-                            <Link to={`/dashboard/empleados/${user.id}`}>
-                                <p className="user-rol">{rol[user.tipo]}</p>
-                                <p className="user-name">{user.nombre} {user.apellido1} {user.apellido2}</p>
-                                <p>{user.email}</p>
-                            </Link>
+                            <p className="user-rol">{rol[user.tipo]}</p>
+                            <p className="user-name">{user.nombre} {user.apellido1} {user.apellido2}</p>
+                            <p>{user.email}</p>
                         </div>
-                            {/* <div className="user-button">
-                                <button onClick={handleEdit(user.id)}>Editar</button>
-                            </div> */}
-                    </article>
-                ))
+                    </Link>
+                </article>
+            ))
             }
         </>
     )

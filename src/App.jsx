@@ -33,48 +33,47 @@ function App() {
 
 	return (
 		<>
-				<Routes>
-					{/* 
-						Route = el componente que enruta al componente que quedemos acceder
-						path = El 'camino' al que llama el componente (ejemplo: www.web.com/login , el path sería ="/login")
-						element = El coponente como tal. <Componente />
-						IMPORTANTE* Cada componente debe estar reflejado en los import (arriba) con la ruta real
-					*/}
+			<Routes>
+				{/* 
+					Route = el componente que enruta al componente que quedemos acceder
+					path = El 'camino' al que llama el componente (ejemplo: www.web.com/login , el path sería ="/login")
+					element = El coponente como tal. <Componente />
+					IMPORTANTE* Cada componente debe estar reflejado en los import (arriba) con la ruta real
+				*/}
 
-					{/* CLIENTE */}
-					<Route element={<LayoutCliente />}>
-						<Route path="/" element={<Home />} />
-						<Route path="/login" element={<Login />} />
-						<Route path="/carta" element={<PlatosPublic />} />
-						<Route path="/about" element={<About />} />
-						<Route path="/contacto" element={<Contact />} />
-					</Route>
+				{/* CLIENTE */}
+				<Route element={<LayoutCliente />}>
+					<Route path="/" element={<Home />} />
+					<Route path="/login" element={<Login />} />
+					<Route path="/carta" element={<PlatosPublic />} />
+					<Route path="/about" element={<About />} />
+					<Route path="/contacto" element={<Contact />} />
+				</Route>
 
-					{/* STAFF */}
-					<Route element={<ProtectedRoute role={["Camarero", "Cocinero", "Administrador"]} />}>
-						<Route path="staff" element={<LayoutStaff />}>
-							<Route path="mesas" element={<Mesas />} />
-							<Route path="pedidos" element={<Pedidos />} />
-							<Route path="pedidos/:id" element={<UniquePedido />} />
-							
-							{/* <Route index element={<DashboardStaff />} /> */}
-						</Route>
+				{/* STAFF */}
+				<Route element={<ProtectedRoute role={["Camarero", "Cocinero", "Administrador"]} />}>
+					<Route path="staff" element={<LayoutStaff />}>
+						<Route path="mesas" element={<Mesas />} />
+						<Route path="pedidos" element={<Pedidos />} />
+						<Route path="pedidos/:id" element={<UniquePedido />} />
+						{/* <Route index element={<DashboardStaff />} /> */}
 					</Route>
+				</Route>
 
-					{/* ADMIN */}
-					<Route element={<ProtectedRoute role={["Administrador"]} />}>
-						<Route path="dashboard" element={<LayoutAdmin />}>
-							<Route path="register" element={<Register />} />
-							<Route path="empleados" element={<Empleados />} />
-							<Route path="empleados/:id" element={<UniqueEmpleado />} />
-							<Route path="facturas" element={<Facturas />} />
-							<Route path="facturas/:id" element={<UniqueFactura />} />
-							<Route path="carta" element={<PlatosAdmin />} />
-							<Route path="plato/:id" element={<UniquePlatoAdmin />} />
-							{/* <Route index element={<Dashboard />} /> */}
-						</Route>
+				{/* ADMIN */}
+				<Route element={<ProtectedRoute role={["Administrador"]} />}>
+					<Route path="dashboard" element={<LayoutAdmin />}>
+						<Route path="register" element={<Register />} />
+						<Route path="empleados" element={<Empleados />} />
+						<Route path="empleados/:id" element={<UniqueEmpleado />} />
+						<Route path="facturas" element={<Facturas />} />
+						<Route path="facturas/:id" element={<UniqueFactura />} />
+						<Route path="carta" element={<PlatosAdmin />} />
+						<Route path="plato/:id" element={<UniquePlatoAdmin />} />
+						{/* <Route index element={<Dashboard />} /> */}
 					</Route>
-				</Routes>
+				</Route>
+			</Routes>
 		</>
 	)
 }

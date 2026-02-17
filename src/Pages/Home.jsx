@@ -7,8 +7,8 @@ function Home() {
     return (
         <>
             <h1>Restaurante {`Lorem Ipsum`}</h1>
-            <div class="show-left">
-                <figure class="rest-container">
+            <div className="show-left">
+                <figure className="rest-container">
                     <img src={imgMain}></img>
                 </figure>
                 <div>
@@ -23,8 +23,8 @@ function Home() {
 
             <hr></hr>
 
-            <div class="show-right">
-                <figure class="rest-container">
+            <div className="show-right">
+                <figure className="rest-container">
                     <img src={imgShare}></img>
                 </figure>
                 <div>

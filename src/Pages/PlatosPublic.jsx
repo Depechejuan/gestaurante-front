@@ -1,16 +1,20 @@
+import ListPlatosPublic from "../Components/ListPlatosPublic";
 import usePlatos from "../Hooks/usePlatos";
+import '../styles/Customer/platos.css'
 
 export default function PlatosPublic() {
     const { platos, loading, error } = usePlatos();
 
-    if (loading) return <p>Cargando...</p>;
+    if (loading) return <progress>Cargando...</progress>;
     if (error) return <p>{error}</p>;
 
     return (
-        <section>
-            {platos.map(plato => (
-                <PlatoCard key={plato.id} plato={plato} /> // Definir el Componente PlatoCard
-            ))}
-        </section>
+        <>
+            <h2>PLATOS</h2>
+            <hr></hr>
+            <p>Cat1, Cat2, Cat3</p>
+            <hr></hr>
+            <ListPlatosPublic platos={platos} />
+        </>
     );
 }

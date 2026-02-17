@@ -8,10 +8,11 @@ async function sendLogin(form) {
     }
 
     try {
-        const response = await fetch(`${host}/User/login`, requestInit)
+        const response = await fetch(`${host}/user/login`, requestInit)
         if (!response.ok) {
             throw new Error("Something Went Wrong")
-        }
+        };
+        console.log(response);
         const data = await response.json();
         return data;
     } catch (err) {

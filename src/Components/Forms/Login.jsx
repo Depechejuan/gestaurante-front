@@ -23,7 +23,12 @@ function Login() {
         e.preventDefault();
         const response = await sendLogin(form);
         saveToken(response.data);
-        navigate("/dashboard")
+        if (response.data.tipo == 0)
+            navigate("/dashboard")
+        else if (response.data.tipo == 1 || response.data.tipo == 2)
+            navigate("/staff")
+        else
+            navigate("/")
     };
 
     return (

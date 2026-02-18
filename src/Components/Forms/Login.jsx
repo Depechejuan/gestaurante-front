@@ -11,11 +11,11 @@ function Login() {
     });
 
     const navigate = useNavigate();
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setForm({
-        ...form,
-        [name]: value
+        const handleChange = (e) => {
+            const { name, value } = e.target;
+            setForm({
+            ...form,
+            [name]: value
         });
     };
 
@@ -23,9 +23,10 @@ function Login() {
         e.preventDefault();
         const response = await sendLogin(form);
         saveToken(response.data);
-        if (response.data.tipo == 0)
+        const tipo = response.data.tipo;
+        if (tipo == 0)
             navigate("/dashboard")
-        else if (response.data.tipo == 1 || response.data.tipo == 2)
+        else if (tipo == 1 || tipo == 2)
             navigate("/staff")
         else
             navigate("/")

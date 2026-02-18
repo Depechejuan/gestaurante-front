@@ -12,7 +12,6 @@ async function sendLogin(form) {
         if (!response.ok) {
             throw new Error("Something Went Wrong")
         };
-        console.log(response);
         const data = await response.json();
         return data;
     } catch (err) {

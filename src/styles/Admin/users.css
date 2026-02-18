@@ -67,7 +67,6 @@ article {
 
 .user-photo-full {
     height: 40dvh;
-    object-fit: contain;
     aspect-ratio: 1/1;
-    margin-left: 5dvw;
+    margin-right: 5dvw;
 }

@@ -22,11 +22,13 @@ function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         const response = await sendLogin(form);
+        if (!response?.data) return;
+
         saveToken(response.data);
         const tipo = response.data.tipo;
-        if (tipo == 0)
+        if (tipo === 0)
             navigate("/dashboard")
-        else if (tipo == 1 || tipo == 2)
+        else if (tipo === 1 || tipo === 2)
             navigate("/staff")
         else
             navigate("/")

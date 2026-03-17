@@ -1,7 +1,9 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 
 // Páginas
 import Home from "./Pages/Home";
+import Dashboard from "./Pages/Dashboard";
+import DashboardStaff from "./Pages/Dashboard-Staff";
 
 // Componentes
 import Login from './Components/Forms/Login';
@@ -53,16 +55,17 @@ function App() {
 				{/* STAFF */}
 				<Route element={<ProtectedRoute role={["Camarero", "Cocinero", "Administrador"]} />}>
 					<Route path="staff" element={<LayoutStaff />}>
+						<Route index element={<DashboardStaff />} />
 						<Route path="mesas" element={<Mesas />} />
 						<Route path="pedidos" element={<Pedidos />} />
 						<Route path="pedidos/:id" element={<UniquePedido />} />
-						{/* <Route index element={<DashboardStaff />} /> */}
 					</Route>
 				</Route>
 
 				{/* ADMIN */}
 				<Route element={<ProtectedRoute role={["Administrador"]} />}>
 					<Route path="dashboard" element={<LayoutAdmin />}>
+						<Route index element={<Dashboard />} />
 						<Route path="register" element={<Register />} />
 						<Route path="empleados" element={<Empleados />} />
 						<Route path="empleados/:id" element={<UniqueEmpleado />} />
@@ -70,7 +73,6 @@ function App() {
 						<Route path="facturas/:id" element={<UniqueFactura />} />
 						<Route path="carta" element={<PlatosAdmin />} />
 						<Route path="plato/:id" element={<UniquePlatoAdmin />} />
-						{/* <Route index element={<Dashboard />} /> */}
 					</Route>
 				</Route>
 			</Routes>

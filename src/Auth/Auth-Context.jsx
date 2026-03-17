@@ -3,6 +3,11 @@ import getToken from "../services/get-token";
 import getBasicUser from "../services/get-basic-user";
 
 export const AuthContext = createContext(null);
+const roleMap = {
+    0: "Administrador",
+    1: "Camarero",
+    2: "Cocinero"
+};
 
 export function useAuth() {
     const context = useContext(AuthContext);
@@ -17,9 +22,10 @@ export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [token, setToken] = useState(getToken());
+    const hasToken = Boolean(token?.token && token?.id);
 
     useEffect(() => {
-        if (!token) {
+        if (!hasToken) {
             setUser(null);
             setLoading(false);
             return;
@@ -38,15 +44,17 @@ export function AuthProvider({ children }) {
         };
 
         loadUser();
-    }, [token]);
+    }, [token, hasToken]);
 
     const logout = () => {
         setToken(null);
         setUser(null);
     };
 
+    const roleName = user ? roleMap[user.tipo] ?? "Sin rol" : null;
+
     return (
-        <AuthContext.Provider value={{ user, loading, logout }}>
+        <AuthContext.Provider value={{ user, loading, logout, roleName, hasToken, sessionUserId: user?.id ?? token?.id ?? null }}>
             {children}
         </AuthContext.Provider>
     );

@@ -1,19 +1,14 @@
 import { useState } from "react"
-import { useParams, useLocation } from "react-router-dom";
-import getToken from "../services/get-token";
+import { Link, useLocation } from "react-router-dom";
 import EditUser from "./Forms/Edit-User";
 import PhotoContainer from "./PhotoContainer";
 
 import anon from '../assets/img/empty-user.png'
 
 export default function UniqueEmpleado() {
-    const [token] = useState(()=> getToken())
     const [isShowed, setIsShowed] = useState(false)
-    
-    const { id } = useParams();
     const location = useLocation();
     const user = location.state?.user;
-    
 
     const showForm = () => {
         setIsShowed(prev => !prev)
@@ -21,29 +16,58 @@ export default function UniqueEmpleado() {
 
     const rol = ["Administrador", "Camarero", "Cocinero"];
 
+    if (!user) {
+        return (
+            <section className="user-detail user-detail--empty">
+                <p className="users-eyebrow">Empleado</p>
+                <h2>Ficha no disponible</h2>
+                <p>
+                    Esta vista necesita llegar desde el listado para reutilizar los datos del
+                    usuario seleccionados en memoria.
+                </p>
+                <Link to="/dashboard/empleados" className="user-back-link">Volver al listado</Link>
+            </section>
+        )
+    }
+
     return(
         <article className="user-detail">
-            <h2>{user.nombre} {user.apellido1} {user.apellido2}</h2>
-            <hr className="separador"></hr>
-            <div className="user-detail-info">
-                <div className="user-container">
+            <div className="user-detail__hero">
+                <div className="user-detail__identity">
                     <PhotoContainer photoURL={user.imageURL ? user.imageURL : anon} style="user-photo-full" alt={user.nombre} />
                     <div className="user-text">
-                        <p><span className="prop-bold">DNI</span>: {user.dni}</p>
-                        <p><span className="prop-bold">NUSS</span>: {user.nuss}</p>
-                        <p><span className="prop-bold">Email</span>: {user.email}</p>
-                        <p><span className="prop-bold">Rol</span>: {rol[user.tipo]}</p>
+                        <p className="users-eyebrow">Empleado</p>
+                        <h2>{user.nombre} {user.apellido1} {user.apellido2}</h2>
+                        <span className={`user-role-pill role-${user.tipo}`}>{rol[user.tipo]}</span>
+                        <p className="user-email">{user.email}</p>
                     </div>
                 </div>
 
+                <button type="button" className="user-edit-toggle" onClick={showForm}>
+                    {isShowed ? "Cerrar edicion" : "Editar usuario"}
+                </button>
             </div>
 
-            <button onClick={showForm}>Editar</button>
-            {isShowed && (
-                <EditUser user={user}/>
-            )}
+            <div className="user-detail-info">
+                <div className="user-detail-card">
+                    <span className="user-detail-card__label">DNI</span>
+                    <strong>{user.dni}</strong>
+                </div>
+                <div className="user-detail-card">
+                    <span className="user-detail-card__label">NUSS</span>
+                    <strong>{user.nuss}</strong>
+                </div>
+                <div className="user-detail-card">
+                    <span className="user-detail-card__label">Email</span>
+                    <strong>{user.email}</strong>
+                </div>
+                <div className="user-detail-card">
+                    <span className="user-detail-card__label">Rol</span>
+                    <strong>{rol[user.tipo]}</strong>
+                </div>
+            </div>
 
-            
+            {isShowed && <EditUser user={user}/>}
         </article>
     )
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import getToken from "../services/get-token"
 import getEmpleados from "../services/get-empleados";
@@ -15,10 +15,8 @@ export default function Empleados() {
     const [error, setError] = useState(null)
     const [token] = useState(() => getToken());
 
-    const navigate = useNavigate();
-
     useEffect(() => {
-        if (!token) {
+        if (!token?.token) {
             setUsers([]);
             setLoading(false);
             return;
@@ -49,28 +47,77 @@ export default function Empleados() {
         }
     }, [token])
 
-    if (loading) return <progress></progress>
-    if (error) return <p>{error}</p> // Llevar a un componente
-
-
     const rol = ["Administrador", "Camarero", "Cocinero"];
+
+    if (loading) {
+        return (
+            <section className="users-shell">
+                <div className="users-toolbar">
+                    <div>
+                        <p className="users-eyebrow">Equipo</p>
+                        <h2>Listado de usuarios</h2>
+                    </div>
+                </div>
+                <div className="users-empty">
+                    <progress></progress>
+                    <p>Cargando usuarios...</p>
+                </div>
+            </section>
+        )
+    }
+
+    if (error) {
+        return (
+            <section className="users-shell">
+                <div className="users-toolbar">
+                    <div>
+                        <p className="users-eyebrow">Equipo</p>
+                        <h2>Listado de usuarios</h2>
+                    </div>
+                </div>
+                <div className="users-empty">
+                    <p>{error}</p>
+                </div>
+            </section>
+        )
+    }
+
     return (
-        <>
-            <h2>Listado de Usuarios</h2>
-            <hr></hr>
-            {users.map(user => (
-                <article key={user.id} className="user-basic">
-                    <Link to={`/dashboard/empleados/${user.id}`} className="user-container" state={{user}}>
-                        <PhotoContainer photoURL={user.imageURL ? user.imageURL : anon} style="user-photo" alt={user.nombre} />
-                        <div className="user-info">
-                            <p className="user-rol">{rol[user.tipo]}</p>
-                            <p className="user-name">{user.nombre} {user.apellido1} {user.apellido2}</p>
-                            <p>{user.email}</p>
-                        </div>
-                    </Link>
-                </article>
-            ))
-            }
-        </>
+        <section className="users-shell">
+            <div className="users-toolbar">
+                <div>
+                    <p className="users-eyebrow">Equipo</p>
+                    <h2>Listado de usuarios</h2>
+                    <p>Acceso rapido a fichas de empleado, rol y datos de contacto.</p>
+                </div>
+
+                <div className="users-summary-card">
+                    <span>Total visible</span>
+                    <strong>{users.length}</strong>
+                </div>
+            </div>
+
+            {users.length === 0 ? (
+                <div className="users-empty">
+                    <p>No hay usuarios disponibles en este momento.</p>
+                </div>
+            ) : (
+                <div className="users-grid">
+                    {users.map((user) => (
+                        <article key={user.id} className="user-basic">
+                            <Link to={`/dashboard/empleados/${user.id}`} className="user-container" state={{user}}>
+                                <PhotoContainer photoURL={user.imageURL ? user.imageURL : anon} style="user-photo" alt={user.nombre} />
+                                <div className="user-info">
+                                    <span className={`user-role-pill role-${user.tipo}`}>{rol[user.tipo]}</span>
+                                    <h3 className="user-name">{user.nombre} {user.apellido1} {user.apellido2}</h3>
+                                    <p className="user-email">{user.email}</p>
+                                    <span className="user-action">Abrir ficha</span>
+                                </div>
+                            </Link>
+                        </article>
+                    ))}
+                </div>
+            )}
+        </section>
     )
 }

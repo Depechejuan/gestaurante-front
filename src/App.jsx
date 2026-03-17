@@ -23,6 +23,7 @@ import Empleados from './Components/Empleados';
 import UniqueEmpleado from './Components/UniqueEmpleado';
 import About from './Pages/About';
 import Mesas from './Pages/Mesas';
+import MesaDetail from './Pages/MesaDetail';
 import Pedidos from './Pages/Pedidos';
 import UniquePedido from './Pages/UniquePedido';
 import Facturas from './Pages/Facturas';
@@ -57,6 +58,7 @@ function App() {
 					<Route path="staff" element={<LayoutStaff />}>
 						<Route index element={<DashboardStaff />} />
 						<Route path="mesas" element={<Mesas />} />
+						<Route path="mesas/:id" element={<MesaDetail />} />
 						<Route path="pedidos" element={<Pedidos />} />
 						<Route path="pedidos/:id" element={<UniquePedido />} />
 					</Route>

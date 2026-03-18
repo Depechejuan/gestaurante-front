@@ -1,25 +1,32 @@
+import { useState } from "react";
+
 export default function ContactForm() {
+    const [isSubmitted, setIsSubmitted] = useState(false);
+
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        setIsSubmitted(true);
+    };
 
     return(
-        <>
-            <form className="customer-contact-form">
+        <form className="customer-contact-form" onSubmit={handleSubmit}>
                 <div className="customer-form-group">
-                    <label for="name">Nombre</label>
+                    <label htmlFor="name">Nombre</label>
                     <input type="text" id="name" name="name" placeholder="Tu nombre" required />
                 </div>
 
                 <div className="customer-form-group">
-                    <label for="email">Email</label>
+                    <label htmlFor="email">Email</label>
                     <input type="email" id="email" name="email" placeholder="tucorreo@email.com" required />
                 </div>
 
                 <div className="customer-form-group">
-                    <label for="phone">Teléfono</label>
+                    <label htmlFor="phone">Teléfono</label>
                     <input type="tel" id="phone" name="phone" placeholder="+34 600 000 000" />
                 </div>
 
                 <div className="customer-form-group">
-                    <label for="message">Mensaje</label>
+                    <label htmlFor="message">Mensaje</label>
                     <textarea
                     id="message"
                     name="message"
@@ -32,7 +39,12 @@ export default function ContactForm() {
                 <button type="submit" className="customer-btn-primary">
                     Enviar mensaje
                 </button>
+
+                {isSubmitted && (
+                    <p className="customer-form-feedback">
+                        Mensaje preparado. El envio real sigue pendiente de integracion.
+                    </p>
+                )}
             </form>
-        </>
     )
 }

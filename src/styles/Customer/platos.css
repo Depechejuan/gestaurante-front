@@ -11,6 +11,13 @@
     background: rgba(18, 60, 54, 0.82);
 }
 
+.menu-public__hero--mesa {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(14rem, 0.8fr);
+    gap: 1rem;
+    align-items: start;
+}
+
 .menu-public__type-nav {
     display: flex;
     gap: 0.75rem;
@@ -42,6 +49,135 @@
     flex-direction: column;
     gap: 1rem;
     scroll-margin-top: 7rem;
+}
+
+.mesa-session-card,
+.mesa-order-card {
+    padding: 1.2rem;
+    border: 1px solid rgba(230, 244, 241, 0.1);
+    border-radius: 1.4rem;
+    background: rgba(18, 60, 54, 0.72);
+}
+
+.mesa-session-card span,
+.mesa-session-card strong,
+.mesa-session-card small {
+    display: block;
+}
+
+.mesa-session-card strong {
+    margin-top: 0.4rem;
+    font-size: 1.4rem;
+}
+
+.mesa-session-card small {
+    margin-top: 0.6rem;
+    color: var(--color-text-customer-secondary);
+}
+
+.mesa-order-shell {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(18rem, 0.85fr);
+    gap: 1.25rem;
+    align-items: start;
+}
+
+.mesa-order-main,
+.mesa-order-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.mesa-order-sidebar {
+    position: sticky;
+    top: 1rem;
+}
+
+.mesa-order-card__header {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: start;
+    margin-bottom: 1rem;
+}
+
+.mesa-order-card__header h2 {
+    margin: 0.2rem 0 0;
+}
+
+.mesa-order-empty {
+    margin: 0;
+    color: var(--color-text-customer-secondary);
+}
+
+.mesa-order-items,
+.mesa-order-history {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.mesa-order-item,
+.mesa-order-history__item {
+    padding: 0.95rem;
+    border-radius: 1rem;
+    background: rgba(10, 39, 34, 0.72);
+    border: 1px solid rgba(230, 244, 241, 0.08);
+}
+
+.mesa-order-item h3,
+.mesa-order-item p,
+.mesa-order-history__item ul {
+    margin: 0;
+}
+
+.mesa-order-item__controls {
+    display: flex;
+    gap: 0.7rem;
+    align-items: center;
+    margin-top: 0.75rem;
+}
+
+.mesa-order-item__controls input {
+    width: 4.5rem;
+    padding: 0.65rem 0.7rem;
+    border-radius: 0.85rem;
+    border: 1px solid rgba(230, 244, 241, 0.14);
+    background: rgba(10, 39, 34, 0.92);
+    color: var(--color-text-customer-primary);
+}
+
+.mesa-order-item__controls button {
+    min-height: 2.7rem;
+    padding: 0.65rem 0.9rem;
+    border: 1px solid rgba(230, 244, 241, 0.14);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--color-text-customer-primary);
+    cursor: pointer;
+}
+
+.mesa-order-submit {
+    width: 100%;
+    justify-content: center;
+}
+
+.mesa-order-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.mesa-order-history__top {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.55rem;
+}
+
+.mesa-order-history__item ul {
+    padding-left: 1.1rem;
+    color: var(--color-text-customer-secondary);
 }
 
 .menu-public__group-header {
@@ -146,6 +282,8 @@
 }
 
 @media (max-width: 900px) {
+    .menu-public__hero--mesa,
+    .mesa-order-shell,
     .plato-unique {
         grid-template-columns: 1fr;
     }
@@ -154,5 +292,9 @@
     .plato-cart {
         flex-direction: column;
         align-items: flex-start;
+    }
+
+    .mesa-order-sidebar {
+        position: static;
     }
 }

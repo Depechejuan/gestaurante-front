@@ -1,7 +1,18 @@
 import { useMemo, useState } from "react";
 import cart from '../assets/Icons/cart.svg'
 
-export default function ListPlatosPublic({platos}) {
+function formatPrice(price) {
+    if (price == null || price === "") return "Precio pendiente";
+
+    const numericPrice = Number.parseFloat(String(price).replace(",", "."));
+    if (Number.isNaN(numericPrice)) {
+        return `${price} EUR`;
+    }
+
+    return `${numericPrice.toFixed(2)} EUR`;
+}
+
+export default function ListPlatosPublic({platos, onAddToCart}) {
     const [amounts, setAmounts] = useState({});
     const [basketFeedback, setBasketFeedback] = useState("");
 
@@ -28,6 +39,11 @@ export default function ListPlatosPublic({platos}) {
 
     const addToBasket = (plato) => {
         const amount = Number(amounts[plato._fallbackId] ?? 1);
+        if (onAddToCart) {
+            onAddToCart(plato, amount);
+            return;
+        }
+
         setBasketFeedback(`${amount} x ${plato.nombre} añadido al carrito mock.`);
     };
 
@@ -68,7 +84,7 @@ export default function ListPlatosPublic({platos}) {
                                 <section className="plato-info">
                                     <div className="plato-info__top">
                                         <h3>{plato.nombre}</h3>
-                                        <strong>{plato.precio != null && plato.precio !== "" ? `${plato.precio} EUR` : "Precio pendiente"}</strong>
+                                        <strong>{formatPrice(plato.precio)}</strong>
                                     </div>
                                     <p className="plato-desc">{plato.descripcion}</p>
                                     <p className="plato-meta">

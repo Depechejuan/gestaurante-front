@@ -31,6 +31,7 @@ import UniqueFactura from './Pages/UniqueFactura';
 import PlatosAdmin from './Pages/PlatosAdmin';
 import UniquePlatoAdmin from './Pages/UniquePlatoAdmin';
 import PlatosPublic from './Pages/PlatosPublic';
+import MesaQrMenu from './Pages/MesaQrMenu';
 
 function App() {
 
@@ -49,6 +50,7 @@ function App() {
 					<Route path="/" element={<Home />} />
 					<Route path="/login" element={<Login />} />
 					<Route path="/carta" element={<PlatosPublic />} />
+					<Route path="/mesa/:id" element={<MesaQrMenu />} />
 					<Route path="/about" element={<About />} />
 					<Route path="/contacto" element={<Contact />} />
 				</Route>

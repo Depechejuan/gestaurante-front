@@ -2,18 +2,23 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from '../Auth/Auth-Context.jsx'
 import deleteToken from "../services/delete-token.js";
 
-export default function DashboardMenu() {
+export default function DashboardMenu({ className = "", onNavigateLink }) {
     const navigate = useNavigate();
     const { logout, roleName, sessionUserId } = useAuth();
+
+    const handleNavigateLink = () => {
+        onNavigateLink?.();
+    };
 
     const handleLogOut = () => {
         deleteToken();
         logout();
+        onNavigateLink?.();
         navigate("/", {replace: true})
     }
 
     return (
-        <nav className="dashboard-nav">
+        <nav className={`dashboard-nav ${className}`.trim()}>
             <div className="dashboard-nav__eyebrow">Panel interno</div>
             <div className="dashboard-nav__identity">
                 <p>{roleName}</p>
@@ -21,11 +26,11 @@ export default function DashboardMenu() {
             </div>
 
             <div className="dashboard-nav__group">
-                <NavLink to="/dashboard" end className="dashboard-nav__link">Resumen</NavLink>
-                <NavLink to="/dashboard/empleados" className="dashboard-nav__link">Empleados</NavLink>
-                <NavLink to="/dashboard/carta" className="dashboard-nav__link">Carta</NavLink>
-                <NavLink to="/dashboard/register" className="dashboard-nav__link">Registrar</NavLink>
-                <NavLink to="/dashboard/facturas" className="dashboard-nav__link">Facturas</NavLink>
+                <NavLink to="/dashboard" end className="dashboard-nav__link" onClick={handleNavigateLink}>Resumen</NavLink>
+                <NavLink to="/dashboard/empleados" className="dashboard-nav__link" onClick={handleNavigateLink}>Empleados</NavLink>
+                <NavLink to="/dashboard/carta" className="dashboard-nav__link" onClick={handleNavigateLink}>Carta</NavLink>
+                <NavLink to="/dashboard/register" className="dashboard-nav__link" onClick={handleNavigateLink}>Registrar</NavLink>
+                <NavLink to="/dashboard/facturas" className="dashboard-nav__link" onClick={handleNavigateLink}>Facturas</NavLink>
             </div>
 
             <button type="button" className="dashboard-nav__logout" onClick={handleLogOut}>

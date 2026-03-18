@@ -30,6 +30,11 @@
     backdrop-filter: blur(18px);
 }
 
+.admin-mobile-toggle,
+.admin-mobile-overlay {
+    display: none;
+}
+
 .admin-logo {
     width: 8.5rem;
     margin-bottom: 1.75rem;
@@ -243,9 +248,94 @@
     }
 
     .admin-sidebar {
-        position: static;
+        display: none;
+    }
+
+    .admin-mobile-toggle {
+        position: fixed;
+        right: 1.25rem;
+        bottom: 1.25rem;
+        z-index: 10001;
+        width: 3.15rem;
+        height: 3.15rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--admin-border);
+        border-radius: 999px;
+        background: rgba(255, 252, 246, 0.98);
+        box-shadow: 0 20px 38px rgba(31, 26, 20, 0.18);
+        cursor: pointer;
+    }
+
+    .admin-mobile-toggle img {
+        width: 1.35rem;
+        height: 1.35rem;
+    }
+
+    .admin-mobile-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 10000;
+        display: flex;
+        align-items: flex-end;
+        justify-content: stretch;
+        background: rgba(31, 26, 20, 0.3);
+        backdrop-filter: blur(4px);
+    }
+
+    .admin-mobile-panel {
+        width: 100%;
+        padding: 1rem;
+        border-top-left-radius: 1.5rem;
+        border-top-right-radius: 1.5rem;
+        background: rgba(255, 252, 246, 0.98);
+        border-top: 1px solid var(--admin-border);
+        box-shadow: 0 -12px 30px rgba(31, 26, 20, 0.12);
+    }
+
+    .admin-mobile-panel__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .admin-mobile-panel__header p {
+        margin: 0;
+        font-weight: 700;
+    }
+
+    .admin-mobile-panel__header button {
+        border: 1px solid var(--admin-border);
+        border-radius: 999px;
+        background: var(--admin-surface-strong);
+        color: var(--admin-text);
+        padding: 0.5rem 0.85rem;
+        cursor: pointer;
+    }
+
+    .dashboard-nav--mobile {
         min-height: auto;
-        border-right: 0;
-        border-bottom: 1px solid var(--admin-border);
+        gap: 0.8rem;
+    }
+
+    .dashboard-nav--mobile .dashboard-nav__logout {
+        margin-top: 0;
+    }
+
+    .dashboard-admin {
+        padding: 1.1rem 1rem 5.5rem;
+    }
+
+    .dashboard-admin__header {
+        flex-direction: column;
+        padding: 1.2rem;
+    }
+
+    .dashboard-admin__session {
+        min-width: 0;
+        width: 100%;
     }
 }

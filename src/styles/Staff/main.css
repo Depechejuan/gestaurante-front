@@ -32,7 +32,15 @@
 }
 
 .staff-logo {
-    width: 6.25rem;
+    width: fit-content;
+    max-width: 6.25rem;
+}
+
+.staff-logo > img {
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
 }
 
 .staff-header__copy h1,

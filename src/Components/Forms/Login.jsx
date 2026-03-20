@@ -4,16 +4,16 @@ import sendLogin from "../../services/login";
 import saveToken from "../../services/save-token";
 import "../../styles/Customer/form.css";
 
-
 function Login() {
     const [form, setForm] = useState({
-        email: '',
-        password: ''
+        email: "",
+        password: ""
     });
     const [error, setError] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const navigate = useNavigate();
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setError("");
@@ -37,22 +37,23 @@ function Login() {
         saveToken(response.data);
         const tipo = response.data.tipo;
         if (tipo === 0) {
-            navigate("/dashboard")
+            navigate("/dashboard");
             return;
         }
         if (tipo === 1 || tipo === 2) {
-            navigate("/staff")
+            navigate("/staff");
             return;
         }
+
         setIsSubmitting(false);
-        navigate("/")
+        navigate("/");
     };
 
     return (
         <section className="public-page public-page--login">
-            <div className="customer-auth-card">
-                <div className="customer-auth-card__copy">
-                    <p className="public-eyebrow">Acceso interno</p>
+            <div className="customer-auth-card login-card">
+                <div className="customer-auth-card__copy login-card__copy">
+                    <p className="public-eyebrow login-card__eyebrow">Acceso interno</p>
                     <h1>Entrar al panel</h1>
                     <p>
                         Acceso reservado para administracion y staff. El destino final depende
@@ -60,7 +61,7 @@ function Login() {
                     </p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="customer-contact-form customer-contact-form--auth">
+                <form onSubmit={handleSubmit} className="customer-contact-form customer-contact-form--auth login-form">
                     <div className="customer-form-group">
                         <label htmlFor="login-email">Email</label>
                         <input
@@ -69,7 +70,7 @@ function Login() {
                             name="email"
                             value={form.email}
                             onChange={handleChange}
-                            placeholder="Email"
+                            placeholder="tu@email.com"
                             required
                         />
                     </div>
@@ -82,12 +83,12 @@ function Login() {
                             name="password"
                             value={form.password}
                             onChange={handleChange}
-                            placeholder="Contraseña"
+                            placeholder="Introduce tu contraseña"
                             required
                         />
                     </div>
 
-                    {error && <p className="customer-form-error">{error}</p>}
+                    {error && <p className="login-form__error">{error}</p>}
 
                     <button type="submit" className="customer-btn-primary" disabled={isSubmitting}>
                         {isSubmitting ? "Accediendo..." : "Entrar"}
@@ -98,5 +99,4 @@ function Login() {
     );
 }
 
-
-export default Login
+export default Login;

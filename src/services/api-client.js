@@ -1,7 +1,18 @@
 import deleteToken from "./delete-token";
 import getToken from "./get-token";
 
-const host = import.meta.env.VITE_API_HOST;
+function resolveApiHost() {
+    const explicitHost = import.meta.env.VITE_API_HOST?.trim();
+    if (explicitHost) {
+        return explicitHost.replace(/\/+$/, "");
+    }
+
+    const browserHost = typeof window !== "undefined" ? window.location.hostname : "127.0.0.1";
+    const apiPort = import.meta.env.VITE_API_PORT?.trim() || "3000";
+    return `http://${browserHost}:${apiPort}`;
+}
+
+const host = resolveApiHost();
 
 async function parseResponse(response) {
     const contentType = response.headers.get("content-type") ?? "";

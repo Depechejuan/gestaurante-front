@@ -19,13 +19,17 @@
 
 .staff-logo {
     height: 5dvh;
+    width: fit-content;
+    max-width: 8rem;
     display: flex;
     margin-bottom: 2dvw;
 }
 
 .staff-logo > img {
-    width: 100%;
+    width: auto;
+    max-width: 100%;
     height: 100%;
+    object-fit: contain;
 }
 
 .staff a {

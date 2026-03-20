@@ -1,15 +1,14 @@
 import { Link } from "react-router-dom";
-import imgMain from '../assets/restaurant/pexels-restaurant-1837150.jpg'
-import imgShare from '../assets/restaurant/karriezhu-food-1050813.jpg'
+import logo from "../assets/logo/gestaurante-logo.png";
 
 function Home() {
 
     return (
         <>
             <h1>Restaurante {`Lorem Ipsum`}</h1>
-            <div class="show-left">
-                <figure class="rest-container">
-                    <img src={imgMain}></img>
+            <div className="show-left">
+                <figure className="rest-container">
+                    <img src={logo} alt="Gestaurante" />
                 </figure>
                 <div>
                     <p className="rest-text">Desde el momento en que cruzas la puerta, queremos que te sientas cómodo y bienvenido. Nuestro espacio está pensado para que disfrutes sin prisas, en un ambiente cálido donde cada detalle invita a relajarse y a quedarse un rato más.
@@ -23,9 +22,9 @@ function Home() {
 
             <hr></hr>
 
-            <div class="show-right">
-                <figure class="rest-container">
-                    <img src={imgShare}></img>
+            <div className="show-right">
+                <figure className="rest-container">
+                    <img src={logo} alt="Ambiente del restaurante" />
                 </figure>
                 <div>
                     <p className="rest-text">Aquí no solo vienes a comer, vienes a compartir momentos, conversaciones y buenos recuerdos.

@@ -13,13 +13,17 @@
 
 .customer-logo {
     height: 10dvh;
+    width: fit-content;
+    max-width: 10rem;
     display: flex;
     margin-bottom: 2dvw;
 }
 
 .customer-logo > img {
-    width: 100%;
+    width: auto;
+    max-width: 100%;
     height: 100%;
+    object-fit: contain;
 }
 
 .customer > nav {

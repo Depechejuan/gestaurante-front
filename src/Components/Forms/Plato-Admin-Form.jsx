@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../../styles/Admin/platos.css";
 
 const defaultForm = {
@@ -15,10 +15,20 @@ const defaultForm = {
 
 export default function PlatoAdminForm({ mode = "create", initialValues = {} }) {
     const [form, setForm] = useState({ ...defaultForm, ...initialValues });
+    const [imageFile, setImageFile] = useState(null);
+    const [imagePreview, setImagePreview] = useState(initialValues.imagen || "");
     const [errors, setErrors] = useState({});
     const [isSubmitted, setIsSubmitted] = useState(false);
 
     const isEdit = mode === "edit";
+
+    useEffect(() => {
+        return () => {
+            if (imagePreview && imagePreview.startsWith("blob:")) {
+                URL.revokeObjectURL(imagePreview);
+            }
+        };
+    }, [imagePreview]);
 
     const handleChange = (event) => {
         const { name, value, type, checked } = event.target;
@@ -27,6 +37,24 @@ export default function PlatoAdminForm({ mode = "create", initialValues = {} }) 
             ...prev,
             [name]: type === "checkbox" ? checked : value
         }));
+    };
+
+    const handleImageFileChange = (event) => {
+        const nextFile = event.target.files?.[0] ?? null;
+        setIsSubmitted(false);
+        setImageFile(nextFile);
+
+        if (imagePreview && imagePreview.startsWith("blob:")) {
+            URL.revokeObjectURL(imagePreview);
+        }
+
+        if (nextFile) {
+            const previewUrl = URL.createObjectURL(nextFile);
+            setImagePreview(previewUrl);
+            return;
+        }
+
+        setImagePreview(initialValues.imagen || "");
     };
 
     const validate = () => {
@@ -106,14 +134,23 @@ export default function PlatoAdminForm({ mode = "create", initialValues = {} }) 
                         />
                         {errors.descripcion && <span className="error-message">{errors.descripcion}</span>}
 
-                        <label htmlFor="imagen">URL de imagen</label>
+                        <label htmlFor="imagen">Imagen del plato</label>
                         <input
                             id="imagen"
                             name="imagen"
-                            value={form.imagen}
-                            onChange={handleChange}
-                            placeholder="https://..."
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageFileChange}
                         />
+                        <small>
+                            Selecciona una imagen desde tu ordenador. Ya no es necesario pegar URL.
+                        </small>
+                        {imageFile && <small>Archivo seleccionado: {imageFile.name}</small>}
+                        {imagePreview && (
+                            <figure className="plato-media">
+                                <img src={imagePreview} alt="Vista previa del plato" className="plato-pic" />
+                            </figure>
+                        )}
                     </section>
 
                     <section className="plato-form-panel">

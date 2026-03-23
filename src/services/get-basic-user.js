@@ -1,23 +1,12 @@
-const host = import.meta.env.VITE_API_HOST;
+import { authApiRequest } from "./api-client";
 
 export default async function getBasicUser(token) {
     try {
-        const obj = {"id": token.id}
-        const bearer = `Bearer ${token.token}`
-        const response = await fetch(`${host}/Admin/getbasicuser`, {
+        return await authApiRequest("/Admin/getbasicuser", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `${bearer}`
-            },
-            body: JSON.stringify(obj)
+            body: { id: token.id },
+            token
         });
-        if (!response.ok) {
-            throw new Error("Something Went Wrong");
-        }
-
-        const data = await response.json();
-        return data;
     } catch (err) {
         console.error(err);
         return null;

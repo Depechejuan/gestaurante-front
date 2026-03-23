@@ -1,8 +1,15 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import getToken from "../services/get-token";
 import getBasicUser from "../services/get-basic-user";
+import { SESSION_CHANGED_EVENT } from "../services/session-events";
+import deleteToken from "../services/delete-token";
 
 export const AuthContext = createContext(null);
+const roleMap = {
+    0: "Administrador",
+    1: "Camarero",
+    2: "Cocinero"
+};
 
 export function useAuth() {
     const context = useContext(AuthContext);
@@ -17,9 +24,24 @@ export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [token, setToken] = useState(getToken());
+    const hasToken = Boolean(token?.token && token?.id);
 
     useEffect(() => {
-        if (!token) {
+        const syncSession = () => {
+            setToken(getToken());
+        };
+
+        window.addEventListener(SESSION_CHANGED_EVENT, syncSession);
+        window.addEventListener("storage", syncSession);
+
+        return () => {
+            window.removeEventListener(SESSION_CHANGED_EVENT, syncSession);
+            window.removeEventListener("storage", syncSession);
+        };
+    }, []);
+
+    useEffect(() => {
+        if (!hasToken) {
             setUser(null);
             setLoading(false);
             return;
@@ -29,24 +51,37 @@ export function AuthProvider({ children }) {
             setLoading(true);
             try {
                 const userData = await getBasicUser(token);
-                setUser(userData.data ?? null);
+                const nextUser = userData?.data ?? null;
+
+                if (!nextUser) {
+                    deleteToken();
+                    setUser(null);
+                    setToken(getToken());
+                    return;
+                }
+
+                setUser(nextUser);
             } catch {
+                deleteToken();
                 setUser(null);
+                setToken(getToken());
             } finally {
                 setLoading(false);
             }
         };
 
         loadUser();
-    }, [token]);
+    }, [token, hasToken]);
 
     const logout = () => {
-        setToken(null);
+        setToken(getToken());
         setUser(null);
     };
 
+    const roleName = user ? roleMap[user.tipo] ?? "Sin rol" : null;
+
     return (
-        <AuthContext.Provider value={{ user, loading, logout }}>
+        <AuthContext.Provider value={{ user, loading, logout, roleName, hasToken, sessionUserId: user?.id ?? token?.id ?? null }}>
             {children}
         </AuthContext.Provider>
     );

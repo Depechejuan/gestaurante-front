@@ -1,13 +1,11 @@
-import { useState } from "react";
-import { Link,useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import useBodyClass from "../Hooks/useBodyClass";
 import { useAuth } from '../Auth/Auth-Context.jsx'
 import deleteToken from "../services/delete-token.js";
 
 export default function StaffMenu({isMenuOpen, closeMenu}) {
-    const [userType, setUserType] = useState(null);
     const navigate = useNavigate();
-    const { logout } = useAuth();
+    const { logout, roleName } = useAuth();
     useBodyClass("staff");
     const handleLinkClick = () => {
         closeMenu();
@@ -18,29 +16,33 @@ export default function StaffMenu({isMenuOpen, closeMenu}) {
         logout();
         navigate("/", {replace: true})
     }
-    
-    // get user type
+    const staffLinks = [
+        { to: "/staff", label: "Resumen", end: true, roles: ["Administrador", "Camarero", "Cocinero"] },
+        { to: "/staff/mesas", label: "Mesas", roles: ["Administrador", "Camarero"] },
+        { to: "/staff/pedidos", label: "Pedidos", roles: ["Administrador", "Camarero", "Cocinero"] }
+    ];
 
     return (
         <nav className={`staff-navbar ${isMenuOpen ? "open" : ""}`}>
+            <div className="staff-navbar__card">
+                <p className="staff-navbar__title">Accesos staff</p>
+                <span className="staff-navbar__role">{roleName}</span>
                 <ul className="nav-menu">
-                    {userType == 'Cocinero' && (
-                        <li>
-                            <Link>Pedidos</Link>
-                        </li>
-                    )}
+                    {staffLinks
+                        .filter((link) => link.roles.includes(roleName))
+                        .map((link) => (
+                            <li key={link.to}>
+                                <NavLink to={link.to} end={link.end} onClick={handleLinkClick}>
+                                    {link.label}
+                                </NavLink>
+                            </li>
+                        ))}
                     <li>
-                        <Link to="/" onClick={handleLinkClick}>Mesas</Link>
-                    </li>
-                    <li>
-                        <Link to="/carta" onClick={handleLinkClick}>Pedidos</Link>
-                    </li>
-                    <li>
-                        <Link onClick={handleLogOut}>Logout</Link>
+                        <button type="button" onClick={handleLogOut}>Cerrar sesion</button>
                     </li>
                 </ul>
+            </div>
             </nav>
     )
 }
-
 

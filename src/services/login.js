@@ -1,21 +1,14 @@
-const host = import.meta.env.VITE_API_HOST;
+import { apiRequest } from "./api-client";
 
 async function sendLogin(form) {
-    const requestInit = {
-        method: "POST",
-        headers: { "Content-Type": "application/json"},
-        body: JSON.stringify(form)
-    }
-
     try {
-        const response = await fetch(`${host}/User/login`, requestInit)
-        if (!response.ok) {
-            throw new Error("Something Went Wrong")
-        }
-        const data = await response.json();
-        return data;
+        return await apiRequest("/user/login", {
+            method: "POST",
+            body: form
+        });
     } catch (err) {
         console.log(err);
+        return null;
     }
 }
 

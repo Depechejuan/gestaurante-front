@@ -1,0 +1,221 @@
+.staff-ops-shell {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.staff-ops-eyebrow {
+    margin: 0 0 0.35rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--staff-muted, #557268);
+}
+
+.staff-ops-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: flex-start;
+    padding: 1.35rem 1.45rem;
+    border: 1px solid rgba(18, 61, 47, 0.14);
+    border-radius: 1.4rem;
+    background: rgba(255, 255, 255, 0.78);
+}
+
+.staff-ops-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.staff-ops-primary,
+.staff-ops-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.9rem;
+    padding: 0.8rem 1.15rem;
+    border-radius: 1rem;
+    cursor: pointer;
+}
+
+.staff-ops-primary {
+    border: 0;
+    background: #12342b;
+    color: #effaf4;
+}
+
+.staff-ops-secondary {
+    border: 1px solid rgba(18, 61, 47, 0.14);
+    background: rgba(255, 255, 255, 0.88);
+    color: #12342b;
+}
+
+.staff-ops-secondary--link {
+    width: fit-content;
+    text-decoration: none;
+}
+
+.staff-ops-warning,
+.staff-ops-empty {
+    padding: 1.1rem 1.2rem;
+    border-radius: 1.2rem;
+    border: 1px dashed rgba(18, 61, 47, 0.22);
+    background: rgba(255, 255, 255, 0.66);
+}
+
+.staff-ops-warning {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.85rem;
+}
+
+.staff-ops-warning strong {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 7rem;
+    min-height: 2.2rem;
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    background: #1d7a5a;
+    color: #effaf4;
+    letter-spacing: 0.08em;
+}
+
+.staff-ops-warning p,
+.staff-ops-empty p {
+    margin: 0;
+}
+
+.mesas-grid,
+.comandas-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: 1rem;
+}
+
+.mesa-card,
+.comanda-card,
+.mesa-detail-card {
+    padding: 1.2rem;
+    border: 1px solid rgba(18, 61, 47, 0.14);
+    border-radius: 1.2rem;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.mesa-card {
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.mesa-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(29, 122, 90, 0.28);
+    box-shadow: 0 18px 34px rgba(18, 52, 43, 0.08);
+}
+
+.mesa-card__top,
+.comanda-card__top,
+.comanda-card__footer,
+.mesa-card__meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.mesa-state,
+.mesa-zone,
+.mesa-detail-card__label {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+}
+
+.mesa-state--ocupada {
+    background: rgba(209, 95, 49, 0.14);
+    color: #c14e25;
+}
+
+.mesa-state--libre {
+    background: rgba(29, 122, 90, 0.14);
+    color: #1d7a5a;
+}
+
+.mesa-state--reservada {
+    background: rgba(34, 74, 125, 0.14);
+    color: #224a7d;
+}
+
+.mesa-zone,
+.mesa-detail-card__label {
+    background: rgba(18, 61, 47, 0.08);
+    color: #557268;
+}
+
+.mesa-card h2,
+.comanda-card h3,
+.comanda-card h2 {
+    margin: 0.7rem 0 0.5rem;
+}
+
+.mesa-card p,
+.comanda-card ul {
+    margin: 0;
+}
+
+.mesa-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: 1rem;
+}
+
+.comandas-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.comandas-section__header {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: center;
+}
+
+.comanda-card ul {
+    padding-left: 1rem;
+    margin-top: 0.75rem;
+}
+
+.comanda-card__footer a {
+    color: #1d7a5a;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.comanda-card--detail {
+    max-width: 42rem;
+}
+
+@media (max-width: 720px) {
+    .staff-ops-header,
+    .staff-ops-warning,
+    .comandas-section__header,
+    .mesa-card__top,
+    .comanda-card__top,
+    .comanda-card__footer,
+    .mesa-card__meta {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .staff-ops-warning {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,71 +1,167 @@
-.customer-contact-form {
-    width: 60dvw;
-    padding: 24px;
-    background: var(--color-bg-customer-surface);
-    border-radius: 16px;
-    box-shadow: var(--shadow-customer-medium);
-    font-family: var(--font-customer-main);
+.login-shell {
+    width: min(100%, 64rem);
+    margin: 0 auto;
+    padding: 2rem 1rem;
 }
 
-/* .customer-form-title {
-    margin-bottom: 20px;
-    font-size: 1.5rem;
-    color: var(--color-text-customer-primary);
-    text-align: center;
-} */
+.login-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(20rem, 26rem);
+    gap: 1.5rem;
+    align-items: stretch;
+}
+
+.login-card__copy {
+    padding: 1.25rem;
+}
+
+.login-card__copy h1,
+.login-card__copy p {
+    margin: 0;
+}
+
+.login-card__copy h1 {
+    margin-top: 0.35rem;
+}
+
+.login-card__copy p:last-child {
+    margin-top: 0.9rem;
+    max-width: 38ch;
+}
+
+.login-card__eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 0.76rem;
+    color: var(--color-text-customer-secondary);
+}
+
+.customer-contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.4rem;
+    border: 1px solid rgba(230, 244, 241, 0.1);
+    border-radius: 1.4rem;
+    background: rgba(18, 60, 54, 0.82);
+}
+
+.customer-contact-form--auth {
+    width: 100%;
+}
+
+.login-form {
+    border: 1px solid rgba(230, 244, 241, 0.08);
+    background: rgba(10, 39, 34, 0.82);
+}
+
+.contact-layout {
+    display: grid;
+    grid-template-columns: minmax(16rem, 0.8fr) minmax(0, 1.2fr);
+    gap: 1rem;
+    align-items: start;
+}
+
+.contact-copy,
+.customer-auth-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.contact-form-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
 
 .customer-form-group {
     display: flex;
     flex-direction: column;
-    margin-bottom: 16px;
+    gap: 0.45rem;
 }
 
 .customer-form-group label {
-    margin-bottom: 6px;
     font-size: 0.9rem;
     color: var(--color-text-customer-secondary);
 }
 
 .customer-form-group input,
 .customer-form-group textarea {
-    padding: 10px 12px;
-    border-radius: 8px;
-    border: 1px solid var(--color-border-customer-default);
-    background-color: var(--color-bg-customer-main);
+    width: 100%;
+    padding: 0.9rem 1rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(230, 244, 241, 0.14);
+    background-color: rgba(10, 39, 34, 0.92);
     color: var(--color-text-customer-primary);
     font-size: 0.95rem;
-    transition: var(--transition-customer-normal);
 }
 
 .customer-form-group input::placeholder,
 .customer-form-group textarea::placeholder {
-    color: var(--color-text-customer-muted);
+    color: rgba(183, 220, 212, 0.72);
 }
 
 .customer-form-group input:focus,
 .customer-form-group textarea:focus {
     outline: none;
-    border-color: var(--color-border-customer-focus);
-    box-shadow: var(--shadow-customer-focus);
+    border-color: rgba(252, 194, 63, 0.45);
+    box-shadow: 0 0 0 4px rgba(252, 194, 63, 0.08);
 }
 
 .customer-btn-primary {
     width: 100%;
-    padding: 12px;
-    border: none;
-    border-radius: 10px;
-    background: var(--color-bg-customer-gradient);
-    color: var(--color-text-customer-inverse);
+    padding: 0.95rem 1rem;
+    border: 0;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #fcc23f 0%, #f2a541 100%);
+    color: #17221d;
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
-    transition: var(--transition-customer-normal);
 }
 
-.customer-btn-primary:hover {
-    filter: brightness(1.1);
+.customer-btn-primary:disabled {
+    opacity: 0.72;
+    cursor: not-allowed;
+}
+
+.login-form__error {
+    margin: 0;
+    padding: 0.85rem 0.95rem;
+    border-radius: 0.95rem;
+    background: rgba(186, 73, 73, 0.16);
+    border: 1px solid rgba(255, 166, 166, 0.24);
+    color: #ffd3d3;
 }
 
 .email-link {
-    color: var(--color-link-customer-visited);
+    color: var(--color-link-customer-underscore);
+}
+
+.customer-form-feedback {
+    margin: 0;
+    color: #b7dcd4;
+}
+
+.customer-form-error {
+    margin: 0;
+    color: #ffb4a7;
+}
+
+@media (max-width: 900px) {
+    .contact-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 760px) {
+    .login-card {
+        grid-template-columns: 1fr;
+    }
+
+    .login-card__copy,
+    .login-form {
+        padding: 1rem;
+    }
 }

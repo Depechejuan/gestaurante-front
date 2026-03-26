@@ -25,7 +25,7 @@ export default function DashboardStaff() {
         },
         {
             title: "Pedidos",
-            description: "Punto de entrada comun para cocina y sala.",
+            description: "Seguimiento en tiempo real para sala y cocina con estados reales.",
             to: "/staff/pedidos",
             roles: ["Administrador", "Camarero", "Cocinero"]
         }
@@ -60,9 +60,9 @@ export default function DashboardStaff() {
             <article className="staff-dashboard__note">
                 <h3>Estado del producto</h3>
                 <p>
-                    Como platos e ingredientes siguen evolucionando, el dashboard de staff
-                    se centra en navegar mejor lo que ya esta operativo y en no exponer
-                    accesos que no correspondan al rol autenticado.
+                    El panel de staff ya trabaja con mesas, pedidos y cierres reales de forma
+                    segura. La carta del cliente sigue guardando su borrador en local hasta que
+                    el backend publico del QR quede definitivamente cerrado.
                 </p>
             </article>
         </section>

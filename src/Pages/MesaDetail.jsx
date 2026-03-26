@@ -1,20 +1,83 @@
+import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
-import { getMesaMockById } from "../data/staffMockData";
+import getToken from "../services/get-token";
+import { closeMesa, getMesa } from "../services/mesas";
+import { formatDateTime, formatMoney, orderStateClass, resolveDetalleStatus, resolvePedidoStatus, translateDetalleStatus, translatePedidoStatus } from "../utils/operations";
 import "../styles/Staff/operations.css";
 
 export default function MesaDetail() {
     const { id } = useParams();
     const location = useLocation();
-    const mesa = location.state?.mesa ?? getMesaMockById(id);
+    const token = getToken();
+    const isAdminView = location.pathname.startsWith("/dashboard");
+    const backPath = isAdminView ? "/dashboard/mesas" : "/staff/mesas";
+
+    const [mesa, setMesa] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const [feedback, setFeedback] = useState("");
+    const [isClosing, setIsClosing] = useState(false);
+
+    const loadMesa = async () => {
+        setLoading(true);
+        setError("");
+        try {
+            const response = await getMesa(id, token);
+            setMesa(response?.data ?? null);
+        } catch (err) {
+            setError(err.message || "No se ha podido cargar la mesa.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        loadMesa();
+    }, [id]);
+
+    const handleCloseMesa = async () => {
+        const confirmed = window.confirm("Se generara una factura con todos los pedidos activos de esta mesa. ¿Continuar?");
+        if (!confirmed) {
+            return;
+        }
+
+        setIsClosing(true);
+        setError("");
+        setFeedback("");
+        try {
+            const response = await closeMesa(id, { descuento: 0, estadoFactura: 0 }, token);
+            const facturaId = response?.data?.numeroFactura;
+            setFeedback(
+                facturaId
+                    ? `Mesa cerrada correctamente. Factura generada: ${String(facturaId).slice(0, 8)}`
+                    : "Mesa cerrada correctamente."
+            );
+            await loadMesa();
+        } catch (err) {
+            setError(err.message || "No se ha podido cerrar la mesa.");
+        } finally {
+            setIsClosing(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <section className="staff-ops-shell">
+                <div className="staff-ops-empty">
+                    <p>Cargando mesa...</p>
+                </div>
+            </section>
+        );
+    }
 
     if (!mesa) {
         return (
             <section className="staff-ops-shell">
                 <div className="staff-ops-warning">
-                    <strong>INCOMPLETO</strong>
-                    <p>No se encontro la mesa solicitada en este mock provisional.</p>
+                    <strong>Error</strong>
+                    <p>No se ha encontrado la mesa solicitada.</p>
                 </div>
-                <Link to="/staff/mesas" className="staff-ops-secondary">Volver a mesas</Link>
+                <Link to={backPath} className="staff-ops-secondary staff-ops-secondary--link">Volver a mesas</Link>
             </section>
         );
     }
@@ -24,63 +87,94 @@ export default function MesaDetail() {
             <div className="staff-ops-header">
                 <div>
                     <p className="staff-ops-eyebrow">Mesa activa</p>
-                    <h1>{mesa.nombre}</h1>
-                    <p>{mesa.zona} · {mesa.capacidad} personas · {mesa.estado}</p>
+                    <h1>Mesa {String(mesa.idMesa).slice(0, 8)}</h1>
+                    <p>{mesa.ubicacion} · {mesa.capacidad} personas · {mesa.estado ? "Disponible" : "Con servicio"}</p>
                 </div>
 
                 <div className="staff-ops-actions">
-                    <button type="button" className="staff-ops-secondary">Anadir comanda</button>
-                    <button type="button" className="staff-ops-primary">Nueva ronda</button>
+                    <button type="button" className="staff-ops-primary" onClick={handleCloseMesa} disabled={isClosing || !mesa.tienePedidosActivos}>
+                        {isClosing ? "Cerrando..." : "Cerrar mesa"}
+                    </button>
+                    <Link to={backPath} className="staff-ops-secondary staff-ops-secondary--link">
+                        Volver
+                    </Link>
                 </div>
             </div>
 
+            {error && (
+                <div className="staff-ops-warning">
+                    <strong>Error</strong>
+                    <p>{error}</p>
+                </div>
+            )}
+
+            {feedback && (
+                <div className="staff-ops-warning staff-ops-warning--success">
+                    <strong>Hecho</strong>
+                    <p>{feedback}</p>
+                </div>
+            )}
+
             <div className="mesa-detail-grid">
                 <article className="mesa-detail-card">
-                    <span className="mesa-detail-card__label">Notas de servicio</span>
-                    <p>{mesa.nota}</p>
+                    <span className="mesa-detail-card__label">Pedidos activos</span>
+                    <strong>{mesa.pedidosAbiertos}</strong>
                 </article>
                 <article className="mesa-detail-card">
-                    <span className="mesa-detail-card__label">Comandas</span>
-                    <strong>{mesa.comandas.length}</strong>
+                    <span className="mesa-detail-card__label">Pendiente de factura</span>
+                    <strong>{formatMoney(mesa.totalPendienteFactura)}</strong>
+                </article>
+                <article className="mesa-detail-card">
+                    <span className="mesa-detail-card__label">Estado</span>
+                    <strong>{mesa.tienePedidosActivos ? "Con consumo pendiente" : "Sin consumo pendiente"}</strong>
                 </article>
             </div>
 
             <section className="comandas-section">
                 <div className="comandas-section__header">
-                    <h2>Lista de pedidos</h2>
-                    <button type="button" className="staff-ops-secondary">Anadir pedido rapido</button>
+                    <h2>Pedidos de la mesa</h2>
                 </div>
 
-                {mesa.comandas.length === 0 ? (
+                {!mesa.pedidos?.length ? (
                     <div className="staff-ops-empty">
-                        <p>Aun no hay comandas abiertas para esta mesa.</p>
+                        <p>No hay pedidos en esta mesa.</p>
                     </div>
                 ) : (
                     <div className="comandas-list">
-                        {mesa.comandas.map((comanda) => (
-                            <article key={comanda.id} className="comanda-card">
-                                <div className="comanda-card__top">
-                                    <div>
-                                        <span className="mesa-detail-card__label">{comanda.estado}</span>
-                                        <h3>{comanda.titulo}</h3>
+                        {mesa.pedidos.map((pedido) => {
+                            const pedidoStatus = resolvePedidoStatus(pedido.estado);
+                            return (
+                                <article key={pedido.idPedido} className="comanda-card">
+                                    <div className="comanda-card__top">
+                                        <div>
+                                            <span className={`mesa-detail-card__label ops-badge ${orderStateClass(pedidoStatus)}`}>
+                                                {translatePedidoStatus(pedidoStatus)}
+                                            </span>
+                                            <h3>Pedido {String(pedido.idPedido).slice(0, 8)}</h3>
+                                        </div>
+                                        <strong>{formatMoney(pedido.total)}</strong>
                                     </div>
-                                    <strong>{comanda.total}</strong>
-                                </div>
 
-                                <ul>
-                                    {comanda.items.map((item) => (
-                                        <li key={item}>{item}</li>
-                                    ))}
-                                </ul>
+                                    <ul>
+                                        {pedido.detalles.map((detalle) => {
+                                            const detailStatus = resolveDetalleStatus(detalle.estado);
+                                            return (
+                                                <li key={detalle.idDetallePedido}>
+                                                    {detalle.cantidad} x {detalle.platoNombre} · {formatMoney(detalle.precioUnitario)} · {translateDetalleStatus(detailStatus)}
+                                                </li>
+                                            );
+                                        })}
+                                    </ul>
 
-                                <div className="comanda-card__footer">
-                                    <span>{comanda.actualizada}</span>
-                                    <Link to={`/staff/pedidos/${comanda.id}`} state={{ comanda, mesa }}>
-                                        Ver comanda
-                                    </Link>
-                                </div>
-                            </article>
-                        ))}
+                                    <div className="comanda-card__footer">
+                                        <span>{formatDateTime(pedido.fechaModificacion ?? pedido.fechaPedido)}</span>
+                                        <Link to={`/staff/pedidos/${pedido.idPedido}`}>
+                                            Ver pedido
+                                        </Link>
+                                    </div>
+                                </article>
+                            );
+                        })}
                     </div>
                 )}
             </section>

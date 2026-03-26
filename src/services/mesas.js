@@ -19,3 +19,7 @@ export function updateMesa(id, body, token) {
 export function deleteMesa(id, token) {
     return authApiRequest(`/Mesa/${id}`, { method: "DELETE", token });
 }
+
+export function closeMesa(id, body, token) {
+    return authApiRequest(`/Mesa/${id}/cerrar`, { method: "POST", body, token });
+}

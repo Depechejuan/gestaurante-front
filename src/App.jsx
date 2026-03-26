@@ -75,6 +75,8 @@ function App() {
 						<Route path="empleados/:id" element={<UniqueEmpleado />} />
 						<Route path="facturas" element={<Facturas />} />
 						<Route path="facturas/:id" element={<UniqueFactura />} />
+						<Route path="mesas" element={<Mesas />} />
+						<Route path="mesas/:id" element={<MesaDetail />} />
 						<Route path="carta" element={<PlatosAdmin />} />
 						<Route path="plato/:id" element={<UniquePlatoAdmin />} />
 					</Route>

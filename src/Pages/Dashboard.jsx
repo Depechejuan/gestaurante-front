@@ -12,6 +12,12 @@ function Dashboard() {
             status: "Disponible"
         },
         {
+            title: "Mesas",
+            description: "Gestion operativa de sala con cierre y facturacion de mesa.",
+            to: "/dashboard/mesas",
+            status: "Operativo"
+        },
+        {
             title: "Registro",
             description: "Crear usuarios y asignar rol desde el panel seguro.",
             to: "/dashboard/register",

@@ -20,7 +20,7 @@ export default function CustomerVerifyEmail() {
         try {
             await verifyCustomerEmail({ email, code });
             setFeedback("Email validado correctamente.");
-            navigate("/cuenta/login");
+            navigate("/login");
         } catch (err) {
             setError(err.message || "No se ha podido validar el código.");
         } finally {

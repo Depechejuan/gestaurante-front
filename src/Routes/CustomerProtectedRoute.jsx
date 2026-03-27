@@ -9,7 +9,7 @@ export default function CustomerProtectedRoute() {
     }
 
     if (!customer) {
-        return <Navigate to="/cuenta/login" replace />;
+        return <Navigate to="/login" replace />;
     }
 
     return <Outlet />;

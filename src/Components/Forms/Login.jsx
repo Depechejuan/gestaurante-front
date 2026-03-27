@@ -1,37 +1,30 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import sendLogin from "../../services/login";
 import saveToken from "../../services/save-token";
-import "../../styles/Customer/form.css";
+import { loginCustomer } from "../../services/customer-account";
+import { saveCustomerToken } from "../../services/customer-token-storage";
+import AuthLoginForm from "./Auth-Login-Form";
 
 function Login() {
-    const [form, setForm] = useState({
-        email: "",
-        password: ""
-    });
-    const [error, setError] = useState("");
-    const [isSubmitting, setIsSubmitting] = useState(false);
-
     const navigate = useNavigate();
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setError("");
-        setForm({
-            ...form,
-            [name]: value
-        });
-    };
+    const handleSubmit = async (form) => {
+        try {
+            const response = await loginCustomer(form);
+            if (!response?.data) {
+                throw new Error("No se ha podido iniciar sesión.");
+            }
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-        setError("");
+            saveCustomerToken(response.data);
+            navigate("/pedido-online");
+            return;
+        } catch {
+            // Si no es una cuenta de cliente válida, probamos el acceso interno.
+        }
+
         const response = await sendLogin(form);
         if (!response?.data) {
-            setError("No hemos podido iniciar sesion. Revisa tus credenciales e intentalo de nuevo.");
-            setIsSubmitting(false);
-            return;
+            throw new Error("No hemos podido iniciar sesión. Revisa tus credenciales e inténtalo de nuevo.");
         }
 
         saveToken(response.data);
@@ -40,62 +33,24 @@ function Login() {
             navigate("/dashboard");
             return;
         }
-        if (tipo === 1 || tipo === 2) {
+        if (tipo === 1 || tipo === 2 || tipo === 3) {
             navigate("/staff");
             return;
         }
 
-        setIsSubmitting(false);
         navigate("/");
     };
 
     return (
-        <section className="public-page public-page--login">
-            <div className="customer-auth-card login-card">
-                <div className="customer-auth-card__copy login-card__copy">
-                    <p className="public-eyebrow login-card__eyebrow">Acceso interno</p>
-                    <h1>Entrar al panel</h1>
-                    <p>
-                        Acceso reservado para administracion y staff. El destino final depende
-                        del rol del usuario autenticado.
-                    </p>
-                </div>
-
-                <form onSubmit={handleSubmit} className="customer-contact-form customer-contact-form--auth login-form">
-                    <div className="customer-form-group">
-                        <label htmlFor="login-email">Email</label>
-                        <input
-                            id="login-email"
-                            type="email"
-                            name="email"
-                            value={form.email}
-                            onChange={handleChange}
-                            placeholder="tu@email.com"
-                            required
-                        />
-                    </div>
-
-                    <div className="customer-form-group">
-                        <label htmlFor="login-password">Contraseña</label>
-                        <input
-                            id="login-password"
-                            type="password"
-                            name="password"
-                            value={form.password}
-                            onChange={handleChange}
-                            placeholder="Introduce tu contraseña"
-                            required
-                        />
-                    </div>
-
-                    {error && <p className="login-form__error">{error}</p>}
-
-                    <button type="submit" className="customer-btn-primary" disabled={isSubmitting}>
-                        {isSubmitting ? "Accediendo..." : "Entrar"}
-                    </button>
-                </form>
-            </div>
-        </section>
+        <AuthLoginForm
+            eyebrow="Acceso"
+            title="Entrar"
+            description="Usa el mismo formulario para acceder como cliente o como personal. La aplicación resolverá internamente el tipo de cuenta y te llevará a tu área correspondiente."
+            submitLabel="Entrar"
+            loadingLabel="Entrando..."
+            errorMessage="No hemos podido iniciar sesión. Revisa tus credenciales e inténtalo de nuevo."
+            onSubmit={handleSubmit}
+        />
     );
 }
 

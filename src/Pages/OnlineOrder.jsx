@@ -150,7 +150,7 @@ export default function OnlineOrder() {
                     <h1>Recogida o entrega a domicilio</h1>
                     <p>{hasCustomerSession ? `Sesión activa de ${customer?.firstName}.` : "Inicia sesión para completar tu pedido online."}</p>
                 </div>
-                {!hasCustomerSession && <Link to="/cuenta/login" className="staff-ops-primary">Entrar como cliente</Link>}
+                {!hasCustomerSession && <Link to="/login" className="staff-ops-primary">Acceder</Link>}
             </section>
 
             {error && <div className="staff-ops-warning"><p>{error}</p></div>}

@@ -19,9 +19,8 @@ export default function CustomerMenu({isMenuOpen, closeMenu}) {
                 { to: "/cuenta/pedidos", label: "Mis pedidos" }
             ]
             : [
-                { to: "/cuenta/login", label: "Acceso cliente" }
-            ]),
-        { to: "/login", label: "Acceso interno" }
+                { to: "/login", label: "Acceso" }
+            ])
     ];
 
     const renderLogout = hasCustomerSession ? (

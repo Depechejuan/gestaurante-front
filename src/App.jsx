@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Navigate, Routes, Route } from 'react-router-dom';
 
 // Páginas
 import Home from "./Pages/Home";
@@ -34,7 +34,6 @@ import PlatosPublic from './Pages/PlatosPublic';
 import MesaQrMenu from './Pages/MesaQrMenu';
 import CustomerRegister from './Pages/CustomerRegister';
 import CustomerVerifyEmail from './Pages/CustomerVerifyEmail';
-import CustomerLogin from './Pages/CustomerLogin';
 import OnlineOrder from './Pages/OnlineOrder';
 import CustomerAccount from './Pages/CustomerAccount';
 import CustomerOrders from './Pages/CustomerOrders';
@@ -66,7 +65,7 @@ function App() {
 					<Route path="/checkout" element={<OnlineOrder />} />
 					<Route path="/cuenta/register" element={<CustomerRegister />} />
 					<Route path="/cuenta/verificar-email" element={<CustomerVerifyEmail />} />
-					<Route path="/cuenta/login" element={<CustomerLogin />} />
+					<Route path="/cuenta/login" element={<Navigate to="/login" replace />} />
 					<Route path="/about" element={<About />} />
 					<Route path="/contacto" element={<Contact />} />
 					<Route element={<CustomerProtectedRoute />}>

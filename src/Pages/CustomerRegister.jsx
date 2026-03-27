@@ -52,7 +52,7 @@ export default function CustomerRegister() {
                     <button type="submit" className="customer-contact-form__submit" disabled={loading}>
                         {loading ? "Creando..." : "Crear cuenta"}
                     </button>
-                    <Link to="/cuenta/login" className="email-link">Ya tengo cuenta</Link>
+                    <Link to="/login" className="email-link">Ya tengo cuenta</Link>
                 </form>
             </div>
         </section>

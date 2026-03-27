@@ -3,7 +3,18 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../Auth/Auth-Context";
 import getToken from "../services/get-token";
 import { getPedidos } from "../services/pedidos";
-import { formatDateTime, formatMoney, orderStateClass, resolveDetalleStatus, resolvePedidoStatus, translateDetalleStatus, translatePedidoStatus } from "../utils/operations";
+import {
+    formatDateTime,
+    formatMoney,
+    orderStateClass,
+    resolveDetalleStatus,
+    resolvePedidoStatus,
+    translateCanalPedido,
+    translateDetalleStatus,
+    translateEstadoPago,
+    translatePedidoStatus,
+    translateTipoEntrega
+} from "../utils/operations";
 import "../styles/Staff/operations.css";
 
 export default function Pedidos() {
@@ -28,6 +39,8 @@ export default function Pedidos() {
         };
 
         loadPedidos();
+        const interval = window.setInterval(loadPedidos, 15000);
+        return () => window.clearInterval(interval);
     }, []);
 
     const visiblePedidos = useMemo(() => {
@@ -35,6 +48,13 @@ export default function Pedidos() {
             return pedidos.filter((pedido) => {
                 const status = resolvePedidoStatus(pedido.estado);
                 return ["CONFIRMADO", "PREPARACION", "LISTO"].includes(status);
+            });
+        }
+
+        if (roleName === "Repartidor") {
+            return pedidos.filter((pedido) => {
+                const status = resolvePedidoStatus(pedido.estado);
+                return pedido.tipoEntrega === 2 && ["LISTO", "EN_CAMINO"].includes(status);
             });
         }
 
@@ -73,7 +93,11 @@ export default function Pedidos() {
                 <div className="comandas-list">
                     {visiblePedidos.map((pedido) => {
                         const pedidoStatus = resolvePedidoStatus(pedido.estado);
-                        const mesaLabel = pedido.idMesa ? `Mesa ${String(pedido.idMesa).slice(0, 8)}` : "Sin mesa";
+                        const mesaLabel = pedido.idMesa
+                            ? `Mesa ${String(pedido.idMesa).slice(0, 8)}`
+                            : pedido.clienteNombre
+                                ? pedido.clienteNombre
+                                : "Sin mesa";
 
                         return (
                             <article key={pedido.idPedido} className="comanda-card">
@@ -88,7 +112,10 @@ export default function Pedidos() {
                                 </div>
 
                                 <p className="ops-inline-meta">
-                                    {mesaLabel} · {pedido.estaFacturado ? "Facturado" : "Pendiente de factura"} · {formatDateTime(pedido.fechaModificacion ?? pedido.fechaPedido)}
+                                    {mesaLabel} · {translateCanalPedido(pedido.canalPedido)} · {translateTipoEntrega(pedido.tipoEntrega)} · {translateEstadoPago(pedido.estadoPago)}
+                                </p>
+                                <p className="ops-inline-meta">
+                                    {pedido.estaFacturado ? "Facturado" : "Pendiente de factura"} · {formatDateTime(pedido.fechaModificacion ?? pedido.fechaPedido)}
                                 </p>
 
                                 <ul>

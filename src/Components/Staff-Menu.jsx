@@ -17,9 +17,11 @@ export default function StaffMenu({isMenuOpen, closeMenu}) {
         navigate("/", {replace: true})
     }
     const staffLinks = [
-        { to: "/staff", label: "Resumen", end: true, roles: ["Administrador", "Camarero", "Cocinero"] },
+        { to: "/staff", label: "Resumen", end: true, roles: ["Administrador", "Camarero", "Cocinero", "Repartidor"] },
         { to: "/staff/mesas", label: "Mesas", roles: ["Administrador", "Camarero"] },
-        { to: "/staff/pedidos", label: "Pedidos", roles: ["Administrador", "Camarero", "Cocinero"] }
+        { to: "/staff/pedidos", label: "Pedidos", roles: ["Administrador", "Camarero", "Cocinero", "Repartidor"] },
+        { to: "/staff/entregas", label: "Recogidas", roles: ["Administrador", "Camarero"] },
+        { to: "/staff/reparto", label: "Reparto", roles: ["Administrador", "Repartidor"] }
     ];
 
     return (
@@ -45,4 +47,3 @@ export default function StaffMenu({isMenuOpen, closeMenu}) {
             </nav>
     )
 }
-

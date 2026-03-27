@@ -8,7 +8,8 @@ export const AuthContext = createContext(null);
 const roleMap = {
     0: "Administrador",
     1: "Camarero",
-    2: "Cocinero"
+    2: "Cocinero",
+    3: "Repartidor"
 };
 
 export function useAuth() {

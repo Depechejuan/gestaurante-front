@@ -7,7 +7,8 @@ export default function DashboardStaff() {
     const roleCopy = {
         Administrador: "Tienes visibilidad transversal sobre la operativa diaria.",
         Camarero: "Accede rapido a mesas y pedidos para mantener el servicio fluido.",
-        Cocinero: "Prioriza pedidos y preparacion sin ruido de secciones no necesarias."
+        Cocinero: "Prioriza pedidos y preparacion sin ruido de secciones no necesarias.",
+        Repartidor: "Centra tu jornada en entregas de domicilio y pedidos listos para salir."
     };
 
     const shortcuts = [
@@ -15,7 +16,7 @@ export default function DashboardStaff() {
             title: "Resumen",
             description: "Vista inicial del turno y acceso condicionado por token.",
             to: "/staff",
-            roles: ["Administrador", "Camarero", "Cocinero"]
+            roles: ["Administrador", "Camarero", "Cocinero", "Repartidor"]
         },
         {
             title: "Mesas",
@@ -27,7 +28,19 @@ export default function DashboardStaff() {
             title: "Pedidos",
             description: "Seguimiento en tiempo real para sala y cocina con estados reales.",
             to: "/staff/pedidos",
-            roles: ["Administrador", "Camarero", "Cocinero"]
+            roles: ["Administrador", "Camarero", "Cocinero", "Repartidor"]
+        },
+        {
+            title: "Recogidas",
+            description: "Cola de pedidos online listos para entregar en local.",
+            to: "/staff/entregas",
+            roles: ["Administrador", "Camarero"]
+        },
+        {
+            title: "Reparto",
+            description: "Pedidos online a domicilio listos para salir o en camino.",
+            to: "/staff/reparto",
+            roles: ["Administrador", "Repartidor"]
         }
     ];
 
@@ -60,9 +73,9 @@ export default function DashboardStaff() {
             <article className="staff-dashboard__note">
                 <h3>Estado del producto</h3>
                 <p>
-                    El panel de staff ya trabaja con mesas, pedidos y cierres reales de forma
-                    segura. La carta del cliente sigue guardando su borrador en local hasta que
-                    el backend publico del QR quede definitivamente cerrado.
+                    El panel de staff ya combina operativa de sala, cocina, recogidas y reparto.
+                    Los pedidos online llegan cerrados desde cliente y se enrutan segun sea
+                    recogida o domicilio.
                 </p>
             </article>
         </section>

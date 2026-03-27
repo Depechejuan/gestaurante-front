@@ -3,14 +3,32 @@ import { Link, useParams } from "react-router-dom";
 import { useAuth } from "../Auth/Auth-Context";
 import getToken from "../services/get-token";
 import { cancelDetallePedido, cancelPedido, getPedido, updatePedido } from "../services/pedidos";
-import { formatDateTime, formatMoney, orderStateClass, resolveDetalleStatus, resolvePedidoStatus, translateDetalleStatus, translatePedidoStatus } from "../utils/operations";
+import {
+    formatDateTime,
+    formatMoney,
+    orderStateClass,
+    resolveCanalPedido,
+    resolveDetalleStatus,
+    resolveEstadoPago,
+    resolvePedidoStatus,
+    resolveTipoEntrega,
+    translateCanalPedido,
+    translateDetalleStatus,
+    translateEstadoPago,
+    translatePedidoStatus,
+    translateTipoEntrega
+} from "../utils/operations";
 import "../styles/Staff/operations.css";
 
 const pedidoTransitions = {
     PENDIENTE: [{ label: "Confirmar pedido", value: 1, roles: ["Administrador", "Camarero"] }],
     CONFIRMADO: [{ label: "Enviar a preparacion", value: 2, roles: ["Administrador", "Cocinero"] }],
     PREPARACION: [{ label: "Marcar listo", value: 3, roles: ["Administrador", "Cocinero"] }],
-    LISTO: [{ label: "Marcar entregado", value: 4, roles: ["Administrador", "Camarero"] }]
+    LISTO: [
+        { label: "Marcar en camino", value: 6, roles: ["Administrador", "Repartidor"], tiposEntrega: ["DOMICILIO"] },
+        { label: "Marcar entregado", value: 4, roles: ["Administrador", "Camarero"], tiposEntrega: ["RECOGIDA", "MESA"] }
+    ],
+    EN_CAMINO: [{ label: "Marcar entregado", value: 4, roles: ["Administrador", "Repartidor"], tiposEntrega: ["DOMICILIO"] }]
 };
 
 export default function UniquePedido() {
@@ -41,9 +59,16 @@ export default function UniquePedido() {
     }, [id]);
 
     const pedidoStatus = resolvePedidoStatus(pedido?.estado);
+    const tipoEntrega = resolveTipoEntrega(pedido?.tipoEntrega);
+    const canalPedido = resolveCanalPedido(pedido?.canalPedido);
+    const estadoPago = resolveEstadoPago(pedido?.estadoPago);
     const availableTransitions = useMemo(
-        () => (pedidoTransitions[pedidoStatus] ?? []).filter((transition) => transition.roles.includes(roleName)),
-        [pedidoStatus, roleName]
+        () => (pedidoTransitions[pedidoStatus] ?? []).filter((transition) => {
+            const allowedRole = transition.roles.includes(roleName);
+            const allowedTipo = !transition.tiposEntrega || transition.tiposEntrega.includes(tipoEntrega);
+            return allowedRole && allowedTipo;
+        }),
+        [pedidoStatus, roleName, tipoEntrega]
     );
 
     const handleTransition = async (nextStatus) => {
@@ -132,7 +157,7 @@ export default function UniquePedido() {
                     <h1>Pedido {String(pedido.idPedido).slice(0, 8)}</h1>
                     <p>
                         {pedido.idMesa ? `Mesa ${String(pedido.idMesa).slice(0, 8)} · ` : ""}
-                        {translatePedidoStatus(pedidoStatus)} · {formatDateTime(pedido.fechaModificacion ?? pedido.fechaPedido)}
+                        {translatePedidoStatus(pedidoStatus)} · {translateCanalPedido(canalPedido)} · {translateTipoEntrega(tipoEntrega)} · {formatDateTime(pedido.fechaModificacion ?? pedido.fechaPedido)}
                     </p>
                 </div>
 
@@ -187,8 +212,37 @@ export default function UniquePedido() {
                     <div className="ops-detail-meta">
                         <span>{pedido.estaFacturado ? "Facturado" : "Pendiente de factura"}</span>
                         <span>{pedido.tieneLineasActivas ? "Con lineas activas" : "Sin lineas activas"}</span>
+                        <span>{translateEstadoPago(estadoPago)}</span>
                     </div>
                 </div>
+
+                {(canalPedido === "ONLINE" || pedido.clienteNombre || pedido.clienteEmail) && (
+                    <div className="mesa-detail-grid">
+                        <article className="mesa-detail-card">
+                            <span className="mesa-detail-card__label">Cliente</span>
+                            <strong>{pedido.clienteNombre || "Cliente online"}</strong>
+                            <p>{pedido.clienteEmail || "Sin email"}</p>
+                        </article>
+                        <article className="mesa-detail-card">
+                            <span className="mesa-detail-card__label">Contacto</span>
+                            <strong>{pedido.clienteTelefono || "Sin teléfono"}</strong>
+                            <p>{translateTipoEntrega(tipoEntrega)}</p>
+                        </article>
+                        {pedido.clienteDireccionSnapshot && (
+                            <article className="mesa-detail-card">
+                                <span className="mesa-detail-card__label">Entrega</span>
+                                <strong>{pedido.clienteDireccionSnapshot}</strong>
+                            </article>
+                        )}
+                    </div>
+                )}
+
+                {pedido.notas && (
+                    <div className="staff-ops-warning">
+                        <strong>Notas del pedido</strong>
+                        <p>{pedido.notas}</p>
+                    </div>
+                )}
 
                 <div className="ops-lines">
                     {pedido.detalles.map((detalle) => {

@@ -32,6 +32,17 @@ import PlatosAdmin from './Pages/PlatosAdmin';
 import UniquePlatoAdmin from './Pages/UniquePlatoAdmin';
 import PlatosPublic from './Pages/PlatosPublic';
 import MesaQrMenu from './Pages/MesaQrMenu';
+import CustomerRegister from './Pages/CustomerRegister';
+import CustomerVerifyEmail from './Pages/CustomerVerifyEmail';
+import CustomerLogin from './Pages/CustomerLogin';
+import OnlineOrder from './Pages/OnlineOrder';
+import CustomerAccount from './Pages/CustomerAccount';
+import CustomerOrders from './Pages/CustomerOrders';
+import CustomerAddresses from './Pages/CustomerAddresses';
+import CustomerPaymentMethods from './Pages/CustomerPaymentMethods';
+import CustomerProtectedRoute from './Routes/CustomerProtectedRoute';
+import Reparto from './Pages/Reparto';
+import Entregas from './Pages/Entregas';
 
 function App() {
 
@@ -51,18 +62,31 @@ function App() {
 					<Route path="/login" element={<Login />} />
 					<Route path="/carta" element={<PlatosPublic />} />
 					<Route path="/mesa/:id" element={<MesaQrMenu />} />
+					<Route path="/pedido-online" element={<OnlineOrder />} />
+					<Route path="/checkout" element={<OnlineOrder />} />
+					<Route path="/cuenta/register" element={<CustomerRegister />} />
+					<Route path="/cuenta/verificar-email" element={<CustomerVerifyEmail />} />
+					<Route path="/cuenta/login" element={<CustomerLogin />} />
 					<Route path="/about" element={<About />} />
 					<Route path="/contacto" element={<Contact />} />
+					<Route element={<CustomerProtectedRoute />}>
+						<Route path="/cuenta" element={<CustomerAccount />} />
+						<Route path="/cuenta/pedidos" element={<CustomerOrders />} />
+						<Route path="/cuenta/direcciones" element={<CustomerAddresses />} />
+						<Route path="/cuenta/metodos-pago" element={<CustomerPaymentMethods />} />
+					</Route>
 				</Route>
 
 				{/* STAFF */}
-				<Route element={<ProtectedRoute role={["Camarero", "Cocinero", "Administrador"]} />}>
+				<Route element={<ProtectedRoute role={["Camarero", "Cocinero", "Administrador", "Repartidor"]} />}>
 					<Route path="staff" element={<LayoutStaff />}>
 						<Route index element={<DashboardStaff />} />
 						<Route path="mesas" element={<Mesas />} />
 						<Route path="mesas/:id" element={<MesaDetail />} />
 						<Route path="pedidos" element={<Pedidos />} />
 						<Route path="pedidos/:id" element={<UniquePedido />} />
+						<Route path="entregas" element={<Entregas />} />
+						<Route path="reparto" element={<Reparto />} />
 					</Route>
 				</Route>
 

@@ -41,6 +41,7 @@ export default function ListPlatosPublic({platos, onAddToCart}) {
         const amount = Number(amounts[plato._fallbackId] ?? 1);
         if (onAddToCart) {
             onAddToCart(plato, amount);
+            setBasketFeedback(`${amount} x ${plato.nombre} añadido.`);
             return;
         }
 
@@ -54,6 +55,17 @@ export default function ListPlatosPublic({platos, onAddToCart}) {
             </div>
         );
     }
+
+    const resolveIngredientes = (plato) => {
+        if (Array.isArray(plato.ingredientes) && plato.ingredientes.length) {
+            return plato.ingredientes
+                .map((ingrediente) => ingrediente.nombre ?? ingrediente)
+                .filter(Boolean)
+                .join(", ");
+        }
+
+        return plato.ingredientes || "Ingredientes aun no definidos en detalle.";
+    };
 
     return(
         <section className="menu-public">
@@ -88,7 +100,7 @@ export default function ListPlatosPublic({platos, onAddToCart}) {
                                     </div>
                                     <p className="plato-desc">{plato.descripcion}</p>
                                     <p className="plato-meta">
-                                        {plato.ingredientes || "Ingredientes aun no definidos en detalle."}
+                                        {resolveIngredientes(plato)}
                                     </p>
                                 </section>
 

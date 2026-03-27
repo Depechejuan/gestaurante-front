@@ -1,17 +1,36 @@
 import { NavLink } from "react-router-dom";
-
-const customerLinks = [
-    { to: "/", label: "Inicio", end: true },
-    { to: "/carta", label: "Carta" },
-    { to: "/about", label: "Nosotros" },
-    { to: "/contacto", label: "Contacto" },
-    { to: "/login", label: "Acceso interno" }
-];
+import { useCustomerAuth } from "../Auth/Customer-Auth-Context";
 
 export default function CustomerMenu({isMenuOpen, closeMenu}) {
+    const { hasCustomerSession, logout } = useCustomerAuth();
     const handleLinkClick = () => {
         closeMenu();
     }
+
+    const customerLinks = [
+        { to: "/", label: "Inicio", end: true },
+        { to: "/carta", label: "Carta" },
+        { to: "/pedido-online", label: "Pedido online" },
+        { to: "/about", label: "Nosotros" },
+        { to: "/contacto", label: "Contacto" },
+        ...(hasCustomerSession
+            ? [
+                { to: "/cuenta", label: "Mi cuenta" },
+                { to: "/cuenta/pedidos", label: "Mis pedidos" }
+            ]
+            : [
+                { to: "/cuenta/login", label: "Acceso cliente" }
+            ]),
+        { to: "/login", label: "Acceso interno" }
+    ];
+
+    const renderLogout = hasCustomerSession ? (
+        <li>
+            <button type="button" onClick={() => { logout(); handleLinkClick(); }}>
+                Cerrar sesión cliente
+            </button>
+        </li>
+    ) : null;
 
     return (
         <>
@@ -25,6 +44,7 @@ export default function CustomerMenu({isMenuOpen, closeMenu}) {
                             </NavLink>
                         </li>
                     ))}
+                    {renderLogout}
                 </ul>
             </nav>
             
@@ -38,6 +58,7 @@ export default function CustomerMenu({isMenuOpen, closeMenu}) {
                             </NavLink>
                         </li>
                     ))}
+                    {renderLogout}
                 </ul>
             </nav>
         </>

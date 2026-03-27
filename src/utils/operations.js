@@ -4,7 +4,8 @@ const pedidoStatusByValue = {
     2: "PREPARACION",
     3: "LISTO",
     4: "ENTREGADO",
-    5: "CANCELADO"
+    5: "CANCELADO",
+    6: "EN_CAMINO"
 };
 
 const detalleStatusByValue = {
@@ -18,6 +19,26 @@ const facturaStatusByValue = {
     2: "CANCELADO"
 };
 
+const canalPedidoByValue = {
+    0: "SALA",
+    1: "QR",
+    2: "ONLINE"
+};
+
+const tipoEntregaByValue = {
+    0: "MESA",
+    1: "RECOGIDA",
+    2: "DOMICILIO"
+};
+
+const estadoPagoByValue = {
+    0: "NO_APLICA",
+    1: "PENDIENTE_LOCAL",
+    2: "PAGADO_LOCAL",
+    3: "PAGADO_MOCK",
+    4: "REEMBOLSADO_MOCK"
+};
+
 export function resolvePedidoStatus(status) {
     return typeof status === "number" ? pedidoStatusByValue[status] ?? "PENDIENTE" : status;
 }
@@ -28,6 +49,18 @@ export function resolveDetalleStatus(status) {
 
 export function resolveFacturaStatus(status) {
     return typeof status === "number" ? facturaStatusByValue[status] ?? "PENDIENTE" : status;
+}
+
+export function resolveCanalPedido(value) {
+    return typeof value === "number" ? canalPedidoByValue[value] ?? "SALA" : value;
+}
+
+export function resolveTipoEntrega(value) {
+    return typeof value === "number" ? tipoEntregaByValue[value] ?? "MESA" : value;
+}
+
+export function resolveEstadoPago(value) {
+    return typeof value === "number" ? estadoPagoByValue[value] ?? "NO_APLICA" : value;
 }
 
 export function formatMoney(amount) {
@@ -66,6 +99,7 @@ export function translatePedidoStatus(status) {
         CONFIRMADO: "Confirmado",
         PREPARACION: "En preparacion",
         LISTO: "Listo",
+        EN_CAMINO: "En camino",
         ENTREGADO: "Entregado",
         CANCELADO: "Cancelado"
     };
@@ -92,6 +126,41 @@ export function translateFacturaStatus(status) {
     };
 
     return dictionary[normalizedStatus] ?? normalizedStatus ?? "Sin estado";
+}
+
+export function translateCanalPedido(value) {
+    const status = resolveCanalPedido(value);
+    const dictionary = {
+        SALA: "Sala",
+        QR: "Mesa QR",
+        ONLINE: "Pedido online"
+    };
+
+    return dictionary[status] ?? status ?? "Canal desconocido";
+}
+
+export function translateTipoEntrega(value) {
+    const status = resolveTipoEntrega(value);
+    const dictionary = {
+        MESA: "Mesa",
+        RECOGIDA: "Recogida",
+        DOMICILIO: "Domicilio"
+    };
+
+    return dictionary[status] ?? status ?? "Entrega desconocida";
+}
+
+export function translateEstadoPago(value) {
+    const status = resolveEstadoPago(value);
+    const dictionary = {
+        NO_APLICA: "Sin cobro",
+        PENDIENTE_LOCAL: "Pago en local",
+        PAGADO_LOCAL: "Cobrado en local",
+        PAGADO_MOCK: "Pagado online",
+        REEMBOLSADO_MOCK: "Reembolsado"
+    };
+
+    return dictionary[status] ?? status ?? "Estado de pago";
 }
 
 export function orderStateClass(status) {

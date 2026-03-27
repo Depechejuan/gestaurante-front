@@ -50,8 +50,9 @@ export default function PlatosPublic() {
                 <p className="public-eyebrow">Carta</p>
                 <h1>Explora la carta por tipo</h1>
                 <p>
-                    Mientras los platos siguen siendo mocks, la navegacion ya permite ir
-                    directamente a entrantes, pastas, paellas, postres o al tipo que corresponda.
+                    La carta publica ya se agrupa por tipo para que puedas saltar directo a cada
+                    bloque. Si el backend no responde, el front conserva un fallback temporal para
+                    no romper la experiencia.
                 </p>
             </section>
 

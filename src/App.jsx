@@ -40,8 +40,8 @@ import CustomerOrders from './Pages/CustomerOrders';
 import CustomerAddresses from './Pages/CustomerAddresses';
 import CustomerPaymentMethods from './Pages/CustomerPaymentMethods';
 import CustomerProtectedRoute from './Routes/CustomerProtectedRoute';
-import Reparto from './Pages/Reparto';
-import Entregas from './Pages/Entregas';
+import PedidosOnline from './Pages/PedidosOnline';
+import Clientes from './Pages/Clientes';
 
 function App() {
 
@@ -84,8 +84,14 @@ function App() {
 						<Route path="mesas/:id" element={<MesaDetail />} />
 						<Route path="pedidos" element={<Pedidos />} />
 						<Route path="pedidos/:id" element={<UniquePedido />} />
-						<Route path="entregas" element={<Entregas />} />
-						<Route path="reparto" element={<Reparto />} />
+						<Route path="online" element={<PedidosOnline />} />
+						<Route path="entregas" element={<Navigate to="/staff/online?view=recogida" replace />} />
+						<Route path="reparto" element={<Navigate to="/staff/online?view=reparto" replace />} />
+						<Route element={<ProtectedRoute role={["Administrador", "Camarero"]} />}>
+							<Route path="facturas" element={<Facturas />} />
+							<Route path="facturas/:id" element={<UniqueFactura />} />
+							<Route path="clientes" element={<Clientes />} />
+						</Route>
 					</Route>
 				</Route>
 
@@ -98,6 +104,7 @@ function App() {
 						<Route path="empleados/:id" element={<UniqueEmpleado />} />
 						<Route path="facturas" element={<Facturas />} />
 						<Route path="facturas/:id" element={<UniqueFactura />} />
+						<Route path="clientes" element={<Clientes />} />
 						<Route path="mesas" element={<Mesas />} />
 						<Route path="mesas/:id" element={<MesaDetail />} />
 						<Route path="carta" element={<PlatosAdmin />} />

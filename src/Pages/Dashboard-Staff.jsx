@@ -31,16 +31,22 @@ export default function DashboardStaff() {
             roles: ["Administrador", "Camarero", "Cocinero", "Repartidor"]
         },
         {
-            title: "Recogidas",
-            description: "Cola de pedidos online listos para entregar en local.",
-            to: "/staff/entregas",
+            title: "Pedidos online",
+            description: "Vista unificada para recogidas y reparto, destacada segun el rol.",
+            to: "/staff/online",
+            roles: ["Administrador", "Camarero", "Repartidor"]
+        },
+        {
+            title: "Facturas",
+            description: "Cobro, consulta y envio de facturas desde el panel de sala.",
+            to: "/staff/facturas",
             roles: ["Administrador", "Camarero"]
         },
         {
-            title: "Reparto",
-            description: "Pedidos online a domicilio listos para salir o en camino.",
-            to: "/staff/reparto",
-            roles: ["Administrador", "Repartidor"]
+            title: "Clientes",
+            description: "Acceso a clientes para vincular facturas y consultar datos fiscales.",
+            to: "/staff/clientes",
+            roles: ["Administrador", "Camarero"]
         }
     ];
 
@@ -73,9 +79,9 @@ export default function DashboardStaff() {
             <article className="staff-dashboard__note">
                 <h3>Estado del producto</h3>
                 <p>
-                    El panel de staff ya combina operativa de sala, cocina, recogidas y reparto.
-                    Los pedidos online llegan cerrados desde cliente y se enrutan segun sea
-                    recogida o domicilio.
+                    El panel de staff ya combina operativa de sala, cocina, pedidos online,
+                    facturacion y clientes segun el rol activo. Los pedidos online llegan
+                    cerrados desde cliente y se distinguen por recogida o domicilio.
                 </p>
             </article>
         </section>

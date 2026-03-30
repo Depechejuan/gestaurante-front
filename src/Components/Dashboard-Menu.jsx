@@ -28,6 +28,7 @@ export default function DashboardMenu({ className = "", onNavigateLink }) {
             <div className="dashboard-nav__group">
                 <NavLink to="/dashboard" end className="dashboard-nav__link" onClick={handleNavigateLink}>Resumen</NavLink>
                 <NavLink to="/dashboard/empleados" className="dashboard-nav__link" onClick={handleNavigateLink}>Empleados</NavLink>
+                <NavLink to="/dashboard/clientes" className="dashboard-nav__link" onClick={handleNavigateLink}>Clientes</NavLink>
                 <NavLink to="/dashboard/mesas" className="dashboard-nav__link" onClick={handleNavigateLink}>Mesas</NavLink>
                 <NavLink to="/dashboard/carta" className="dashboard-nav__link" onClick={handleNavigateLink}>Carta</NavLink>
                 <NavLink to="/dashboard/register" className="dashboard-nav__link" onClick={handleNavigateLink}>Registrar</NavLink>

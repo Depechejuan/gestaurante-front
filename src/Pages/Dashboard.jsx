@@ -18,6 +18,12 @@ function Dashboard() {
             status: "Operativo"
         },
         {
+            title: "Clientes",
+            description: "Base accesible para facturas, vinculacion fiscal y pedidos online.",
+            to: "/dashboard/clientes",
+            status: "Operativo"
+        },
+        {
             title: "Registro",
             description: "Crear usuarios y asignar rol desde el panel seguro.",
             to: "/dashboard/register",
@@ -83,14 +89,14 @@ function Dashboard() {
                     <p>
                         Las rutas administrativas y de staff permanecen protegidas por token y
                         por rol. El objetivo del dashboard es que el usuario entienda rapido
-                        que puede usar ahora y que modulos siguen en construccion.
+                        que puede usar ahora y que modulos ya trabajan juntos en operativa real.
                     </p>
                 </div>
 
                 <ul className="dashboard-checklist">
                     <li>Acceso administrativo solo para Administrador.</li>
-                    <li>Acceso staff para Administrador, Camarero y Cocinero.</li>
-                    <li>Los modulos inmaduros aparecen como zonas en progreso, no como huecos vacios.</li>
+                    <li>Acceso staff distribuido por rol para sala, cocina, reparto, facturas y clientes.</li>
+                    <li>Facturas y clientes ya estan conectados para vincular datos fiscales desde el panel.</li>
                 </ul>
             </article>
         </section>

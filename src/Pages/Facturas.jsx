@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import getToken from "../services/get-token";
 import { getFacturas } from "../services/facturas";
 import { formatDateTime, formatMoney, orderStateClass, resolveFacturaStatus, translateFacturaStatus } from "../utils/operations";
 import "../styles/Staff/operations.css";
 
 export default function Facturas() {
+    const location = useLocation();
     const token = getToken();
     const [facturas, setFacturas] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const isStaffContext = location.pathname.startsWith("/staff/");
+    const facturaBasePath = isStaffContext ? "/staff/facturas" : "/dashboard/facturas";
 
     useEffect(() => {
         const loadFacturas = async () => {
@@ -32,11 +35,11 @@ export default function Facturas() {
         <section className="staff-ops-shell">
             <div className="staff-ops-header">
                 <div>
-                    <p className="staff-ops-eyebrow">Administracion</p>
+                    <p className="staff-ops-eyebrow">{isStaffContext ? "Sala" : "Administracion"}</p>
                     <h1>Facturas</h1>
                     <p>
-                        Listado real de facturas generadas por pedido o por cierre de mesa.
-                        El envio por email sigue siendo un mock visual.
+                        Listado real de facturas generadas por pedido o por cierre de mesa,
+                        listo para cobro, asignacion fiscal y envío por correo.
                     </p>
                 </div>
             </div>
@@ -85,7 +88,7 @@ export default function Facturas() {
 
                                 <div className="comanda-card__footer">
                                     <span>{factura.idPedido ? `Pedido principal ${String(factura.idPedido).slice(0, 8)}` : "Factura agregada"}</span>
-                                    <Link to={`/dashboard/facturas/${factura.numeroFactura}`}>Ver factura</Link>
+                                    <Link to={`${facturaBasePath}/${factura.numeroFactura}`}>Ver factura</Link>
                                 </div>
                             </article>
                         );

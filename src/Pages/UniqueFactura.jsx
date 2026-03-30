@@ -1,28 +1,30 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import getToken from "../services/get-token";
-import { assignFacturaCliente, getFactura, searchFacturaClientes } from "../services/facturas";
+import { assignFacturaCliente, getFactura, searchFacturaClientes, sendFacturaEmail } from "../services/facturas";
 import { formatDateTime, formatMoney, orderStateClass, resolveFacturaStatus, translateFacturaStatus } from "../utils/operations";
 import "../styles/Staff/operations.css";
 
 function createAssignForm(clienteFactura) {
+    const isAnonymous = clienteFactura?.esAnonima;
     return {
         idUsuarioCliente: clienteFactura?.idUsuarioCliente ?? "",
-        fiscalName: clienteFactura?.billingName ?? "",
+        fiscalName: isAnonymous ? "" : clienteFactura?.billingName ?? "",
         dni: "",
         cif: "",
-        billingStreet: clienteFactura?.billingStreet ?? "",
-        billingCity: clienteFactura?.billingCity ?? "",
-        billingProvince: clienteFactura?.billingProvince ?? "",
-        billingPostalCode: clienteFactura?.billingPostalCode ?? "",
-        billingEmail: clienteFactura?.billingEmail ?? "",
-        billingPhone: clienteFactura?.billingPhone ?? "",
+        billingStreet: isAnonymous ? "" : clienteFactura?.billingStreet ?? "",
+        billingCity: isAnonymous ? "" : clienteFactura?.billingCity ?? "",
+        billingProvince: isAnonymous ? "" : clienteFactura?.billingProvince ?? "",
+        billingPostalCode: isAnonymous ? "" : clienteFactura?.billingPostalCode ?? "",
+        billingEmail: isAnonymous ? "" : clienteFactura?.billingEmail ?? "",
+        billingPhone: isAnonymous ? "" : clienteFactura?.billingPhone ?? "",
         saveOnCustomer: true
     };
 }
 
 export default function UniqueFactura() {
     const { id } = useParams();
+    const location = useLocation();
     const token = getToken();
     const tokenValue = token?.token ?? "";
     const [factura, setFactura] = useState(null);
@@ -34,6 +36,9 @@ export default function UniqueFactura() {
     const [searching, setSearching] = useState(false);
     const [assigning, setAssigning] = useState(false);
     const [assignForm, setAssignForm] = useState(createAssignForm(null));
+    const [sendingEmail, setSendingEmail] = useState(false);
+    const isStaffContext = location.pathname.startsWith("/staff/");
+    const facturasBasePath = isStaffContext ? "/staff/facturas" : "/dashboard/facturas";
 
     useEffect(() => {
         const loadFactura = async () => {
@@ -58,8 +63,27 @@ export default function UniqueFactura() {
         window.print();
     };
 
-    const handleMockEmail = () => {
-        setFeedback("Mock activo: el envio por email aun no esta implementado.");
+    const handleSendEmail = async () => {
+        const targetEmail = factura?.clienteFactura?.esAnonima || !factura?.clienteFactura?.billingEmail
+            ? window.prompt("Indica el email al que quieres enviar esta factura.", "")
+            : "";
+
+        if (targetEmail === null) {
+            return;
+        }
+
+        setSendingEmail(true);
+        setError("");
+        setFeedback("");
+        try {
+            const response = await sendFacturaEmail(id, { email: targetEmail?.trim() ?? "" }, token);
+            const sentTo = response?.data?.sentTo || targetEmail || factura?.clienteFactura?.billingEmail;
+            setFeedback(`Factura enviada correctamente a ${sentTo}.`);
+        } catch (err) {
+            setError(err.message || "No se ha podido enviar la factura por email.");
+        } finally {
+            setSendingEmail(false);
+        }
     };
 
     const handleSearch = async () => {
@@ -136,7 +160,7 @@ export default function UniqueFactura() {
                 <div className="staff-ops-empty">
                     <p>No se ha encontrado la factura solicitada.</p>
                 </div>
-                <Link to="/dashboard/facturas" className="staff-ops-secondary staff-ops-secondary--link">
+                <Link to={facturasBasePath} className="staff-ops-secondary staff-ops-secondary--link">
                     Volver a facturas
                 </Link>
             </section>
@@ -162,8 +186,8 @@ export default function UniqueFactura() {
                     <button type="button" className="staff-ops-primary" onClick={handlePrint}>
                         Imprimir
                     </button>
-                    <button type="button" className="staff-ops-secondary" onClick={handleMockEmail}>
-                        Enviar por email
+                    <button type="button" className="staff-ops-secondary" onClick={handleSendEmail} disabled={sendingEmail}>
+                        {sendingEmail ? "Enviando..." : "Enviar por email"}
                     </button>
                 </div>
             </div>
@@ -211,12 +235,16 @@ export default function UniqueFactura() {
                     <div className="invoice-sheet__card">
                         <h3>Cliente</h3>
                         <p>{clienteFactura.billingName}</p>
-                        <p>{clienteFactura.billingDocument || "Sin documento fiscal"}</p>
-                        <p>{clienteFactura.billingStreet}</p>
-                        <p>{clienteFactura.billingPostalCode} · {clienteFactura.billingCity}</p>
-                        <p>{clienteFactura.billingProvince}</p>
-                        <p>{clienteFactura.billingEmail}</p>
-                        <p>{clienteFactura.billingPhone}</p>
+                        {!clienteFactura.esAnonima && (
+                            <>
+                                <p>{clienteFactura.billingDocument || "Sin documento fiscal"}</p>
+                                <p>{clienteFactura.billingStreet}</p>
+                                <p>{clienteFactura.billingPostalCode} · {clienteFactura.billingCity}</p>
+                                <p>{clienteFactura.billingProvince}</p>
+                                <p>{clienteFactura.billingEmail}</p>
+                                <p>{clienteFactura.billingPhone}</p>
+                            </>
+                        )}
                     </div>
                 </section>
 
@@ -368,7 +396,7 @@ export default function UniqueFactura() {
                 </form>
             </section>
 
-            <Link to="/dashboard/facturas" className="staff-ops-secondary staff-ops-secondary--link">
+            <Link to={facturasBasePath} className="staff-ops-secondary staff-ops-secondary--link">
                 Volver a facturas
             </Link>
         </section>

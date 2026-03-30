@@ -9,6 +9,7 @@ export default function CustomerPaymentMethods() {
     const [methods, setMethods] = useState([]);
     const [form, setForm] = useState(emptyForm);
     const [error, setError] = useState("");
+    const [feedback, setFeedback] = useState("");
 
     const load = async () => {
         try {
@@ -26,6 +27,7 @@ export default function CustomerPaymentMethods() {
     const handleSubmit = async (event) => {
         event.preventDefault();
         setError("");
+        setFeedback("");
         try {
             await createCustomerPaymentMethod({
                 cardNumber: form.cardNumber,
@@ -36,8 +38,21 @@ export default function CustomerPaymentMethods() {
             }, token.token);
             setForm(emptyForm);
             await load();
+            setFeedback("Tarjeta guardada correctamente.");
         } catch (err) {
             setError(err.message || "No se ha podido guardar la tarjeta.");
+        }
+    };
+
+    const handleDelete = async (paymentMethodId) => {
+        setError("");
+        setFeedback("");
+        try {
+            await deleteCustomerPaymentMethod(paymentMethodId, token.token);
+            await load();
+            setFeedback("Tarjeta eliminada correctamente.");
+        } catch (err) {
+            setError(err.message || "No se ha podido eliminar la tarjeta.");
         }
     };
 
@@ -45,6 +60,7 @@ export default function CustomerPaymentMethods() {
         <section className="staff-ops-shell">
             <div className="staff-ops-header"><h1>Métodos de pago</h1></div>
             {error && <div className="staff-ops-warning"><p>{error}</p></div>}
+            {feedback && <div className="staff-ops-warning staff-ops-warning--success"><p>{feedback}</p></div>}
             <form onSubmit={handleSubmit} className="customer-contact-form">
                 <input placeholder="Número de tarjeta" value={form.cardNumber} onChange={(e) => setForm({ ...form, cardNumber: e.target.value })} required />
                 <input placeholder="Titular" value={form.holderName} onChange={(e) => setForm({ ...form, holderName: e.target.value })} required />
@@ -59,7 +75,7 @@ export default function CustomerPaymentMethods() {
                         <h3>{method.brand} · **** {method.last4}</h3>
                         <p>{method.holderName} · {method.expMonth}/{method.expYear}</p>
                         <p>{method.isDefault ? "Predeterminada" : "Guardada"}</p>
-                        <button type="button" className="staff-ops-secondary" onClick={async () => { await deleteCustomerPaymentMethod(method.idClienteMetodoPago, token.token); await load(); }}>
+                        <button type="button" className="staff-ops-secondary" onClick={() => handleDelete(method.idClienteMetodoPago)}>
                             Borrar
                         </button>
                     </article>

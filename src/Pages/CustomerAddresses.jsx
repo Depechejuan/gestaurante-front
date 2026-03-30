@@ -45,6 +45,18 @@ export default function CustomerAddresses() {
         }
     };
 
+    const handleDelete = async (addressId) => {
+        setError("");
+        setFeedback("");
+        try {
+            await deleteCustomerAddress(addressId, token.token);
+            await load();
+            setFeedback("Dirección eliminada.");
+        } catch (err) {
+            setError(err.message || "No se ha podido eliminar la dirección.");
+        }
+    };
+
     return (
         <section className="staff-ops-shell">
             <div className="staff-ops-header"><h1>Direcciones</h1></div>
@@ -90,7 +102,7 @@ export default function CustomerAddresses() {
                             >
                                 Editar
                             </button>
-                            <button type="button" className="staff-ops-secondary" onClick={async () => { await deleteCustomerAddress(address.idClienteDireccion, token.token); await load(); }}>
+                            <button type="button" className="staff-ops-secondary" onClick={() => handleDelete(address.idClienteDireccion)}>
                                 Borrar
                             </button>
                         </div>

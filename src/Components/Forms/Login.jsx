@@ -18,7 +18,11 @@ function Login() {
             saveCustomerToken(response.data);
             navigate("/pedido-online");
             return;
-        } catch {
+        } catch (error) {
+            if (error?.status !== 401) {
+                throw error;
+            }
+
             // Si no es una cuenta de cliente válida, probamos el acceso interno.
         }
 

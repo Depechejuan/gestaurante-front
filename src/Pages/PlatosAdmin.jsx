@@ -45,7 +45,9 @@ export default function PlatosAdmin() {
 
     useEffect(() => {
         loadPlatos();
-        loadCatalogDependencies().catch(() => {});
+        loadCatalogDependencies().catch((err) => {
+            setError(err.message || "No se han podido cargar categorías e ingredientes.");
+        });
     }, []);
 
     const resolveCategoria = async (categoriaValue, sourceCategorias = categorias) => {

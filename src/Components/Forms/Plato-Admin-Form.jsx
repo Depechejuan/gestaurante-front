@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../../styles/Admin/platos.css";
 
 const defaultForm = {
@@ -13,16 +13,49 @@ const defaultForm = {
     tags: ""
 };
 
-export default function PlatoAdminForm({ mode = "create", initialValues = {} }) {
+function normalizeIngredientsInput(value) {
+    if (Array.isArray(value)) {
+        return value
+            .map((item) => item?.nombre ?? item)
+            .filter(Boolean)
+            .join(", ");
+    }
+
+    return value ?? "";
+}
+
+function normalizeInitialValues(initialValues) {
+    return {
+        ...defaultForm,
+        ...initialValues,
+        ingredientes: normalizeIngredientsInput(initialValues?.ingredientes)
+    };
+}
+
+export default function PlatoAdminForm({ mode = "create", initialValues = {}, onSubmit, busy = false, submitLabel }) {
     const [form, setForm] = useState({ ...defaultForm, ...initialValues });
     const [errors, setErrors] = useState({});
-    const [isSubmitted, setIsSubmitted] = useState(false);
 
     const isEdit = mode === "edit";
 
+    const initialValuesKey = JSON.stringify({
+        nombre: initialValues?.nombre ?? "",
+        descripcion: initialValues?.descripcion ?? "",
+        imagen: initialValues?.imagen ?? "",
+        precio: initialValues?.precio ?? "",
+        disponible: Boolean(initialValues?.disponible),
+        categoria: initialValues?.categoria ?? "",
+        ingredientes: normalizeIngredientsInput(initialValues?.ingredientes),
+        menuNotes: initialValues?.menuNotes ?? "",
+        tags: initialValues?.tags ?? ""
+    });
+
+    useEffect(() => {
+        setForm(normalizeInitialValues(initialValues));
+    }, [initialValuesKey]);
+
     const handleChange = (event) => {
         const { name, value, type, checked } = event.target;
-        setIsSubmitted(false);
         setForm((prev) => ({
             ...prev,
             [name]: type === "checkbox" ? checked : value
@@ -33,11 +66,11 @@ export default function PlatoAdminForm({ mode = "create", initialValues = {} }) 
         const nextErrors = {};
 
         if (!form.nombre.trim()) {
-            nextErrors.nombre = "El nombre provisional del plato es obligatorio";
+            nextErrors.nombre = "El nombre del plato es obligatorio";
         }
 
         if (!form.descripcion.trim()) {
-            nextErrors.descripcion = "Añade una descripcion base para orientar el diseño";
+            nextErrors.descripcion = "Añade una descripcion para el plato";
         }
 
         if (form.precio !== "" && Number(form.precio) < 0) {
@@ -51,26 +84,18 @@ export default function PlatoAdminForm({ mode = "create", initialValues = {} }) 
     const handleSubmit = (event) => {
         event.preventDefault();
         if (!validate()) return;
-        setIsSubmitted(true);
+        onSubmit?.(form, { setErrors });
     };
 
     return (
         <section className="plato-form-shell">
-            <div className="plato-warning">
-                <strong>INCOMPLETO</strong>
-                <p>
-                    Este formulario es una base visual y funcional provisional. La estructura
-                    final de platos, menus, ingredientes y relaciones todavia no esta cerrada.
-                </p>
-            </div>
-
             <div className="plato-form-heading">
                 <div>
                     <p className="plato-eyebrow">Carta interna</p>
                     <h2>{isEdit ? "Edicion de plato" : "Creacion de plato"}</h2>
                     <p>
-                        Sirve para explorar la experiencia de backoffice mientras se define el
-                        modelo real del producto.
+                        Gestiona la carta interna desde el backoffice con los datos reales del
+                        catalogo.
                     </p>
                 </div>
                 <div className="plato-form-badge">
@@ -83,7 +108,7 @@ export default function PlatoAdminForm({ mode = "create", initialValues = {} }) 
                     <section className="plato-form-panel">
                         <h3>Base del plato</h3>
 
-                        <label htmlFor="nombre">Nombre provisional</label>
+                        <label htmlFor="nombre">Nombre del plato</label>
                         <input
                             id="nombre"
                             name="nombre"
@@ -91,6 +116,7 @@ export default function PlatoAdminForm({ mode = "create", initialValues = {} }) 
                             onChange={handleChange}
                             className={errors.nombre ? "error" : ""}
                             placeholder="Ej. Ravioli de setas"
+                            disabled={busy}
                         />
                         {errors.nombre && <span className="error-message">{errors.nombre}</span>}
 
@@ -103,6 +129,7 @@ export default function PlatoAdminForm({ mode = "create", initialValues = {} }) 
                             className={errors.descripcion ? "error" : ""}
                             placeholder="Resumen corto para cocina, sala y carta"
                             rows="5"
+                            disabled={busy}
                         />
                         {errors.descripcion && <span className="error-message">{errors.descripcion}</span>}
 
@@ -113,13 +140,14 @@ export default function PlatoAdminForm({ mode = "create", initialValues = {} }) 
                             value={form.imagen}
                             onChange={handleChange}
                             placeholder="https://..."
+                            disabled={busy}
                         />
                     </section>
 
                     <section className="plato-form-panel">
                         <h3>Comercial y disponibilidad</h3>
 
-                        <label htmlFor="precio">Precio orientativo</label>
+                        <label htmlFor="precio">Precio</label>
                         <input
                             id="precio"
                             name="precio"
@@ -130,16 +158,18 @@ export default function PlatoAdminForm({ mode = "create", initialValues = {} }) 
                             onChange={handleChange}
                             className={errors.precio ? "error" : ""}
                             placeholder="0.00"
+                            disabled={busy}
                         />
                         {errors.precio && <span className="error-message">{errors.precio}</span>}
 
-                        <label htmlFor="categoria">Categoria provisional</label>
+                        <label htmlFor="categoria">Categoria</label>
                         <input
                             id="categoria"
                             name="categoria"
                             value={form.categoria}
                             onChange={handleChange}
                             placeholder="Entrante, principal, postre..."
+                            disabled={busy}
                         />
 
                         <label htmlFor="tags">Etiquetas internas</label>
@@ -149,6 +179,7 @@ export default function PlatoAdminForm({ mode = "create", initialValues = {} }) 
                             value={form.tags}
                             onChange={handleChange}
                             placeholder="Veggie, sin gluten, temporada..."
+                            disabled={busy}
                         />
 
                         <label className="plato-checkbox">
@@ -157,22 +188,24 @@ export default function PlatoAdminForm({ mode = "create", initialValues = {} }) 
                                 name="disponible"
                                 checked={form.disponible}
                                 onChange={handleChange}
+                                disabled={busy}
                             />
                             Disponible para publicacion
                         </label>
                     </section>
 
                     <section className="plato-form-panel plato-form-panel--wide">
-                        <h3>Campos todavia abiertos</h3>
+                        <h3>Ingredientes y notas internas</h3>
 
-                        <label htmlFor="ingredientes">Ingredientes provisionales</label>
+                        <label htmlFor="ingredientes">Ingredientes</label>
                         <textarea
                             id="ingredientes"
                             name="ingredientes"
                             value={form.ingredientes}
                             onChange={handleChange}
-                            placeholder="Separados por comas o notas libres mientras no exista la relacion final"
+                            placeholder="Separados por comas"
                             rows="4"
+                            disabled={busy}
                         />
 
                         <label htmlFor="menuNotes">Notas de menu y reglas futuras</label>
@@ -181,22 +214,17 @@ export default function PlatoAdminForm({ mode = "create", initialValues = {} }) 
                             name="menuNotes"
                             value={form.menuNotes}
                             onChange={handleChange}
-                            placeholder="Ubicacion en menus, combos, restricciones, extras..."
+                            placeholder="Ubicacion en menus, combos, restricciones o extras..."
                             rows="4"
+                            disabled={busy}
                         />
                     </section>
                 </div>
 
                 <div className="plato-form-actions">
-                    <div className="form-status">
-                        {isSubmitted && (
-                            <span>
-                                Borrador validado. Aun no se envia al backend porque el flujo sigue incompleto.
-                            </span>
-                        )}
-                    </div>
-                    <button type="submit" className="submit-button">
-                        {isEdit ? "Guardar borrador de cambios" : "Crear borrador de plato"}
+                    <div className="form-status" />
+                    <button type="submit" className="submit-button" disabled={busy}>
+                        {busy ? "Guardando..." : (submitLabel ?? (isEdit ? "Guardar cambios del plato" : "Crear plato"))}
                     </button>
                 </div>
             </form>

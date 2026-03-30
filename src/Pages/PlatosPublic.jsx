@@ -56,7 +56,7 @@ export default function PlatosPublic() {
                 </p>
             </section>
 
-            <nav className="menu-public__type-nav" aria-label="Tipos de platos">
+            <nav className="menu-public__type-nav menu-public__type-nav--sticky" aria-label="Tipos de platos">
                 {tipos.map((tipo) => (
                     <a key={tipo} href={`#tipo-${tipo.toLowerCase().replace(/\s+/g, "-")}`}>
                         {tipo}

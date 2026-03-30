@@ -49,34 +49,6 @@
     line-height: 1;
 }
 
-.plato-warning {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 1rem;
-    align-items: start;
-    padding: 1rem 1.1rem;
-    border: 1px solid rgba(179, 80, 38, 0.24);
-    border-radius: 1.2rem;
-    background: rgba(179, 80, 38, 0.08);
-}
-
-.plato-warning strong {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 7.5rem;
-    min-height: 2.25rem;
-    padding: 0.35rem 0.75rem;
-    border-radius: 999px;
-    background: #b35026;
-    color: #fff5ef;
-    letter-spacing: 0.08em;
-}
-
-.plato-warning p {
-    margin: 0;
-}
-
 .plato-form-shell {
     display: flex;
     flex-direction: column;
@@ -211,17 +183,44 @@
     align-items: center;
 }
 
-.plato-admin-card__meta a {
+.plato-admin-card__actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+}
+
+.plato-admin-card__meta a,
+.plato-admin-card__meta button {
     color: #a14b2c;
     font-weight: 700;
     text-decoration: none;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    font: inherit;
+}
+
+.platos-admin-empty--error,
+.platos-admin-empty--success {
+    border-style: solid;
+}
+
+.platos-admin-empty--error {
+    border-color: rgba(196, 77, 59, 0.22);
+    background: rgba(196, 77, 59, 0.08);
+}
+
+.platos-admin-empty--success {
+    border-color: rgba(73, 133, 99, 0.22);
+    background: rgba(73, 133, 99, 0.08);
 }
 
 @media (max-width: 900px) {
     .platos-admin-header,
     .plato-form-heading,
-    .plato-form-actions,
-    .plato-warning {
+    .plato-form-actions {
         grid-template-columns: 1fr;
         flex-direction: column;
     }
@@ -236,6 +235,10 @@
 
     .plato-admin-card__meta {
         flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .plato-admin-card__actions {
         align-items: flex-start;
     }
 }

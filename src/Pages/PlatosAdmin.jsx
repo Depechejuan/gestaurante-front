@@ -1,13 +1,139 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import usePlatos from "../Hooks/usePlatos";
 import PlatoAdminForm from "../Components/Forms/Plato-Admin-Form";
+import { createCategoria, getCategorias } from "../services/categorias";
+import { createIngrediente, getIngredientes } from "../services/ingredientes";
+import { createPlato, deletePlato, getAdminPlatos } from "../services/platos";
+import getToken from "../services/get-token";
 import "../styles/Admin/platos.css";
 
 export default function PlatosAdmin() {
-    const { platos, loading, error } = usePlatos();
+    const token = getToken();
+    const [platos, setPlatos] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const [feedback, setFeedback] = useState("");
+    const [submitting, setSubmitting] = useState(false);
+    const [categorias, setCategorias] = useState([]);
+    const [ingredientes, setIngredientes] = useState([]);
 
-    if (loading) return <p>Cargando...</p>;
-    if (error) return <p>{error}</p>;
+    const loadPlatos = async () => {
+        setLoading(true);
+        setError("");
+        try {
+            const response = await getAdminPlatos(token);
+            setPlatos(response?.data ?? []);
+        } catch (err) {
+            setError(err.message || "No hemos podido cargar los platos.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const loadCatalogDependencies = async () => {
+        const [categoriasResponse, ingredientesResponse] = await Promise.all([
+            getCategorias(token),
+            getIngredientes(token)
+        ]);
+        setCategorias(categoriasResponse?.data ?? []);
+        setIngredientes(ingredientesResponse?.data ?? []);
+        return {
+            categorias: categoriasResponse?.data ?? [],
+            ingredientes: ingredientesResponse?.data ?? []
+        };
+    };
+
+    useEffect(() => {
+        loadPlatos();
+        loadCatalogDependencies().catch(() => {});
+    }, []);
+
+    const resolveCategoria = async (categoriaValue, sourceCategorias = categorias) => {
+        const normalized = categoriaValue.trim().toLowerCase();
+        const existing = sourceCategorias.find((item) => item.descripcion?.trim().toLowerCase() === normalized);
+        if (existing)
+            return existing;
+
+        const response = await createCategoria({ descripcion: categoriaValue.trim() }, token);
+        const created = response?.data;
+        setCategorias((prev) => [...prev, created]);
+        return created;
+    };
+
+    const resolveIngredientes = async (ingredientesValue, sourceIngredientes = ingredientes) => {
+        const names = ingredientesValue
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean);
+
+        const resolved = [];
+        let nextIngredientes = [...sourceIngredientes];
+
+        for (const nombre of names) {
+            const normalized = nombre.toLowerCase();
+            let current = nextIngredientes.find((item) => item.nombre?.trim().toLowerCase() === normalized);
+            if (!current) {
+                const response = await createIngrediente({
+                    nombre,
+                    alergenico: false,
+                    disponible: true,
+                    imagen: ""
+                }, token);
+                current = response?.data;
+                nextIngredientes.push(current);
+            }
+            resolved.push({
+                idIngrediente: current.idIngrediente,
+                nombre: current.nombre
+            });
+        }
+
+        setIngredientes(nextIngredientes);
+        return resolved;
+    };
+
+    const handleCreate = async (formValues) => {
+        setSubmitting(true);
+        setError("");
+        setFeedback("");
+        try {
+            const deps = await loadCatalogDependencies();
+            const categoria = await resolveCategoria(formValues.categoria, deps.categorias);
+            const ingredientesResolved = await resolveIngredientes(formValues.ingredientes, deps.ingredientes);
+            await createPlato({
+                nombre: formValues.nombre,
+                descripcion: formValues.descripcion,
+                imagen: "",
+                disponible: Boolean(formValues.disponible),
+                precio: Number(formValues.precio || 0),
+                idCategoria: categoria.idCategoria,
+                categoriaDescripcion: categoria.descripcion,
+                ingredientes: ingredientesResolved
+            }, token);
+            setFeedback("Plato creado correctamente.");
+            await loadPlatos();
+        } catch (err) {
+            setError(err.message || "No se ha podido crear el plato.");
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const handleDelete = async (plato) => {
+        const confirmed = window.confirm(`¿Seguro que quieres eliminar el plato "${plato.nombre}"?`);
+        if (!confirmed)
+            return;
+
+        setError("");
+        setFeedback("");
+        try {
+            await deletePlato(plato.idPlato ?? plato.id, token);
+            setFeedback("Plato eliminado correctamente.");
+            await loadPlatos();
+        } catch (err) {
+            setError(err.message || "No se ha podido eliminar el plato.");
+        }
+    };
 
     return (
         <section className="platos-admin-shell">
@@ -16,8 +142,8 @@ export default function PlatosAdmin() {
                     <p className="plato-eyebrow">Backoffice carta</p>
                     <h1>Platos</h1>
                     <p>
-                        Vista provisional para ir aterrizando la gestion de carta antes de
-                        cerrar del todo platos, menus y su relacion con ingredientes.
+                        Gestiona la carta, revisa disponibilidad y accede a la edicion de cada
+                        plato desde un unico panel.
                     </p>
                 </div>
 
@@ -27,12 +153,24 @@ export default function PlatosAdmin() {
                 </div>
             </div>
 
-            <PlatoAdminForm mode="create" />
+            {error && (
+                <div className="platos-admin-empty platos-admin-empty--error">
+                    <p>{error}</p>
+                </div>
+            )}
+
+            {feedback && (
+                <div className="platos-admin-empty platos-admin-empty--success">
+                    <p>{feedback}</p>
+                </div>
+            )}
+
+            <PlatoAdminForm mode="create" onSubmit={handleCreate} busy={submitting} />
 
             <section className="platos-admin-list">
                 <div className="platos-admin-list__header">
-                    <h2>Borradores o platos existentes</h2>
-                    <p>Acceso a una ficha de edicion provisional por cada registro disponible.</p>
+                    <h2>Platos existentes</h2>
+                    <p>Acceso a una ficha de edicion por cada registro disponible.</p>
                 </div>
 
                 {!platos?.length ? (
@@ -42,7 +180,7 @@ export default function PlatosAdmin() {
                 ) : (
                     <div className="platos-admin-grid">
                         {platos.map((plato) => (
-                            <article key={plato.id} className="plato-admin-card">
+                            <article key={plato.idPlato ?? plato.id} className="plato-admin-card">
                                 <div>
                                     <span className="plato-admin-card__state">
                                         {plato.disponible ? "Disponible" : "Oculto"}
@@ -53,9 +191,14 @@ export default function PlatosAdmin() {
 
                                 <div className="plato-admin-card__meta">
                                     <span>{plato.precio ?? "Precio pendiente"}</span>
-                                    <Link to={`/dashboard/plato/${plato.id}`} state={{ plato }}>
-                                        Editar borrador
-                                    </Link>
+                                    <div className="plato-admin-card__actions">
+                                        <Link to={`/dashboard/plato/${plato.idPlato ?? plato.id}`} state={{ plato }}>
+                                            Editar plato
+                                        </Link>
+                                        <button type="button" onClick={() => handleDelete(plato)}>
+                                            Borrar plato
+                                        </button>
+                                    </div>
                                 </div>
                             </article>
                         ))}

@@ -96,7 +96,6 @@ export default function ListPlatosPublic({platos, onAddToCart}) {
                                 <section className="plato-info">
                                     <div className="plato-info__top">
                                         <h3>{plato.nombre}</h3>
-                                        <strong>{formatPrice(plato.precio)}</strong>
                                     </div>
                                     <p className="plato-desc">{plato.descripcion}</p>
                                     <p className="plato-meta">
@@ -104,21 +103,25 @@ export default function ListPlatosPublic({platos, onAddToCart}) {
                                     </p>
                                 </section>
 
-                                <section className="plato-cart">
-                                    <label htmlFor={`amount-${plato._fallbackId}`} className="sr-only">Cantidad</label>
-                                    <input
-                                        id={`amount-${plato._fallbackId}`}
-                                        className="plato-amount"
-                                        type="number"
-                                        min="1"
-                                        max="10"
-                                        value={amounts[plato._fallbackId] ?? 1}
-                                        onChange={(event) => handleChange(plato._fallbackId, event.target.value)}
-                                    />
-                                    <button type="button" className="cart-button" onClick={() => addToBasket(plato)}>
-                                        <img className="cart" src={cart} alt="" />
-                                        <span>Anadir</span>
-                                    </button>
+                                <section className="plato-purchase">
+                                    <strong className="plato-price">{formatPrice(plato.precio)}</strong>
+
+                                    <section className="plato-cart">
+                                        <label htmlFor={`amount-${plato._fallbackId}`} className="sr-only">Cantidad</label>
+                                        <input
+                                            id={`amount-${plato._fallbackId}`}
+                                            className="plato-amount"
+                                            type="number"
+                                            min="1"
+                                            max="10"
+                                            value={amounts[plato._fallbackId] ?? 1}
+                                            onChange={(event) => handleChange(plato._fallbackId, event.target.value)}
+                                        />
+                                        <button type="button" className="cart-button" onClick={() => addToBasket(plato)}>
+                                            <img className="cart" src={cart} alt="" />
+                                            <span>Anadir</span>
+                                        </button>
+                                    </section>
                                 </section>
                             </article>
                         ))}

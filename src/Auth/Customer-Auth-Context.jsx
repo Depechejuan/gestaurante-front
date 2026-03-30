@@ -9,6 +9,29 @@ export function CustomerAuthProvider({ children }) {
     const [customer, setCustomer] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const refreshProfile = async (tokenValue = token?.token) => {
+        if (!tokenValue) {
+            setCustomer(null);
+            setLoading(false);
+            return null;
+        }
+
+        setLoading(true);
+        try {
+            const response = await getCustomerProfile(tokenValue);
+            const profile = response?.data ?? null;
+            setCustomer(profile);
+            return profile;
+        } catch {
+            deleteCustomerToken();
+            setToken(getCustomerToken());
+            setCustomer(null);
+            return null;
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
         const sync = () => setToken(getCustomerToken());
         window.addEventListener("storage", sync);
@@ -16,27 +39,7 @@ export function CustomerAuthProvider({ children }) {
     }, []);
 
     useEffect(() => {
-        const loadProfile = async () => {
-            if (!token?.token) {
-                setCustomer(null);
-                setLoading(false);
-                return;
-            }
-
-            setLoading(true);
-            try {
-                const response = await getCustomerProfile(token.token);
-                setCustomer(response?.data ?? null);
-            } catch {
-                deleteCustomerToken();
-                setToken(getCustomerToken());
-                setCustomer(null);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        loadProfile();
+        refreshProfile(token?.token);
     }, [token]);
 
     const logout = () => {
@@ -46,7 +49,7 @@ export function CustomerAuthProvider({ children }) {
     };
 
     return (
-        <CustomerAuthContext.Provider value={{ customer, token, loading, hasCustomerSession: Boolean(token?.token), logout }}>
+        <CustomerAuthContext.Provider value={{ customer, token, loading, hasCustomerSession: Boolean(token?.token), logout, refreshProfile, setCustomer }}>
             {children}
         </CustomerAuthContext.Provider>
     );

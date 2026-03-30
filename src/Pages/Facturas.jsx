@@ -85,7 +85,7 @@ export default function Facturas() {
 
                                 <div className="comanda-card__footer">
                                     <span>{factura.idPedido ? `Pedido principal ${String(factura.idPedido).slice(0, 8)}` : "Factura agregada"}</span>
-                                    <Link to={`/dashboard/facturas/${factura.numeroFactura}`}>Abrir factura</Link>
+                                    <Link to={`/dashboard/facturas/${factura.numeroFactura}`}>Ver factura</Link>
                                 </div>
                             </article>
                         );

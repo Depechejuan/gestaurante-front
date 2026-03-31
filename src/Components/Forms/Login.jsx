@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import sendLogin from "../../services/login";
 import saveToken from "../../services/save-token";
 import { loginCustomer } from "../../services/customer-account";
@@ -7,6 +7,8 @@ import AuthLoginForm from "./Auth-Login-Form";
 
 function Login() {
     const navigate = useNavigate();
+    const location = useLocation();
+    const redirect = new URLSearchParams(location.search).get("redirect") || "/pedido-online";
 
     const handleSubmit = async (form) => {
         try {
@@ -16,7 +18,7 @@ function Login() {
             }
 
             saveCustomerToken(response.data);
-            navigate("/pedido-online");
+            navigate(redirect);
             return;
         } catch (error) {
             if (error?.status !== 401) {
@@ -49,10 +51,11 @@ function Login() {
         <AuthLoginForm
             eyebrow="Acceso"
             title="Entrar"
-            description="Usa el mismo formulario para acceder como cliente o como personal. La aplicación resolverá internamente el tipo de cuenta y te llevará a tu área correspondiente."
+            description="Accede con tu cuenta para continuar un pedido online o entrar en tu área de trabajo."
             submitLabel="Entrar"
             loadingLabel="Entrando..."
             errorMessage="No hemos podido iniciar sesión. Revisa tus credenciales e inténtalo de nuevo."
+            secondaryLink={{ to: `/cuenta/register?redirect=${encodeURIComponent(redirect)}`, label: "¿No tienes cuenta? Regístrate" }}
             onSubmit={handleSubmit}
         />
     );

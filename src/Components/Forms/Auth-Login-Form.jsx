@@ -82,7 +82,7 @@ export default function AuthLoginForm({
                     </button>
 
                     {secondaryLink ? (
-                        <Link to={secondaryLink.to} className="email-link">
+                        <Link to={secondaryLink.to} className="customer-btn-secondary customer-btn-secondary--full">
                             {secondaryLink.label}
                         </Link>
                     ) : null}

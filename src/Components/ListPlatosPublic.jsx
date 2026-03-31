@@ -13,6 +13,7 @@ function formatPrice(price) {
 }
 
 export default function ListPlatosPublic({platos, onAddToCart}) {
+    const interactive = Boolean(onAddToCart);
     const [amounts, setAmounts] = useState({});
     const [basketFeedback, setBasketFeedback] = useState("");
 
@@ -38,20 +39,19 @@ export default function ListPlatosPublic({platos, onAddToCart}) {
     };
 
     const addToBasket = (plato) => {
-        const amount = Number(amounts[plato._fallbackId] ?? 1);
-        if (onAddToCart) {
-            onAddToCart(plato, amount);
-            setBasketFeedback(`${amount} x ${plato.nombre} añadido.`);
+        if (!interactive) {
             return;
         }
 
-        setBasketFeedback(`${amount} x ${plato.nombre} añadido al carrito mock.`);
+        const amount = Number(amounts[plato._fallbackId] ?? 1);
+        onAddToCart(plato, amount);
+        setBasketFeedback(`${amount} x ${plato.nombre} añadido.`);
     };
 
     if (!groupedPlatos.length) {
         return (
             <div className="menu-public__empty">
-                <p>Aun no hay platos visibles en la carta publica.</p>
+                <p>{interactive ? "No hay platos disponibles para pedir online en este momento." : "Aun no hay platos visibles en la carta publica."}</p>
             </div>
         );
     }
@@ -69,7 +69,7 @@ export default function ListPlatosPublic({platos, onAddToCart}) {
 
     return(
         <section className="menu-public">
-            {basketFeedback && <p className="menu-public__feedback">{basketFeedback}</p>}
+            {interactive && basketFeedback && <p className="menu-public__feedback">{basketFeedback}</p>}
 
             {groupedPlatos.map(([type, items]) => (
                 <section
@@ -103,25 +103,27 @@ export default function ListPlatosPublic({platos, onAddToCart}) {
                                     </p>
                                 </section>
 
-                                <section className="plato-purchase">
+                                <section className={`plato-purchase ${interactive ? "" : "plato-purchase--browse"}`.trim()}>
                                     <strong className="plato-price">{formatPrice(plato.precio)}</strong>
 
-                                    <section className="plato-cart">
-                                        <label htmlFor={`amount-${plato._fallbackId}`} className="sr-only">Cantidad</label>
-                                        <input
-                                            id={`amount-${plato._fallbackId}`}
-                                            className="plato-amount"
-                                            type="number"
-                                            min="1"
-                                            max="10"
-                                            value={amounts[plato._fallbackId] ?? 1}
-                                            onChange={(event) => handleChange(plato._fallbackId, event.target.value)}
-                                        />
-                                        <button type="button" className="cart-button" onClick={() => addToBasket(plato)}>
-                                            <img className="cart" src={cart} alt="" />
-                                            <span>Anadir</span>
-                                        </button>
-                                    </section>
+                                    {interactive && (
+                                        <section className="plato-cart">
+                                            <label htmlFor={`amount-${plato._fallbackId}`} className="sr-only">Cantidad</label>
+                                            <input
+                                                id={`amount-${plato._fallbackId}`}
+                                                className="plato-amount"
+                                                type="number"
+                                                min="1"
+                                                max="10"
+                                                value={amounts[plato._fallbackId] ?? 1}
+                                                onChange={(event) => handleChange(plato._fallbackId, event.target.value)}
+                                            />
+                                            <button type="button" className="cart-button cart-button--inline" onClick={() => addToBasket(plato)}>
+                                                <img className="cart" src={cart} alt="" />
+                                                <span>Anadir</span>
+                                            </button>
+                                        </section>
+                                    )}
                                 </section>
                             </article>
                         ))}

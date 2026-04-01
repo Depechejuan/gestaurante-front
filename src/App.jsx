@@ -31,6 +31,7 @@ import UniqueFactura from './Pages/UniqueFactura';
 import PlatosAdmin from './Pages/PlatosAdmin';
 import UniquePlatoAdmin from './Pages/UniquePlatoAdmin';
 import PlatosPublic from './Pages/PlatosPublic';
+import UniquePlatoPublic from './Pages/UniquePlatoPublic';
 import MesaQrMenu from './Pages/MesaQrMenu';
 import CustomerRegister from './Pages/CustomerRegister';
 import CustomerVerifyEmail from './Pages/CustomerVerifyEmail';
@@ -60,6 +61,7 @@ function App() {
 					<Route path="/" element={<Home />} />
 					<Route path="/login" element={<Login />} />
 					<Route path="/carta" element={<PlatosPublic />} />
+					<Route path="/carta/:id" element={<UniquePlatoPublic />} />
 					<Route path="/mesa/:id" element={<MesaQrMenu />} />
 					<Route path="/pedido-online" element={<OnlineOrder />} />
 					<Route path="/checkout" element={<OnlineOrder />} />

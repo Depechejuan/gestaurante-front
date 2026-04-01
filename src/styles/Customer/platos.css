@@ -97,6 +97,106 @@
     scroll-margin-top: 10rem;
 }
 
+.plato-detail-card {
+    display: grid;
+    grid-template-columns: minmax(18rem, 0.9fr) minmax(0, 1.1fr);
+    gap: 1.5rem;
+    padding: 1.5rem;
+    border: 1px solid rgba(230, 244, 241, 0.1);
+    border-radius: 1.8rem;
+    background: rgba(18, 60, 54, 0.82);
+}
+
+.plato-detail-card__media {
+    overflow: hidden;
+    border-radius: 1.4rem;
+    border: 1px solid rgba(230, 244, 241, 0.08);
+    background: rgba(10, 39, 34, 0.72);
+    min-height: 20rem;
+}
+
+.plato-detail-card__image,
+.plato-detail-card__placeholder {
+    width: 100%;
+    height: 100%;
+    min-height: 20rem;
+    object-fit: cover;
+}
+
+.plato-detail-card__placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-customer-secondary);
+}
+
+.plato-detail-card__content,
+.plato-detail-card__section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.plato-detail-card__header {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.plato-detail-card__price {
+    font-size: 1.2rem;
+    white-space: nowrap;
+}
+
+.plato-detail-card__description {
+    margin: 0;
+    color: var(--color-text-customer-secondary);
+}
+
+.plato-detail-card__list {
+    margin: 0;
+    padding-left: 1.1rem;
+    color: var(--color-text-customer-secondary);
+}
+
+.plato-detail-card__allergens,
+.plato-allergen-list,
+.plato-info__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+}
+
+.plato-allergen-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2rem;
+    padding: 0.4rem 0.7rem;
+    border-radius: 999px;
+    background: rgba(252, 194, 63, 0.16);
+    border: 1px solid rgba(252, 194, 63, 0.26);
+    color: #ffd67a;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.plato-allergen-badge--detail {
+    font-size: 0.88rem;
+}
+
+.plato-media-link,
+.plato-title-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.plato-detail-link {
+    color: var(--color-link-customer-underscore);
+    text-decoration: none;
+    font-weight: 700;
+}
+
 .mesa-session-card,
 .mesa-order-card {
     padding: 1.2rem;
@@ -532,6 +632,7 @@
 @media (max-width: 900px) {
     .menu-public__hero--mesa,
     .mesa-order-shell,
+    .plato-detail-card,
     .plato-unique {
         grid-template-columns: 1fr;
     }

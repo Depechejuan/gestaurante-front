@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import cart from '../assets/Icons/cart.svg'
 
 function formatPrice(price) {
@@ -102,22 +103,42 @@ export default function ListPlatosPublic({platos, onAddToCart, showTypeNav = tru
                     <div className="platos-list">
                         {items.map((plato) => (
                             <article className="plato-unique" key={plato._fallbackId}>
-                                <figure className="plato-media">
-                                    {plato.imagen ? (
-                                        <img src={plato.imagen} alt={plato.nombre} className="plato-pic" />
-                                    ) : (
-                                        <div className="plato-pic plato-pic--placeholder">Sin imagen</div>
-                                    )}
-                                </figure>
+                                <Link className="plato-media-link" to={`/carta/${plato.idPlato ?? plato.id}`}>
+                                    <figure className="plato-media">
+                                        {plato.imagen ? (
+                                            <img src={plato.imagen} alt={plato.nombre} className="plato-pic" />
+                                        ) : (
+                                            <div className="plato-pic plato-pic--placeholder">Sin imagen</div>
+                                        )}
+                                    </figure>
+                                </Link>
 
                                 <section className="plato-info">
                                     <div className="plato-info__top">
-                                        <h3>{plato.nombre}</h3>
+                                        <h3>
+                                            <Link className="plato-title-link" to={`/carta/${plato.idPlato ?? plato.id}`}>
+                                                {plato.nombre}
+                                            </Link>
+                                        </h3>
                                     </div>
                                     <p className="plato-desc">{plato.descripcion}</p>
                                     <p className="plato-meta">
                                         {resolveIngredientes(plato)}
                                     </p>
+                                    {!!plato.alergenos?.length && (
+                                        <div className="plato-allergen-list">
+                                            {plato.alergenos.map((alergeno) => (
+                                                <span key={`${plato._fallbackId}-${alergeno}`} className="plato-allergen-badge">
+                                                    {alergeno}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    )}
+                                    <div className="plato-info__actions">
+                                        <Link className="plato-detail-link" to={`/carta/${plato.idPlato ?? plato.id}`}>
+                                            Ver detalle
+                                        </Link>
+                                    </div>
                                 </section>
 
                                 <section className={`plato-purchase ${interactive ? "" : "plato-purchase--browse"}`.trim()}>

@@ -1,3 +1,5 @@
+import { mergeCartItems, readStoredJson, removeCartItemById, updateCartItemsQuantity, writeStoredJson } from "./storage-utils";
+
 const ACTIVE_TABLE_KEY = "GST_ACTIVE_TABLE";
 const TABLE_ORDER_PREFIX = "GST_TABLE_ORDER_";
 const FOUR_HOURS_MS = 4 * 60 * 60 * 1000;
@@ -15,16 +17,11 @@ function getTableStorageKey(mesaId) {
 }
 
 function readJson(key) {
-    try {
-        const raw = localStorage.getItem(key);
-        return raw ? JSON.parse(raw) : null;
-    } catch {
-        return null;
-    }
+    return readStoredJson(key, null);
 }
 
 function writeJson(key, value) {
-    localStorage.setItem(key, JSON.stringify(value));
+    writeStoredJson(key, value);
 }
 
 function isExpired(expiresAt) {
@@ -119,19 +116,7 @@ export function saveTableOrderState(mesaId, nextState) {
 
 export function addItemToTableCart(mesaId, item) {
     const state = getTableOrderState(mesaId);
-    const existingIndex = state.cart.findIndex((cartItem) => cartItem.id === item.id);
-    const nextCart = [...state.cart];
-
-    if (existingIndex >= 0) {
-        const existing = nextCart[existingIndex];
-        nextCart[existingIndex] = {
-            ...existing,
-            quantity: existing.quantity + item.quantity
-        };
-    } else {
-        nextCart.push(item);
-    }
-
+    const nextCart = mergeCartItems(state.cart, item);
     return saveTableOrderState(mesaId, { ...state, cart: nextCart });
 }
 
@@ -139,15 +124,13 @@ export function removeItemFromTableCart(mesaId, itemId) {
     const state = getTableOrderState(mesaId);
     return saveTableOrderState(mesaId, {
         ...state,
-        cart: state.cart.filter((item) => item.id !== itemId)
+        cart: removeCartItemById(state.cart, itemId)
     });
 }
 
 export function updateTableCartItemQuantity(mesaId, itemId, quantity) {
     const state = getTableOrderState(mesaId);
-    const nextCart = state.cart
-        .map((item) => (item.id === itemId ? { ...item, quantity } : item))
-        .filter((item) => item.quantity > 0);
+    const nextCart = updateCartItemsQuantity(state.cart, itemId, quantity);
 
     return saveTableOrderState(mesaId, { ...state, cart: nextCart });
 }

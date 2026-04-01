@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import PlatoAdminForm from "../Components/Forms/Plato-Admin-Form";
+import { useAppDialog } from "../Context/AppDialogContext";
 import { createCategoria, getCategorias } from "../services/categorias";
 import { createIngrediente, getIngredientes } from "../services/ingredientes";
 import { createPlato, deletePlato, getAdminPlatos } from "../services/platos";
@@ -16,6 +17,7 @@ export default function PlatosAdmin() {
     const [submitting, setSubmitting] = useState(false);
     const [categorias, setCategorias] = useState([]);
     const [ingredientes, setIngredientes] = useState([]);
+    const { confirm } = useAppDialog();
 
     const loadPlatos = async () => {
         setLoading(true);
@@ -122,7 +124,11 @@ export default function PlatosAdmin() {
     };
 
     const handleDelete = async (plato) => {
-        const confirmed = window.confirm(`¿Seguro que quieres eliminar el plato "${plato.nombre}"?`);
+        const confirmed = await confirm({
+            title: "Eliminar plato",
+            message: `¿Seguro que quieres eliminar el plato "${plato.nombre}"?`,
+            confirmLabel: "Eliminar"
+        });
         if (!confirmed)
             return;
 

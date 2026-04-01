@@ -7,11 +7,8 @@ import { getPublicCatalog } from "../services/public-catalog";
 import { addOnlineCartItem, clearOnlineCart, getOnlineCart, removeOnlineCartItem, updateOnlineCartItem } from "../services/online-order-storage";
 import { createOnlineOrder } from "../services/online-order";
 import { formatMoney } from "../utils/operations";
+import { decorateCatalogItems } from "../utils/catalog";
 import cartIcon from "../assets/Icons/cart.svg";
-
-function resolvePlatoType(plato, index) {
-    return plato.categoriaDescripcion || plato.categoria || ["Entrantes", "Platos", "Postres"][index % 3];
-}
 
 function resolveShippingCost(subtotal, tipoEntrega) {
     if (tipoEntrega !== "DOMICILIO")
@@ -59,7 +56,7 @@ export default function OnlineOrder() {
                     hasCustomerSession ? getCustomerAddresses(token.token) : Promise.resolve({ data: [] }),
                     hasCustomerSession ? getCustomerPaymentMethods(token.token) : Promise.resolve({ data: [] })
                 ]);
-                setPlatos((catalogResponse?.data ?? []).map((plato, index) => ({ ...plato, tipoVisible: resolvePlatoType(plato, index) })));
+                setPlatos(decorateCatalogItems(catalogResponse?.data ?? []));
                 const nextAddresses = addressesResponse?.data ?? [];
                 const nextMethods = methodsResponse?.data ?? [];
                 setAddresses(nextAddresses);

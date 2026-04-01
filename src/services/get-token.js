@@ -1,10 +1,6 @@
+import { getStoredSession } from "./auth-storage";
+
 function getToken() {
-    const token = localStorage.getItem("GST_Token");
-    const id = localStorage.getItem("GST_id");
-    
-    return {
-        token,
-        id
-    }
+    return getStoredSession("GST_Token", "GST_id");
 }
 export default getToken;

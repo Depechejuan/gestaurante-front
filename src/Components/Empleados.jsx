@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import getToken from "../services/get-token"
 import getEmpleados from "../services/get-empleados";
 import PhotoContainer from "./PhotoContainer";
+import { EMPLOYEE_ROLE_NAMES } from "../constants/roles";
 
 import "../styles/Admin/users.css"
 
@@ -35,10 +36,9 @@ export default function Empleados() {
                 }
             } catch (err) {
                 if (isMounted) {
-                    setError("Something went wrong")
+                    setError(err?.message || "No se ha podido cargar la lista de empleados.")
                     setLoading(false)
                 }
-                console.error(err)
             }
         }
         fetchData()
@@ -46,8 +46,6 @@ export default function Empleados() {
             isMounted = false;
         }
     }, [token])
-
-    const rol = ["Administrador", "Camarero", "Cocinero"];
 
     if (loading) {
         return (
@@ -108,7 +106,7 @@ export default function Empleados() {
                             <Link to={`/dashboard/empleados/${user.id}`} className="user-container" state={{user}}>
                                 <PhotoContainer photoURL={user.imageURL ? user.imageURL : anon} style="user-photo" alt={user.nombre} />
                                 <div className="user-info">
-                                    <span className={`user-role-pill role-${user.tipo}`}>{rol[user.tipo]}</span>
+                                    <span className={`user-role-pill role-${user.tipo}`}>{EMPLOYEE_ROLE_NAMES[user.tipo] ?? "Sin rol"}</span>
                                     <h3 className="user-name">{user.nombre} {user.apellido1} {user.apellido2}</h3>
                                     <p className="user-email">{user.email}</p>
                                     <span className="user-action">Abrir ficha</span>

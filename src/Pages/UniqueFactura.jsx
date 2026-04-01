@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
+import { useAppDialog } from "../Context/AppDialogContext";
 import useMesaLabels from "../Hooks/useMesaLabels";
 import getToken from "../services/get-token";
 import { assignFacturaCliente, chargeFactura, getFactura, searchFacturaClientes, sendFacturaEmail, updateFactura } from "../services/facturas";
@@ -63,6 +64,7 @@ export default function UniqueFactura() {
     const [chargeForm, setChargeForm] = useState(createChargeForm());
     const [charging, setCharging] = useState(false);
     const [sendingEmail, setSendingEmail] = useState(false);
+    const { prompt } = useAppDialog();
     const isStaffContext = location.pathname.startsWith("/staff/");
     const facturasBasePath = isStaffContext ? "/staff/facturas" : "/dashboard/facturas";
     const anonymousOption = searchResults.find((cliente) => cliente.esAnonimo);
@@ -106,10 +108,17 @@ export default function UniqueFactura() {
 
     const handleSendEmail = async () => {
         const targetEmail = factura?.clienteFactura?.esAnonima || !factura?.clienteFactura?.billingEmail
-            ? window.prompt("Indica el email al que quieres enviar esta factura.", "")
+            ? await prompt({
+                title: "Enviar factura por email",
+                message: "Indica el email al que quieres enviar esta factura.",
+                inputLabel: "Email de destino",
+                inputType: "email",
+                placeholder: "cliente@email.com",
+                confirmLabel: "Enviar"
+            })
             : "";
 
-        if (targetEmail === null) {
+        if (targetEmail === false) {
             return;
         }
 

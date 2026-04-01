@@ -43,6 +43,7 @@ import CustomerPaymentMethods from './Pages/CustomerPaymentMethods';
 import CustomerProtectedRoute from './Routes/CustomerProtectedRoute';
 import PedidosOnline from './Pages/PedidosOnline';
 import Clientes from './Pages/Clientes';
+import { ADMIN_ROLES, BILLING_ROLES, STAFF_ROLES } from './constants/roles';
 
 function App() {
 
@@ -79,7 +80,7 @@ function App() {
 				</Route>
 
 				{/* STAFF */}
-				<Route element={<ProtectedRoute role={["Camarero", "Cocinero", "Administrador", "Repartidor"]} />}>
+				<Route element={<ProtectedRoute role={STAFF_ROLES} />}>
 					<Route path="staff" element={<LayoutStaff />}>
 						<Route index element={<DashboardStaff />} />
 						<Route path="mesas" element={<Mesas />} />
@@ -89,7 +90,7 @@ function App() {
 						<Route path="online" element={<PedidosOnline />} />
 						<Route path="entregas" element={<Navigate to="/staff/online?view=recogida" replace />} />
 						<Route path="reparto" element={<Navigate to="/staff/online?view=reparto" replace />} />
-						<Route element={<ProtectedRoute role={["Administrador", "Camarero"]} />}>
+						<Route element={<ProtectedRoute role={BILLING_ROLES} />}>
 							<Route path="facturas" element={<Facturas />} />
 							<Route path="facturas/:id" element={<UniqueFactura />} />
 							<Route path="clientes" element={<Clientes />} />
@@ -98,7 +99,7 @@ function App() {
 				</Route>
 
 				{/* ADMIN */}
-				<Route element={<ProtectedRoute role={["Administrador"]} />}>
+				<Route element={<ProtectedRoute role={ADMIN_ROLES} />}>
 					<Route path="dashboard" element={<LayoutAdmin />}>
 						<Route index element={<Dashboard />} />
 						<Route path="register" element={<Register />} />

@@ -1,10 +1,6 @@
-import { dispatchSessionChanged } from "./session-events";
+import { saveStoredSession } from "./auth-storage";
 
 function saveToken(response) {
-    const token = response.token;
-    const id = response.id;
-    localStorage.setItem("GST_Token", token)
-    localStorage.setItem("GST_id", id)
-    dispatchSessionChanged();
+    saveStoredSession("GST_Token", "GST_id", response.token, response.id);
 }
 export default saveToken;

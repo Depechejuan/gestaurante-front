@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
+import { useAppDialog } from "../Context/AppDialogContext";
 import getToken from "../services/get-token";
 import { closeMesa, getMesa } from "../services/mesas";
 import useMesaLabels from "../Hooks/useMesaLabels";
@@ -19,6 +20,7 @@ export default function MesaDetail() {
     const [feedback, setFeedback] = useState("");
     const [isClosing, setIsClosing] = useState(false);
     const { getMesaShortLabel } = useMesaLabels(Boolean(token?.token));
+    const { confirm } = useAppDialog();
 
     const loadMesa = async () => {
         setLoading(true);
@@ -38,7 +40,11 @@ export default function MesaDetail() {
     }, [id]);
 
     const handleCloseMesa = async () => {
-        const confirmed = window.confirm("Se generara una factura con todos los pedidos activos de esta mesa. ¿Continuar?");
+        const confirmed = await confirm({
+            title: "Cerrar mesa",
+            message: "Se generará una factura con todos los pedidos activos de esta mesa. ¿Continuar?",
+            confirmLabel: "Cerrar mesa"
+        });
         if (!confirmed) {
             return;
         }

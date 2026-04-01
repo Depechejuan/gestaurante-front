@@ -3,14 +3,9 @@ import getToken from "../services/get-token";
 import getBasicUser from "../services/get-basic-user";
 import { SESSION_CHANGED_EVENT } from "../services/session-events";
 import deleteToken from "../services/delete-token";
+import { EMPLOYEE_ROLE_NAMES } from "../constants/roles";
 
 export const AuthContext = createContext(null);
-const roleMap = {
-    0: "Administrador",
-    1: "Camarero",
-    2: "Cocinero",
-    3: "Repartidor"
-};
 
 export function useAuth() {
     const context = useContext(AuthContext);
@@ -79,7 +74,7 @@ export function AuthProvider({ children }) {
         setUser(null);
     };
 
-    const roleName = user ? roleMap[user.tipo] ?? "Sin rol" : null;
+    const roleName = user ? EMPLOYEE_ROLE_NAMES[user.tipo] ?? "Sin rol" : null;
     const displayName = user
         ? [user.nombre, user.apellido1, user.apellido2].filter(Boolean).join(" ").trim() || user.email || roleName
         : null;

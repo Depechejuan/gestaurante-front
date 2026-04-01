@@ -14,17 +14,8 @@ import {
     updateTableCartItemQuantity
 } from "../services/table-order-storage";
 import { formatDateTime, formatMoney, resolvePedidoStatus, translatePedidoStatus } from "../utils/operations";
+import { decorateCatalogItems } from "../utils/catalog";
 import "../styles/Customer/platos.css";
-
-function resolvePlatoType(plato, index) {
-    return (
-        plato?.categoria ||
-        plato?.tipo ||
-        plato?.categoriaDescripcion ||
-        (plato?.idCategoria ? `Categoria ${String(plato.idCategoria).slice(0, 4)}` : null) ||
-        ["Entrantes", "Pastas", "Paellas", "Carnes", "Postres"][index % 5]
-    );
-}
 
 function isGuid(value) {
     return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value ?? ""));
@@ -93,14 +84,7 @@ export default function MesaQrMenu() {
         bootstrapSession();
     }, [id]);
 
-    const platosConTipo = useMemo(
-        () =>
-            (platos ?? []).map((plato, index) => ({
-                ...plato,
-                tipoVisible: resolvePlatoType(plato, index)
-            })),
-        [platos]
-    );
+    const platosConTipo = useMemo(() => decorateCatalogItems(platos ?? []), [platos]);
 
     const cartTotal = useMemo(
         () => tableState.cart.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0),

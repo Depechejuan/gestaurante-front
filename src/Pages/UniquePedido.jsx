@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAuth } from "../Auth/Auth-Context";
+import { useAppDialog } from "../Context/AppDialogContext";
 import useMesaLabels from "../Hooks/useMesaLabels";
 import getToken from "../services/get-token";
 import { cancelDetallePedido, cancelPedido, getPedido, updateDetallePedido, updatePedido } from "../services/pedidos";
@@ -56,6 +57,7 @@ export default function UniquePedido() {
     const [feedback, setFeedback] = useState("");
     const [busyAction, setBusyAction] = useState("");
     const [selectedLineIds, setSelectedLineIds] = useState([]);
+    const { confirm } = useAppDialog();
 
     const loadPedido = async () => {
         setLoading(true);
@@ -147,7 +149,11 @@ export default function UniquePedido() {
     };
 
     const handleCancelPedido = async () => {
-        const confirmed = window.confirm("Se cancelaran todas las lineas activas del pedido. ¿Continuar?");
+        const confirmed = await confirm({
+            title: "Cancelar pedido",
+            message: "Se cancelarán todas las líneas activas del pedido. ¿Continuar?",
+            confirmLabel: "Cancelar pedido"
+        });
         if (!confirmed) {
             return;
         }
@@ -167,7 +173,11 @@ export default function UniquePedido() {
     };
 
     const handleCancelDetalle = async (detalleId) => {
-        const confirmed = window.confirm("La linea dejara de contar para la factura. ¿Continuar?");
+        const confirmed = await confirm({
+            title: "Cancelar línea",
+            message: "La línea dejará de contar para la factura. ¿Continuar?",
+            confirmLabel: "Cancelar línea"
+        });
         if (!confirmed) {
             return;
         }

@@ -8,7 +8,8 @@ import AuthLoginForm from "./Auth-Login-Form";
 function Login() {
     const navigate = useNavigate();
     const location = useLocation();
-    const redirect = new URLSearchParams(location.search).get("redirect") || "/pedido-online";
+    const redirect = location.state?.redirectTo || new URLSearchParams(location.search).get("redirect") || "/pedido-online";
+    const employeeRedirect = redirect.startsWith("/dashboard") || redirect.startsWith("/staff") ? redirect : null;
 
     const handleSubmit = async (form) => {
         try {
@@ -34,6 +35,11 @@ function Login() {
         }
 
         saveToken(response.data);
+        if (employeeRedirect) {
+            navigate(employeeRedirect);
+            return;
+        }
+
         const tipo = response.data.tipo;
         if (tipo === 0) {
             navigate("/dashboard");

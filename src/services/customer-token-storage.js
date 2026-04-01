@@ -1,21 +1,16 @@
+import { clearStoredSession, getStoredSession, saveStoredSession } from "./auth-storage";
+
 const TOKEN_KEY = "GST_CUSTOMER_TOKEN";
 const ID_KEY = "GST_CUSTOMER_ID";
 
 export function saveCustomerToken(response) {
-    localStorage.setItem(TOKEN_KEY, response.token);
-    localStorage.setItem(ID_KEY, response.idUsuarioCliente);
-    window.dispatchEvent(new Event("storage"));
+    saveStoredSession(TOKEN_KEY, ID_KEY, response.token, response.idUsuarioCliente, true);
 }
 
 export function getCustomerToken() {
-    return {
-        token: localStorage.getItem(TOKEN_KEY),
-        id: localStorage.getItem(ID_KEY)
-    };
+    return getStoredSession(TOKEN_KEY, ID_KEY);
 }
 
 export function deleteCustomerToken() {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(ID_KEY);
-    window.dispatchEvent(new Event("storage"));
+    clearStoredSession(TOKEN_KEY, ID_KEY, true);
 }

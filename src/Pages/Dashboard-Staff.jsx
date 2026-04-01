@@ -1,13 +1,16 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../Auth/Auth-Context";
+import { useStaffNotifications } from "../Auth/Staff-Notifications-Context";
 
 export default function DashboardStaff() {
-    const { roleName, hasToken } = useAuth();
+    const { roleName, hasToken, displayName } = useAuth();
+    const { counts } = useStaffNotifications();
 
     const roleCopy = {
         Administrador: "Tienes visibilidad transversal sobre la operativa diaria.",
         Camarero: "Accede rapido a mesas y pedidos para mantener el servicio fluido.",
-        Cocinero: "Prioriza pedidos y preparacion sin ruido de secciones no necesarias."
+        Cocinero: "Prioriza pedidos y preparacion sin ruido de secciones no necesarias.",
+        Repartidor: "Centra tu jornada en entregas de domicilio y pedidos listos para salir."
     };
 
     const shortcuts = [
@@ -15,7 +18,7 @@ export default function DashboardStaff() {
             title: "Resumen",
             description: "Vista inicial del turno y acceso condicionado por token.",
             to: "/staff",
-            roles: ["Administrador", "Camarero", "Cocinero"]
+            roles: ["Administrador", "Camarero", "Cocinero", "Repartidor"]
         },
         {
             title: "Mesas",
@@ -25,9 +28,55 @@ export default function DashboardStaff() {
         },
         {
             title: "Pedidos",
-            description: "Punto de entrada comun para cocina y sala.",
+            description: "Seguimiento en tiempo real para sala y cocina con estados reales.",
             to: "/staff/pedidos",
-            roles: ["Administrador", "Camarero", "Cocinero"]
+            roles: ["Administrador", "Camarero", "Cocinero", "Repartidor"]
+        },
+        {
+            title: "Pedidos online",
+            description: "Vista unificada para recogidas y reparto, destacada segun el rol.",
+            to: "/staff/online",
+            roles: ["Administrador", "Camarero", "Repartidor"]
+        },
+        {
+            title: "Facturas",
+            description: "Cobro, consulta y envio de facturas desde el panel de sala.",
+            to: "/staff/facturas",
+            roles: ["Administrador", "Camarero"]
+        },
+        {
+            title: "Clientes",
+            description: "Acceso a clientes para vincular facturas y consultar datos fiscales.",
+            to: "/staff/clientes",
+            roles: ["Administrador", "Camarero"]
+        }
+    ];
+
+    const summaryItems = [
+        {
+            label: "Mesas con pedidos",
+            value: counts.mesas,
+            roles: ["Administrador", "Camarero"]
+        },
+        {
+            label: "Pedidos en cocina",
+            value: counts.cocina,
+            roles: ["Administrador", "Cocinero"]
+        },
+        {
+            label: "Listos para sala",
+            value: counts.listosSala,
+            roles: ["Administrador", "Camarero"]
+        },
+        {
+            label: "Online recogida",
+            value: counts.onlineRecogida,
+            roles: ["Administrador", "Camarero"]
+        },
+        {
+            label: "Online reparto",
+            value: counts.onlineReparto,
+            roles: ["Administrador", "Repartidor"]
         }
     ];
 
@@ -36,7 +85,7 @@ export default function DashboardStaff() {
             <article className="staff-dashboard__hero">
                 <div>
                     <p className="staff-dashboard__eyebrow">Turno activo</p>
-                    <h2>Bienvenido al panel interno de staff</h2>
+                    <h2>{displayName ? `Bienvenido, ${displayName}` : "Bienvenido al panel interno de staff"}</h2>
                     <p>{roleCopy[roleName]}</p>
                 </div>
 
@@ -44,6 +93,17 @@ export default function DashboardStaff() {
                     <span>Estado de acceso</span>
                     <strong>{hasToken ? "Sesion validada" : "Sin token"}</strong>
                 </div>
+            </article>
+
+            <article className="staff-dashboard__grid staff-dashboard__grid--compact">
+                {summaryItems
+                    .filter((item) => item.roles.includes(roleName))
+                    .map((item) => (
+                        <div key={item.label} className="staff-dashboard__card staff-dashboard__card--summary">
+                            <p>{item.label}</p>
+                            <strong>{item.value}</strong>
+                        </div>
+                    ))}
             </article>
 
             <article className="staff-dashboard__grid">
@@ -60,9 +120,9 @@ export default function DashboardStaff() {
             <article className="staff-dashboard__note">
                 <h3>Estado del producto</h3>
                 <p>
-                    Como platos e ingredientes siguen evolucionando, el dashboard de staff
-                    se centra en navegar mejor lo que ya esta operativo y en no exponer
-                    accesos que no correspondan al rol autenticado.
+                    El panel de staff ya combina operativa de sala, cocina, pedidos online,
+                    facturacion y clientes segun el rol activo. Los pedidos online llegan
+                    cerrados desde cliente y se distinguen por recogida o domicilio.
                 </p>
             </article>
         </section>

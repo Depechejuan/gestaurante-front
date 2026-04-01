@@ -2,13 +2,18 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import ListPlatosPublic from "../Components/ListPlatosPublic";
 import usePlatos from "../Hooks/usePlatos";
+import { createPublicMesaPedido, getPublicMesaPedidos, openPublicMesaSession } from "../services/public-mesa";
 import {
     addItemToTableCart,
+    clearTableCart,
+    clearTablePublicSession,
+    getCurrentTableCartSnapshot,
     removeItemFromTableCart,
+    saveTablePublicSession,
     startTableSession,
-    submitCurrentTableOrder,
     updateTableCartItemQuantity
 } from "../services/table-order-storage";
+import { formatDateTime, formatMoney, resolvePedidoStatus, translatePedidoStatus } from "../utils/operations";
 import "../styles/Customer/platos.css";
 
 function resolvePlatoType(plato, index) {
@@ -21,17 +26,8 @@ function resolvePlatoType(plato, index) {
     );
 }
 
-function formatMoney(amount) {
-    return `${amount.toFixed(2)} EUR`;
-}
-
-function formatDate(value) {
-    return new Intl.DateTimeFormat("es-ES", {
-        hour: "2-digit",
-        minute: "2-digit",
-        day: "2-digit",
-        month: "2-digit"
-    }).format(new Date(value));
+function isGuid(value) {
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value ?? ""));
 }
 
 export default function MesaQrMenu() {
@@ -39,10 +35,62 @@ export default function MesaQrMenu() {
     const { platos, loading, error } = usePlatos();
     const [tableState, setTableState] = useState(() => startTableSession(id));
     const [cartFeedback, setCartFeedback] = useState("");
+    const [sending, setSending] = useState(false);
+    const [sessionLoading, setSessionLoading] = useState(true);
+    const [sessionError, setSessionError] = useState("");
+    const [isLocked, setIsLocked] = useState(false);
+    const [publicOrders, setPublicOrders] = useState([]);
+    const [resolvedMesaId, setResolvedMesaId] = useState("");
+
+    const loadPublicOrders = async (mesaId, sessionToken) => {
+        try {
+            const response = await getPublicMesaPedidos(mesaId, sessionToken);
+            setPublicOrders(response?.data ?? []);
+        } catch {
+            setPublicOrders([]);
+        }
+    };
 
     useEffect(() => {
-        setTableState(startTableSession(id));
-        setCartFeedback("");
+        const bootstrapSession = async () => {
+            const initialState = startTableSession(id);
+            setTableState(initialState);
+            setSessionLoading(true);
+            setSessionError("");
+            setIsLocked(false);
+            setPublicOrders([]);
+            setCartFeedback("");
+
+            try {
+                const response = await openPublicMesaSession(id, initialState.sessionToken);
+                const session = response?.data;
+                if (!session?.sessionToken) {
+                    throw new Error("No se ha podido abrir la sesión de mesa.");
+                }
+
+                setResolvedMesaId(session.idMesa ?? "");
+                const nextState = saveTablePublicSession(id, session.sessionToken, session.expiresAt);
+                setTableState(nextState);
+                await loadPublicOrders(id, session.sessionToken);
+            } catch (err) {
+                if (err.status === 409) {
+                    setIsLocked(true);
+                    setSessionError(err.message || "Esta mesa ya está siendo usada por otro cliente.");
+                    clearTablePublicSession(id);
+                    setTableState(startTableSession(id));
+                } else if (err.status === 401) {
+                    setSessionError("La sesión de mesa ha expirado. Vuelve a escanear el QR.");
+                    clearTablePublicSession(id);
+                    setTableState(startTableSession(id));
+                } else {
+                    setSessionError(err.message || "No se ha podido abrir la sesión pública de esta mesa.");
+                }
+            } finally {
+                setSessionLoading(false);
+            }
+        };
+
+        bootstrapSession();
     }, [id]);
 
     const platosConTipo = useMemo(
@@ -60,17 +108,22 @@ export default function MesaQrMenu() {
     );
 
     const handleAddToCart = (plato, amount) => {
-        const numericPrice = Number.parseFloat(String(plato.precio).replace(",", "."));
+        if (isLocked || !tableState.sessionToken) {
+            return;
+        }
+
+        const numericPrice = Number.parseFloat(String(plato.precio).replace(",", ".").replace(" EUR", ""));
         const unitPrice = Number.isNaN(numericPrice) ? 0 : numericPrice;
         const nextState = addItemToTableCart(id, {
             id: String(plato.id ?? plato.idPlato ?? plato._fallbackId),
+            backendId: plato.idPlato ?? plato.id ?? null,
             nombre: plato.nombre,
             quantity: amount,
             unitPrice,
             tipoVisible: plato.tipoVisible
         });
         setTableState(nextState);
-        setCartFeedback(`${amount} x ${plato.nombre} añadido a la mesa ${id}.`);
+        setCartFeedback(`${amount} x ${plato.nombre} añadido a tu carrito.`);
     };
 
     const handleQuantityChange = (itemId, quantity) => {
@@ -81,19 +134,61 @@ export default function MesaQrMenu() {
         setTableState(removeItemFromTableCart(id, itemId));
     };
 
-    const handleSubmitOrder = () => {
-        const nextState = submitCurrentTableOrder(id);
-        setTableState(nextState);
-        setCartFeedback("Pedido guardado en local para esta mesa. Puedes seguir anadiendo mas pedidos.");
+    const handleSubmitOrder = async () => {
+        setSending(true);
+        const cartSnapshot = getCurrentTableCartSnapshot(id);
+        if (!cartSnapshot.items.length) {
+            setCartFeedback("El carrito esta vacio.");
+            setSending(false);
+            return;
+        }
+
+        const canSend = tableState.sessionToken
+            && cartSnapshot.items.every((item) => isGuid(item.backendId));
+
+        if (!canSend) {
+            setCartFeedback(
+                "El carrito queda guardado en este dispositivo, pero no todos los platos de la carta tienen un identificador valido para enviarse al backend."
+            );
+            setSending(false);
+            return;
+        }
+
+        try {
+            const response = await createPublicMesaPedido(id, tableState.sessionToken, {
+                detalles: cartSnapshot.items.map((item) => ({
+                    idPlato: item.backendId,
+                    cantidad: item.quantity
+                }))
+            });
+
+            const nextState = clearTableCart(id);
+            setTableState(nextState);
+            await loadPublicOrders(id, tableState.sessionToken);
+            setCartFeedback(
+                response?.data?.idPedido
+                    ? `Pedido enviado correctamente. Referencia ${String(response.data.idPedido).slice(0, 8)}.`
+                    : "Pedido enviado correctamente."
+            );
+        } catch (err) {
+            if (err.status === 401) {
+                setSessionError("La sesión de mesa ha expirado. Vuelve a escanear el QR para seguir.");
+                clearTablePublicSession(id);
+            } else {
+                setCartFeedback(err.message || "No hemos podido enviar el pedido. Tu carrito sigue guardado en local.");
+            }
+        } finally {
+            setSending(false);
+        }
     };
 
-    if (loading) {
+    if (loading || sessionLoading) {
         return (
             <section className="public-page public-page--menu">
                 <div className="menu-public__hero">
                     <p className="public-eyebrow">Mesa {id}</p>
-                    <h1>Cargando carta</h1>
-                    <p>Estamos preparando la carta para esta mesa.</p>
+                    <h1>Preparando tu sesion</h1>
+                    <p>Estamos cargando la carta y validando el acceso de esta mesa.</p>
                 </div>
             </section>
         );
@@ -111,6 +206,18 @@ export default function MesaQrMenu() {
         );
     }
 
+    if (isLocked) {
+        return (
+            <section className="public-page public-page--menu">
+                <div className="menu-public__hero">
+                    <p className="public-eyebrow">Mesa {id}</p>
+                    <h1>Mesa ocupada</h1>
+                    <p>{sessionError || "Esta mesa ya está siendo usada por el cliente que inició la sesión."}</p>
+                </div>
+            </section>
+        );
+    }
+
     return (
         <section className="public-page public-page--menu">
             <section className="menu-public__hero menu-public__hero--mesa">
@@ -118,14 +225,17 @@ export default function MesaQrMenu() {
                     <p className="public-eyebrow">Pedido desde QR</p>
                     <h1>Mesa {id}</h1>
                     <p>
-                        Todo lo que anadas desde aqui quedara vinculado a esta mesa durante 4 horas.
-                        El carrito vive en local para no saturar la base de datos.
+                        Esta mesa queda vinculada temporalmente a este dispositivo. El carrito vive en local
+                        y solo se borra cuando el backend acepta el pedido.
                     </p>
+                    {sessionError && <p className="menu-public__feedback">{sessionError}</p>}
                 </div>
                 <div className="mesa-session-card">
-                    <span>Mesa activa</span>
-                    <strong>{tableState.mesaId}</strong>
-                    <small>Caducidad renovada durante la sesion de pedido</small>
+                    <span>Sesion activa</span>
+                    <strong>{resolvedMesaId ? `Mesa ${id}` : tableState.mesaId}</strong>
+                    <small>
+                        Caduca {tableState.sessionExpiresAt ? formatDateTime(tableState.sessionExpiresAt) : "en 4 horas"}
+                    </small>
                 </div>
             </section>
 
@@ -147,7 +257,7 @@ export default function MesaQrMenu() {
 
                         {!tableState.cart.length ? (
                             <p className="mesa-order-empty">
-                                Tu carrito esta vacio. Selecciona platos para preparar el pedido de esta mesa.
+                                Tu carrito esta vacio. Selecciona platos para preparar tu pedido.
                             </p>
                         ) : (
                             <div className="mesa-order-items">
@@ -178,37 +288,40 @@ export default function MesaQrMenu() {
                             type="button"
                             className="customer-btn-primary mesa-order-submit"
                             onClick={handleSubmitOrder}
-                            disabled={!tableState.cart.length}
+                            disabled={!tableState.cart.length || sending || !tableState.sessionToken}
                         >
-                            Enviar pedido
+                            {sending ? "Enviando..." : "Enviar pedido"}
                         </button>
                     </section>
 
                     <section className="mesa-order-card">
                         <div className="mesa-order-card__header">
                             <div>
-                                <p className="public-eyebrow">Historico local</p>
-                                <h2>Pedidos previos</h2>
+                                <p className="public-eyebrow">Tus pedidos</p>
+                                <h2>Historico de esta sesion</h2>
                             </div>
-                            <strong>{tableState.previousOrders.length}</strong>
+                            <strong>{publicOrders.length}</strong>
                         </div>
 
-                        {!tableState.previousOrders.length ? (
+                        {!publicOrders.length ? (
                             <p className="mesa-order-empty">
-                                Todavia no hay pedidos previos guardados para esta mesa.
+                                Todavia no hay pedidos enviados desde esta sesion.
                             </p>
                         ) : (
                             <div className="mesa-order-history">
-                                {tableState.previousOrders.map((order) => (
-                                    <article key={order.id} className="mesa-order-history__item">
+                                {publicOrders.map((pedido) => (
+                                    <article key={pedido.idPedido} className="mesa-order-history__item">
                                         <div className="mesa-order-history__top">
-                                            <strong>{formatMoney(order.total)}</strong>
-                                            <span>{formatDate(order.createdAt)}</span>
+                                            <strong>{formatMoney(pedido.total)}</strong>
+                                            <span>{formatDateTime(pedido.fechaModificacion ?? pedido.fechaPedido)}</span>
                                         </div>
+                                        <p className="mesa-order-history__status">
+                                            {translatePedidoStatus(resolvePedidoStatus(pedido.estado))}
+                                        </p>
                                         <ul>
-                                            {order.items.map((item) => (
-                                                <li key={`${order.id}-${item.id}`}>
-                                                    {item.quantity} x {item.nombre}
+                                            {pedido.detalles.map((detalle) => (
+                                                <li key={detalle.idDetallePedido}>
+                                                    {detalle.cantidad} x {detalle.platoNombre}
                                                 </li>
                                             ))}
                                         </ul>

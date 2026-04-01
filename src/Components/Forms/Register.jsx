@@ -22,6 +22,8 @@ function Register() {
     });
     const [errors, setErrors] = useState({});
     const [isSubmitted, setIsSubmitted] = useState(false);
+    const [submitError, setSubmitError] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const dniRegex = /^\d{8}-[A-Z]$/;
     const nussRegex = /^\d{2}-\d{8}-\d$/;
     const token = getToken();
@@ -29,6 +31,7 @@ function Register() {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setIsSubmitted(false);
+        setSubmitError("");
         setForm({
         ...form,
         [name]: name === "tipo" ? Number(value) : value
@@ -55,7 +58,7 @@ function Register() {
         }
 
         if (!dniRegex.test(form.dni)) {
-        newErrors.dni = "Formato DNI inválido (12345678-A)";
+        newErrors.dni = "Formato DNI inválido (12345678-Z)";
         }
 
         if (!nussRegex.test(form.nuss)) {
@@ -70,8 +73,47 @@ function Register() {
         e.preventDefault();
         if (!validate())
             return;
-        await register(form, token)
-        setIsSubmitted(true);
+
+        setIsSubmitting(true);
+        setSubmitError("");
+        setIsSubmitted(false);
+
+        try {
+            await register(form, token);
+            setIsSubmitted(true);
+            setForm({
+                email: '',
+                password: '',
+                firstName: '',
+                firstLastName: '',
+                secondLastName: '',
+                dni: '',
+                nuss: '',
+                tipo: 0,
+            });
+            setErrors({});
+        } catch (err) {
+            const payloadErrors = err?.payload?.errors;
+            if (payloadErrors) {
+                const nextErrors = {};
+                Object.entries(payloadErrors).forEach(([key, value]) => {
+                    const message = Array.isArray(value) ? value[0] : value;
+                    if (key === "Email") nextErrors.email = message;
+                    if (key === "Password") nextErrors.password = message;
+                    if (key === "FirstName") nextErrors.firstName = message;
+                    if (key === "FirstLastName") nextErrors.firstLastName = message;
+                    if (key === "SecondLastName") nextErrors.secondLastName = message;
+                    if (key === "DNI") nextErrors.dni = message;
+                    if (key === "NUSS") nextErrors.nuss = message;
+                    if (key === "Tipo") nextErrors.tipo = message;
+                });
+                setErrors(nextErrors);
+            }
+
+            setSubmitError(err.message || "No se ha podido registrar el empleado.");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -80,7 +122,7 @@ function Register() {
                 <div>
                     <p className="users-eyebrow">Alta de personal</p>
                     <h1>Registro de usuario</h1>
-                    <p>Da de alta nuevos perfiles internos con un formulario mas claro y legible.</p>
+                    <p>Da de alta nuevos perfiles internos. Los empleados se crean activos por defecto y pueden acceder con sus credenciales nada mas crearse.</p>
                 </div>
                 <div className="user-form-badge">Administrador</div>
             </div>
@@ -152,7 +194,9 @@ function Register() {
                             value={form.secondLastName}
                             onChange={handleChange}
                             placeholder="García"
+                            className={errors.secondLastName ? 'error' : ''}
                         />
+                        {errors.secondLastName && <span className="error-message">{errors.secondLastName}</span>}
 
                         <label htmlFor="dni">DNI *</label>
                         <input
@@ -161,7 +205,7 @@ function Register() {
                             name="dni"
                             value={form.dni}
                             onChange={handleChange}
-                            placeholder="12345678-A"
+                            placeholder="12345678-Z"
                             className={errors.dni ? 'error' : ''}
                         />
                         {errors.dni && <span className="error-message">{errors.dni}</span>}
@@ -196,15 +240,17 @@ function Register() {
                             </option>
                             ))}
                         </select>
+                        {errors.tipo && <span className="error-message">{errors.tipo}</span>}
                     </section>
                 </div>
 
                 <div className="form-actions">
                     <div className="form-status">
                         {isSubmitted && <span>Usuario enviado correctamente.</span>}
+                        {submitError && <span className="error-message">{submitError}</span>}
                     </div>
-                    <button type="submit" className="submit-button">
-                        Registrar usuario
+                    <button type="submit" className="submit-button" disabled={isSubmitting}>
+                        {isSubmitting ? "Registrando..." : "Registrar usuario"}
                     </button>
                 </div>
             </form>

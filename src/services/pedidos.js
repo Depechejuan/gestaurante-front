@@ -20,6 +20,10 @@ export function deletePedido(id, token) {
     return authApiRequest(`/Pedido/${id}`, { method: "DELETE", token });
 }
 
+export function cancelPedido(id, body, token) {
+    return authApiRequest(`/Pedido/${id}/cancelar`, { method: "POST", body, token });
+}
+
 export function getDetallePedido(pedidoId, detalleId, token) {
     return authApiRequest(`/Pedido/${pedidoId}/linea/${detalleId}`, { token });
 }
@@ -34,4 +38,8 @@ export function updateDetallePedido(pedidoId, detalleId, body, token) {
 
 export function deleteDetallePedido(pedidoId, detalleId, token) {
     return authApiRequest(`/Pedido/${pedidoId}/linea/${detalleId}`, { method: "DELETE", token });
+}
+
+export function cancelDetallePedido(pedidoId, detalleId, body, token) {
+    return authApiRequest(`/Pedido/${pedidoId}/linea/${detalleId}/cancelar`, { method: "POST", body, token });
 }

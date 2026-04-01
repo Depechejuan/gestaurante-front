@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import ListPlatosPublic from "../Components/ListPlatosPublic";
 import usePlatos from "../Hooks/usePlatos";
 import '../styles/Customer/platos.css'
@@ -18,7 +19,6 @@ export default function PlatosPublic() {
         ...plato,
         tipoVisible: resolvePlatoType(plato, index)
     }));
-    const tipos = [...new Set(platosConTipo.map((plato) => plato.tipoVisible))];
 
     if (loading) {
         return (
@@ -50,18 +50,17 @@ export default function PlatosPublic() {
                 <p className="public-eyebrow">Carta</p>
                 <h1>Explora la carta por tipo</h1>
                 <p>
-                    Mientras los platos siguen siendo mocks, la navegacion ya permite ir
-                    directamente a entrantes, pastas, paellas, postres o al tipo que corresponda.
+                    Esta vista es solo informativa: sirve para descubrir platos, precios y tipos.
+                    Si quieres comprar, usa el pedido online o escanea el QR de tu mesa cuando
+                    estés en el restaurante.
                 </p>
+                <div className="menu-public__cta-row">
+                    <Link to="/pedido-online" className="menu-public__cta menu-public__cta--primary">
+                        Ir a pedido online
+                    </Link>
+                    <span className="menu-public__cta-note">En sala, el pedido se hace desde el QR de la mesa.</span>
+                </div>
             </section>
-
-            <nav className="menu-public__type-nav" aria-label="Tipos de platos">
-                {tipos.map((tipo) => (
-                    <a key={tipo} href={`#tipo-${tipo.toLowerCase().replace(/\s+/g, "-")}`}>
-                        {tipo}
-                    </a>
-                ))}
-            </nav>
 
             <ListPlatosPublic platos={platosConTipo} />
         </section>

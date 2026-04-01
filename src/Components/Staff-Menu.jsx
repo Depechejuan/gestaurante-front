@@ -2,10 +2,12 @@ import { NavLink, useNavigate } from "react-router-dom";
 import useBodyClass from "../Hooks/useBodyClass";
 import { useAuth } from '../Auth/Auth-Context.jsx'
 import deleteToken from "../services/delete-token.js";
+import { useStaffNotifications } from "../Auth/Staff-Notifications-Context.jsx";
 
 export default function StaffMenu({isMenuOpen, closeMenu}) {
     const navigate = useNavigate();
-    const { logout, roleName } = useAuth();
+    const { logout, roleName, displayName } = useAuth();
+    const { counts } = useStaffNotifications();
     useBodyClass("staff");
     const handleLinkClick = () => {
         closeMenu();
@@ -17,15 +19,19 @@ export default function StaffMenu({isMenuOpen, closeMenu}) {
         navigate("/", {replace: true})
     }
     const staffLinks = [
-        { to: "/staff", label: "Resumen", end: true, roles: ["Administrador", "Camarero", "Cocinero"] },
-        { to: "/staff/mesas", label: "Mesas", roles: ["Administrador", "Camarero"] },
-        { to: "/staff/pedidos", label: "Pedidos", roles: ["Administrador", "Camarero", "Cocinero"] }
+        { to: "/staff", label: "Resumen", end: true, roles: ["Administrador", "Camarero", "Cocinero", "Repartidor"] },
+        { to: "/staff/mesas", label: "Mesas", roles: ["Administrador", "Camarero"], badge: counts.mesas },
+        { to: "/staff/pedidos", label: "Pedidos", roles: ["Administrador", "Camarero", "Cocinero", "Repartidor"], badge: roleName === "Cocinero" ? counts.cocina : counts.listosSala },
+        { to: "/staff/online", label: "Pedidos online", roles: ["Administrador", "Camarero", "Repartidor"], badge: roleName === "Repartidor" ? counts.onlineReparto : counts.onlineRecogida + counts.onlineReparto },
+        { to: "/staff/facturas", label: "Facturas", roles: ["Administrador", "Camarero"] },
+        { to: "/staff/clientes", label: "Clientes", roles: ["Administrador", "Camarero"] }
     ];
 
     return (
         <nav className={`staff-navbar ${isMenuOpen ? "open" : ""}`}>
             <div className="staff-navbar__card">
                 <p className="staff-navbar__title">Accesos staff</p>
+                <span className="staff-navbar__role">{displayName || "Sin sesion"}</span>
                 <span className="staff-navbar__role">{roleName}</span>
                 <ul className="nav-menu">
                     {staffLinks
@@ -33,7 +39,8 @@ export default function StaffMenu({isMenuOpen, closeMenu}) {
                         .map((link) => (
                             <li key={link.to}>
                                 <NavLink to={link.to} end={link.end} onClick={handleLinkClick}>
-                                    {link.label}
+                                    <span>{link.label}</span>
+                                    {Boolean(link.badge) && <strong className="staff-nav__badge">{link.badge}</strong>}
                                 </NavLink>
                             </li>
                         ))}
@@ -45,4 +52,3 @@ export default function StaffMenu({isMenuOpen, closeMenu}) {
             </nav>
     )
 }
-

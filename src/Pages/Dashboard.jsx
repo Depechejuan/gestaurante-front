@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../Auth/Auth-Context";
 
 function Dashboard() {
-    const { roleName, sessionUserId, hasToken } = useAuth();
+    const { roleName, displayName, hasToken } = useAuth();
 
     const summaryCards = [
         {
@@ -10,6 +10,18 @@ function Dashboard() {
             description: "Alta, consulta y seguimiento del equipo ya implementados.",
             to: "/dashboard/empleados",
             status: "Disponible"
+        },
+        {
+            title: "Mesas",
+            description: "Gestion operativa de sala con cierre y facturacion de mesa.",
+            to: "/dashboard/mesas",
+            status: "Operativo"
+        },
+        {
+            title: "Clientes",
+            description: "Base accesible para facturas, vinculacion fiscal y pedidos online.",
+            to: "/dashboard/clientes",
+            status: "Operativo"
         },
         {
             title: "Registro",
@@ -54,8 +66,8 @@ function Dashboard() {
                         <strong>{hasToken ? "Valido" : "Faltante"}</strong>
                     </div>
                     <div>
-                        <span>Identificador</span>
-                        <strong>{sessionUserId ? String(sessionUserId).slice(0, 13) : "No disponible"}</strong>
+                        <span>Usuario</span>
+                        <strong>{displayName ?? "No disponible"}</strong>
                     </div>
                 </div>
             </article>
@@ -77,14 +89,14 @@ function Dashboard() {
                     <p>
                         Las rutas administrativas y de staff permanecen protegidas por token y
                         por rol. El objetivo del dashboard es que el usuario entienda rapido
-                        que puede usar ahora y que modulos siguen en construccion.
+                        que puede usar ahora y que modulos ya trabajan juntos en operativa real.
                     </p>
                 </div>
 
                 <ul className="dashboard-checklist">
                     <li>Acceso administrativo solo para Administrador.</li>
-                    <li>Acceso staff para Administrador, Camarero y Cocinero.</li>
-                    <li>Los modulos inmaduros aparecen como zonas en progreso, no como huecos vacios.</li>
+                    <li>Acceso staff distribuido por rol para sala, cocina, reparto, facturas y clientes.</li>
+                    <li>Facturas y clientes ya estan conectados para vincular datos fiscales desde el panel.</li>
                 </ul>
             </article>
         </section>

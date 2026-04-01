@@ -11,7 +11,7 @@ import menuIcon from "../assets/Icons/menu.svg";
 
 export default function LayoutAdmin() {
     useBodyClass("admin");
-    const { roleName, sessionUserId } = useAuth();
+    const { roleName, displayName } = useAuth();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     return (
@@ -55,7 +55,7 @@ export default function LayoutAdmin() {
 
                     <div className="dashboard-admin__session">
                         <span>{roleName}</span>
-                        <strong>{sessionUserId ? String(sessionUserId).slice(0, 8) : "Sin ID"}</strong>
+                        <strong>{displayName || "Sin sesion"}</strong>
                     </div>
                 </section>
                 <Outlet />

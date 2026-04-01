@@ -53,11 +53,19 @@ export async function apiRequest(path, options = {}) {
     const activeToken = token?.token ?? getToken()?.token ?? null;
     const requestHeaders = buildHeaders(headers, body !== undefined, requireAuth ? activeToken : null);
 
-    const response = await fetch(`${host}${path}`, {
-        method,
-        headers: requestHeaders,
-        body: body === undefined ? undefined : JSON.stringify(body)
-    });
+    let response;
+    try {
+        response = await fetch(`${host}${path}`, {
+            method,
+            headers: requestHeaders,
+            body: body === undefined ? undefined : JSON.stringify(body)
+        });
+    } catch (error) {
+        const networkError = new Error("No se ha podido establecer conexión con el servidor.");
+        networkError.status = 0;
+        networkError.cause = error;
+        throw networkError;
+    }
 
     const payload = await parseResponse(response);
 

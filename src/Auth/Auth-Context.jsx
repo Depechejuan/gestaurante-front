@@ -8,7 +8,8 @@ export const AuthContext = createContext(null);
 const roleMap = {
     0: "Administrador",
     1: "Camarero",
-    2: "Cocinero"
+    2: "Cocinero",
+    3: "Repartidor"
 };
 
 export function useAuth() {
@@ -79,9 +80,12 @@ export function AuthProvider({ children }) {
     };
 
     const roleName = user ? roleMap[user.tipo] ?? "Sin rol" : null;
+    const displayName = user
+        ? [user.nombre, user.apellido1, user.apellido2].filter(Boolean).join(" ").trim() || user.email || roleName
+        : null;
 
     return (
-        <AuthContext.Provider value={{ user, loading, logout, roleName, hasToken, sessionUserId: user?.id ?? token?.id ?? null }}>
+        <AuthContext.Provider value={{ user, loading, logout, roleName, displayName, hasToken, sessionUserId: user?.id ?? token?.id ?? null }}>
             {children}
         </AuthContext.Provider>
     );

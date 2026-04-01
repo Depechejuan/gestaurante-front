@@ -27,17 +27,32 @@ function writeJson(key, value) {
     localStorage.setItem(key, JSON.stringify(value));
 }
 
+function isExpired(expiresAt) {
+    return !expiresAt || expiresAt <= now();
+}
+
 function clearIfExpired(mesaId) {
     const key = getTableStorageKey(mesaId);
     const stored = readJson(key);
-    if (!stored) return null;
+    if (!stored) {
+        return null;
+    }
 
-    if (!stored.expiresAt || stored.expiresAt <= now()) {
+    if (isExpired(stored.expiresAt)) {
         localStorage.removeItem(key);
         return null;
     }
 
-    return stored;
+    const cleaned = {
+        mesaId: stored.mesaId ?? mesaId,
+        expiresAt: buildExpiry(),
+        cart: Array.isArray(stored.cart) ? stored.cart : [],
+        sessionToken: stored.sessionToken ?? "",
+        sessionExpiresAt: stored.sessionExpiresAt ?? null
+    };
+
+    writeJson(key, cleaned);
+    return cleaned;
 }
 
 function createEmptyState(mesaId) {
@@ -45,7 +60,8 @@ function createEmptyState(mesaId) {
         mesaId,
         expiresAt: buildExpiry(),
         cart: [],
-        previousOrders: []
+        sessionToken: "",
+        sessionExpiresAt: null
     };
 }
 
@@ -59,14 +75,22 @@ export function startTableSession(mesaId) {
 
     const existing = clearIfExpired(mesaId);
     if (existing) {
-        const refreshed = { ...existing, expiresAt: buildExpiry() };
-        writeJson(getTableStorageKey(mesaId), refreshed);
-        return refreshed;
+        return existing;
     }
 
     const initial = createEmptyState(mesaId);
     writeJson(getTableStorageKey(mesaId), initial);
     return initial;
+}
+
+export function getActiveTableSession() {
+    const session = readJson(ACTIVE_TABLE_KEY);
+    if (!session || isExpired(session.expiresAt)) {
+        localStorage.removeItem(ACTIVE_TABLE_KEY);
+        return null;
+    }
+
+    return session;
 }
 
 export function getTableOrderState(mesaId) {
@@ -82,7 +106,10 @@ export function saveTableOrderState(mesaId, nextState) {
     const payload = {
         ...nextState,
         mesaId,
-        expiresAt: buildExpiry()
+        expiresAt: buildExpiry(),
+        cart: Array.isArray(nextState.cart) ? nextState.cart : [],
+        sessionToken: nextState.sessionToken ?? "",
+        sessionExpiresAt: nextState.sessionExpiresAt ?? null
     };
 
     writeJson(getTableStorageKey(mesaId), payload);
@@ -125,21 +152,38 @@ export function updateTableCartItemQuantity(mesaId, itemId, quantity) {
     return saveTableOrderState(mesaId, { ...state, cart: nextCart });
 }
 
-export function submitCurrentTableOrder(mesaId) {
+export function getCurrentTableCartSnapshot(mesaId) {
     const state = getTableOrderState(mesaId);
-    if (!state.cart.length) return state;
+    const items = state.cart.map((item) => ({ ...item }));
+    const total = items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
 
-    const total = state.cart.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
-    const order = {
-        id: `pedido-${Date.now()}`,
-        createdAt: new Date().toISOString(),
-        items: state.cart,
+    return {
+        mesaId,
+        items,
         total
     };
+}
 
+export function clearTableCart(mesaId) {
+    const state = getTableOrderState(mesaId);
     return saveTableOrderState(mesaId, {
         ...state,
-        cart: [],
-        previousOrders: [order, ...state.previousOrders]
+        cart: []
     });
+}
+
+export function saveTablePublicSession(mesaId, sessionToken, sessionExpiresAt) {
+    const state = getTableOrderState(mesaId);
+    return saveTableOrderState(mesaId, {
+        ...state,
+        sessionToken,
+        sessionExpiresAt
+    });
+}
+
+export function clearTablePublicSession(mesaId) {
+    const state = getTableOrderState(mesaId);
+    localStorage.removeItem(ACTIVE_TABLE_KEY);
+    localStorage.removeItem(getTableStorageKey(mesaId));
+    return createEmptyState(mesaId);
 }

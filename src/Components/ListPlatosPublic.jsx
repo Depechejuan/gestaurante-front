@@ -12,7 +12,12 @@ function formatPrice(price) {
     return `${numericPrice.toFixed(2)} EUR`;
 }
 
-export default function ListPlatosPublic({platos, onAddToCart}) {
+function slugifyType(type) {
+    return String(type).toLowerCase().replace(/\s+/g, "-");
+}
+
+export default function ListPlatosPublic({platos, onAddToCart, showTypeNav = true, typeNavSticky = true}) {
+    const interactive = Boolean(onAddToCart);
     const [amounts, setAmounts] = useState({});
     const [basketFeedback, setBasketFeedback] = useState("");
 
@@ -38,31 +43,55 @@ export default function ListPlatosPublic({platos, onAddToCart}) {
     };
 
     const addToBasket = (plato) => {
-        const amount = Number(amounts[plato._fallbackId] ?? 1);
-        if (onAddToCart) {
-            onAddToCart(plato, amount);
+        if (!interactive) {
             return;
         }
 
-        setBasketFeedback(`${amount} x ${plato.nombre} añadido al carrito mock.`);
+        const amount = Number(amounts[plato._fallbackId] ?? 1);
+        onAddToCart(plato, amount);
+        setBasketFeedback(`${amount} x ${plato.nombre} añadido.`);
     };
 
     if (!groupedPlatos.length) {
         return (
             <div className="menu-public__empty">
-                <p>Aun no hay platos visibles en la carta publica.</p>
+                <p>{interactive ? "No hay platos disponibles para pedir online en este momento." : "Aun no hay platos visibles en la carta publica."}</p>
             </div>
         );
     }
 
+    const resolveIngredientes = (plato) => {
+        if (Array.isArray(plato.ingredientes) && plato.ingredientes.length) {
+            return plato.ingredientes
+                .map((ingrediente) => ingrediente.nombre ?? ingrediente)
+                .filter(Boolean)
+                .join(", ");
+        }
+
+        return plato.ingredientes || "Ingredientes aun no definidos en detalle.";
+    };
+
     return(
         <section className="menu-public">
-            {basketFeedback && <p className="menu-public__feedback">{basketFeedback}</p>}
+            {interactive && basketFeedback && <p className="menu-public__feedback">{basketFeedback}</p>}
+
+            {showTypeNav && groupedPlatos.length > 1 && (
+                <nav
+                    className={`menu-public__type-nav ${typeNavSticky ? "menu-public__type-nav--sticky" : ""}`.trim()}
+                    aria-label="Tipos de platos"
+                >
+                    {groupedPlatos.map(([type]) => (
+                        <a key={type} href={`#tipo-${slugifyType(type)}`}>
+                            {type}
+                        </a>
+                    ))}
+                </nav>
+            )}
 
             {groupedPlatos.map(([type, items]) => (
                 <section
                     key={type}
-                    id={`tipo-${type.toLowerCase().replace(/\s+/g, "-")}`}
+                    id={`tipo-${slugifyType(type)}`}
                     className="menu-public__group"
                 >
                     <div className="menu-public__group-header">
@@ -84,29 +113,34 @@ export default function ListPlatosPublic({platos, onAddToCart}) {
                                 <section className="plato-info">
                                     <div className="plato-info__top">
                                         <h3>{plato.nombre}</h3>
-                                        <strong>{formatPrice(plato.precio)}</strong>
                                     </div>
                                     <p className="plato-desc">{plato.descripcion}</p>
                                     <p className="plato-meta">
-                                        {plato.ingredientes || "Ingredientes aun no definidos en detalle."}
+                                        {resolveIngredientes(plato)}
                                     </p>
                                 </section>
 
-                                <section className="plato-cart">
-                                    <label htmlFor={`amount-${plato._fallbackId}`} className="sr-only">Cantidad</label>
-                                    <input
-                                        id={`amount-${plato._fallbackId}`}
-                                        className="plato-amount"
-                                        type="number"
-                                        min="1"
-                                        max="10"
-                                        value={amounts[plato._fallbackId] ?? 1}
-                                        onChange={(event) => handleChange(plato._fallbackId, event.target.value)}
-                                    />
-                                    <button type="button" className="cart-button" onClick={() => addToBasket(plato)}>
-                                        <img className="cart" src={cart} alt="" />
-                                        <span>Anadir</span>
-                                    </button>
+                                <section className={`plato-purchase ${interactive ? "" : "plato-purchase--browse"}`.trim()}>
+                                    <strong className="plato-price">{formatPrice(plato.precio)}</strong>
+
+                                    {interactive && (
+                                        <section className="plato-cart">
+                                            <label htmlFor={`amount-${plato._fallbackId}`} className="sr-only">Cantidad</label>
+                                            <input
+                                                id={`amount-${plato._fallbackId}`}
+                                                className="plato-amount"
+                                                type="number"
+                                                min="1"
+                                                max="10"
+                                                value={amounts[plato._fallbackId] ?? 1}
+                                                onChange={(event) => handleChange(plato._fallbackId, event.target.value)}
+                                            />
+                                            <button type="button" className="cart-button cart-button--inline" onClick={() => addToBasket(plato)}>
+                                                <img className="cart" src={cart} alt="" />
+                                                <span>Anadir</span>
+                                            </button>
+                                        </section>
+                                    )}
                                 </section>
                             </article>
                         ))}

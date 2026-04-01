@@ -10,7 +10,10 @@ const pedidoStatusByValue = {
 
 const detalleStatusByValue = {
     0: "ACTIVA",
-    1: "CANCELADA"
+    1: "CANCELADA",
+    2: "EN_COCINA",
+    3: "PREPARADO",
+    4: "ENTREGADA"
 };
 
 const facturaStatusByValue = {
@@ -110,7 +113,10 @@ export function translatePedidoStatus(status) {
 export function translateDetalleStatus(status) {
     const normalizedStatus = resolveDetalleStatus(status);
     const dictionary = {
-        ACTIVA: "Activa",
+        ACTIVA: "Pendiente",
+        EN_COCINA: "En cocina",
+        PREPARADO: "Preparado",
+        ENTREGADA: "Entregada",
         CANCELADA: "Cancelada"
     };
 

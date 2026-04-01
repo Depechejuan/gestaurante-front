@@ -248,14 +248,21 @@
 }
 
 .ops-badge--confirmado,
-.ops-badge--preparacion {
+.ops-badge--preparacion,
+.ops-badge--en_cocina {
     background: rgba(34, 74, 125, 0.14);
     color: #224a7d;
 }
 
 .ops-badge--listo,
+.ops-badge--preparado {
+    background: rgba(18, 124, 142, 0.16);
+    color: #0f6f80;
+}
+
 .ops-badge--pagado,
-.ops-badge--entregado {
+.ops-badge--entregado,
+.ops-badge--entregada {
     background: rgba(29, 122, 90, 0.14);
     color: #1d7a5a;
 }
@@ -319,6 +326,34 @@
     margin-top: 1rem;
 }
 
+.ops-lines-toolbar {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 0.95rem 1rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(18, 61, 47, 0.12);
+    background: rgba(249, 252, 250, 0.95);
+}
+
+.ops-lines-toolbar__selection,
+.ops-lines-toolbar__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.ops-lines-toolbar__check,
+.ops-line-item__check {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: #12342b;
+}
+
 .ops-line-item {
     display: flex;
     justify-content: space-between;
@@ -334,11 +369,23 @@
     margin: 0;
 }
 
+.ops-line-item__main {
+    display: grid;
+    gap: 0.35rem;
+}
+
 .ops-line-item__side {
     display: flex;
     flex-direction: column;
     gap: 0.55rem;
     align-items: flex-end;
+}
+
+.ops-line-item__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    justify-content: flex-end;
 }
 
 .invoice-sheet,
@@ -491,6 +538,76 @@
     gap: 0.6rem;
     align-items: center;
     color: #557268;
+}
+
+.invoice-choice-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.8rem;
+}
+
+.invoice-choice-card {
+    min-height: 3rem;
+    padding: 0.8rem 1rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(18, 61, 47, 0.14);
+    background: rgba(255, 255, 255, 0.96);
+    color: #12342b;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.invoice-choice-card--active {
+    background: #12342b;
+    border-color: #12342b;
+    color: #effaf4;
+}
+
+.invoice-choice-card--inactive {
+    background: rgba(193, 78, 37, 0.09);
+    border-color: rgba(193, 78, 37, 0.24);
+    color: #b14a24;
+}
+
+.invoice-choice-card:hover {
+    transform: translateY(-1px);
+}
+
+.invoice-assign__actions {
+    display: flex;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+}
+
+.invoice-assign__hint--inline {
+    padding: 0.95rem 1rem;
+    border-radius: 1rem;
+    background: rgba(249, 252, 250, 0.95);
+    border: 1px solid rgba(18, 61, 47, 0.1);
+}
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    .invoice-sheet,
+    .invoice-sheet * {
+        visibility: visible;
+    }
+
+    .invoice-sheet {
+        position: absolute;
+        inset: 0;
+        max-width: none;
+        width: 100%;
+        margin: 0;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        background: #fff;
+    }
 }
 
 .ops-highlight-card {

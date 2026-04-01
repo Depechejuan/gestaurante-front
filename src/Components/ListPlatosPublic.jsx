@@ -12,7 +12,11 @@ function formatPrice(price) {
     return `${numericPrice.toFixed(2)} EUR`;
 }
 
-export default function ListPlatosPublic({platos, onAddToCart}) {
+function slugifyType(type) {
+    return String(type).toLowerCase().replace(/\s+/g, "-");
+}
+
+export default function ListPlatosPublic({platos, onAddToCart, showTypeNav = true, typeNavSticky = true}) {
     const interactive = Boolean(onAddToCart);
     const [amounts, setAmounts] = useState({});
     const [basketFeedback, setBasketFeedback] = useState("");
@@ -71,10 +75,23 @@ export default function ListPlatosPublic({platos, onAddToCart}) {
         <section className="menu-public">
             {interactive && basketFeedback && <p className="menu-public__feedback">{basketFeedback}</p>}
 
+            {showTypeNav && groupedPlatos.length > 1 && (
+                <nav
+                    className={`menu-public__type-nav ${typeNavSticky ? "menu-public__type-nav--sticky" : ""}`.trim()}
+                    aria-label="Tipos de platos"
+                >
+                    {groupedPlatos.map(([type]) => (
+                        <a key={type} href={`#tipo-${slugifyType(type)}`}>
+                            {type}
+                        </a>
+                    ))}
+                </nav>
+            )}
+
             {groupedPlatos.map(([type, items]) => (
                 <section
                     key={type}
-                    id={`tipo-${type.toLowerCase().replace(/\s+/g, "-")}`}
+                    id={`tipo-${slugifyType(type)}`}
                     className="menu-public__group"
                 >
                     <div className="menu-public__group-header">

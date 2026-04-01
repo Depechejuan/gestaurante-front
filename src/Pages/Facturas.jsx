@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import getToken from "../services/get-token";
+import useMesaLabels from "../Hooks/useMesaLabels";
 import { getFacturas } from "../services/facturas";
 import { formatDateTime, formatMoney, orderStateClass, resolveFacturaStatus, translateFacturaStatus } from "../utils/operations";
 import "../styles/Staff/operations.css";
@@ -8,6 +9,7 @@ import "../styles/Staff/operations.css";
 export default function Facturas() {
     const location = useLocation();
     const token = getToken();
+    const { getMesaShortLabel } = useMesaLabels(Boolean(token?.token));
     const [facturas, setFacturas] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -76,7 +78,7 @@ export default function Facturas() {
                                 </div>
 
                                 <p className="ops-inline-meta">
-                                    {factura.idMesa ? `Mesa ${String(factura.idMesa).slice(0, 8)} · ` : ""}
+                                    {factura.idMesa ? `${getMesaShortLabel(factura.idMesa)} · ` : ""}
                                     {formatDateTime(factura.fechaFactura)}
                                 </p>
 

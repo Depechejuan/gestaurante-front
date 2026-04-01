@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import getToken from "../services/get-token";
 import { createMesa, deleteMesa, getMesas, updateMesa } from "../services/mesas";
+import useMesaLabels from "../Hooks/useMesaLabels";
 import { formatMoney } from "../utils/operations";
 import "../styles/Staff/operations.css";
 
@@ -71,6 +72,7 @@ export default function Mesas() {
     const [createForm, setCreateForm] = useState(EMPTY_FORM);
     const [editingMesaId, setEditingMesaId] = useState(null);
     const [editForm, setEditForm] = useState(EMPTY_FORM);
+    const { getMesaShortLabel } = useMesaLabels(Boolean(token?.token));
 
     const detailBasePath = isAdminView ? "/dashboard/mesas" : "/staff/mesas";
 
@@ -231,7 +233,7 @@ export default function Mesas() {
                                     <span className="mesa-zone">{mesa.ubicacion}</span>
                                 </div>
 
-                                <h2>Mesa {String(mesa.idMesa).slice(0, 8)}</h2>
+                                <h2>{getMesaShortLabel(mesa.idMesa)}</h2>
                                 <p>{mesa.capacidad} personas · {mesa.pedidosAbiertos} pedidos activos</p>
 
                                 <div className="mesa-card__meta">

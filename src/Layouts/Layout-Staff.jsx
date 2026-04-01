@@ -11,7 +11,7 @@ import { useAuth } from "../Auth/Auth-Context";
 
 export default function LayoutStaff() {
     useBodyClass("staff");
-    const { roleName } = useAuth();
+    const { roleName, displayName } = useAuth();
 
     return (
         <StaffNotificationsProvider>
@@ -21,7 +21,7 @@ export default function LayoutStaff() {
                     <div className="staff-header__copy">
                         <p className="staff-header__eyebrow">Operacion diaria</p>
                         <h1>Panel de staff</h1>
-                        <span>{roleName}</span>
+                        <span>{displayName ? `${displayName} · ${roleName}` : roleName}</span>
                     </div>
                 </header>
                 <StaffNotificationsPanel />

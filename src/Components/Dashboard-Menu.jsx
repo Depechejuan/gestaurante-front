@@ -4,7 +4,7 @@ import deleteToken from "../services/delete-token.js";
 
 export default function DashboardMenu({ className = "", onNavigateLink }) {
     const navigate = useNavigate();
-    const { logout, roleName, sessionUserId } = useAuth();
+    const { logout, roleName, displayName } = useAuth();
 
     const handleNavigateLink = () => {
         onNavigateLink?.();
@@ -22,7 +22,7 @@ export default function DashboardMenu({ className = "", onNavigateLink }) {
             <div className="dashboard-nav__eyebrow">Panel interno</div>
             <div className="dashboard-nav__identity">
                 <p>{roleName}</p>
-                <span>ID {sessionUserId ? String(sessionUserId).slice(0, 8) : "sin sesion"}</span>
+                <span>{displayName || "Sin sesion"}</span>
             </div>
 
             <div className="dashboard-nav__group">

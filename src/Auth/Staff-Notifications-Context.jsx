@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "./Auth-Context";
+import useMesaLabels from "../Hooks/useMesaLabels";
 import getToken from "../services/get-token";
 import { getPedidos } from "../services/pedidos";
 import {
@@ -21,9 +22,9 @@ const StaffNotificationsContext = createContext({
     dismissNotification: () => {}
 });
 
-function normalizeMesaLabel(order) {
+function normalizeMesaLabel(order, getMesaShortLabel) {
     if (order.idMesa)
-        return `Mesa ${String(order.idMesa).slice(0, 8)}`;
+        return getMesaShortLabel(order.idMesa);
 
     return order.clienteNombre || "Pedido sin mesa";
 }
@@ -72,12 +73,12 @@ function buildCounts(orders) {
     };
 }
 
-function buildNotification(roleName, previousOrder, nextOrder) {
+function buildNotification(roleName, previousOrder, nextOrder, getMesaShortLabel) {
     const nextStatus = resolvePedidoStatus(nextOrder.estado);
     const prevStatus = previousOrder ? resolvePedidoStatus(previousOrder.estado) : null;
     const deliveryType = resolveTipoEntrega(nextOrder.tipoEntrega);
     const orderChannel = resolveCanalPedido(nextOrder.canalPedido);
-    const mesaLabel = normalizeMesaLabel(nextOrder);
+    const mesaLabel = normalizeMesaLabel(nextOrder, getMesaShortLabel);
     const orderLabel = `Pedido ${String(nextOrder.idPedido).slice(0, 8)}`;
 
     if ((roleName === "Administrador" || roleName === "Camarero") && !previousOrder && ["MESA"].includes(deliveryType))
@@ -127,6 +128,7 @@ function buildNotification(roleName, previousOrder, nextOrder) {
 
 export function StaffNotificationsProvider({ children }) {
     const { hasToken, roleName } = useAuth();
+    const { getMesaShortLabel } = useMesaLabels(hasToken);
     const [notifications, setNotifications] = useState([]);
     const [counts, setCounts] = useState({
         mesas: 0,
@@ -178,7 +180,7 @@ export function StaffNotificationsProvider({ children }) {
                 const freshNotifications = [];
 
                 nextOrders.forEach((order) => {
-                    const notification = buildNotification(roleName, previousMap.get(order.idPedido), order);
+                    const notification = buildNotification(roleName, previousMap.get(order.idPedido), order, getMesaShortLabel);
                     if (notification) {
                         freshNotifications.push({
                             id: `${order.idPedido}-${resolvePedidoStatus(order.estado)}-${Date.now()}-${freshNotifications.length}`,
@@ -204,7 +206,7 @@ export function StaffNotificationsProvider({ children }) {
             cancelled = true;
             window.clearInterval(interval);
         };
-    }, [hasToken, roleName]);
+    }, [hasToken, roleName, getMesaShortLabel]);
 
     useEffect(() => {
         if (!notifications.length)

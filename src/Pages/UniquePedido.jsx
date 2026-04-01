@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAuth } from "../Auth/Auth-Context";
+import useMesaLabels from "../Hooks/useMesaLabels";
 import getToken from "../services/get-token";
-import { cancelDetallePedido, cancelPedido, getPedido, updatePedido } from "../services/pedidos";
+import { cancelDetallePedido, cancelPedido, getPedido, updateDetallePedido, updatePedido } from "../services/pedidos";
 import {
     formatDateTime,
     formatMoney,
@@ -31,15 +32,30 @@ const pedidoTransitions = {
     EN_CAMINO: [{ label: "Marcar entregado", value: 4, roles: ["Administrador", "Repartidor"], tiposEntrega: ["DOMICILIO"] }]
 };
 
+const detalleTransitions = {
+    ACTIVA: [
+        { label: "Confirmar linea", value: 4, roles: ["Administrador", "Camarero"] },
+        { label: "Enviar a cocina", value: 2, roles: ["Administrador", "Camarero"] }
+    ],
+    EN_COCINA: [
+        { label: "Marcar preparado", value: 3, roles: ["Administrador", "Cocinero"] }
+    ],
+    PREPARADO: [
+        { label: "Confirmar entrega", value: 4, roles: ["Administrador", "Camarero"] }
+    ]
+};
+
 export default function UniquePedido() {
     const { id } = useParams();
     const { roleName } = useAuth();
     const token = getToken();
+    const { getMesaShortLabel } = useMesaLabels(Boolean(token?.token));
     const [pedido, setPedido] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [feedback, setFeedback] = useState("");
     const [busyAction, setBusyAction] = useState("");
+    const [selectedLineIds, setSelectedLineIds] = useState([]);
 
     const loadPedido = async () => {
         setLoading(true);
@@ -47,6 +63,7 @@ export default function UniquePedido() {
         try {
             const response = await getPedido(id, token);
             setPedido(response?.data ?? null);
+            setSelectedLineIds([]);
         } catch (err) {
             setError(err.message || "No se ha podido cargar el pedido.");
         } finally {
@@ -70,6 +87,49 @@ export default function UniquePedido() {
         }),
         [pedidoStatus, roleName, tipoEntrega]
     );
+    const detalleActionMap = useMemo(() => {
+        const detalles = pedido?.detalles ?? [];
+
+        return detalles.reduce((acc, detalle) => {
+            const detailStatus = resolveDetalleStatus(detalle.estado);
+            const availableDetalleTransitions = (detalleTransitions[detailStatus] ?? []).filter((transition) => transition.roles.includes(roleName));
+            const canSelect = availableDetalleTransitions.length > 0;
+
+            acc[detalle.idDetallePedido] = {
+                detailStatus,
+                availableDetalleTransitions,
+                canSelect
+            };
+
+            return acc;
+        }, {});
+    }, [pedido?.detalles, roleName]);
+    const selectableLineIds = useMemo(
+        () => Object.entries(detalleActionMap)
+            .filter(([, config]) => config.canSelect)
+            .map(([detalleId]) => detalleId),
+        [detalleActionMap]
+    );
+    const selectedCount = selectedLineIds.length;
+    const canSelectAll = selectableLineIds.length > 0 && selectedLineIds.length < selectableLineIds.length;
+    const selectedTransitions = useMemo(() => {
+        const transitions = new Map();
+
+        selectedLineIds.forEach((detalleId) => {
+            const config = detalleActionMap[detalleId];
+            if (!config) {
+                return;
+            }
+
+            config.availableDetalleTransitions.forEach((transition) => {
+                const existing = transitions.get(transition.value) ?? { ...transition, count: 0 };
+                existing.count += 1;
+                transitions.set(transition.value, existing);
+            });
+        });
+
+        return Array.from(transitions.values());
+    }, [detalleActionMap, selectedLineIds]);
 
     const handleTransition = async (nextStatus) => {
         setBusyAction(`status-${nextStatus}`);
@@ -126,6 +186,63 @@ export default function UniquePedido() {
         }
     };
 
+    const handleDetalleTransition = async (detalleId, nextStatus) => {
+        setBusyAction(`status-line-${detalleId}-${nextStatus}`);
+        setError("");
+        setFeedback("");
+        try {
+            await updateDetallePedido(id, detalleId, { estado: nextStatus }, token);
+            setFeedback("Estado de la línea actualizado.");
+            await loadPedido();
+        } catch (err) {
+            setError(err.message || "No se ha podido actualizar la línea.");
+        } finally {
+            setBusyAction("");
+        }
+    };
+
+    const toggleLineSelection = (detalleId) => {
+        setSelectedLineIds((current) => (
+            current.includes(detalleId)
+                ? current.filter((idValue) => idValue !== detalleId)
+                : [...current, detalleId]
+        ));
+    };
+
+    const toggleSelectAllLines = () => {
+        setSelectedLineIds((current) => (
+            current.length === selectableLineIds.length ? [] : selectableLineIds
+        ));
+    };
+
+    const handleBatchDetalleTransition = async (nextStatus, label) => {
+        const eligibleLineIds = selectedLineIds.filter((detalleId) =>
+            (detalleActionMap[detalleId]?.availableDetalleTransitions ?? []).some((transition) => transition.value === nextStatus)
+        );
+
+        if (!eligibleLineIds.length) {
+            setError("No hay líneas seleccionadas compatibles con esa acción.");
+            return;
+        }
+
+        setBusyAction(`batch-${nextStatus}`);
+        setError("");
+        setFeedback("");
+
+        try {
+            for (const detalleId of eligibleLineIds) {
+                await updateDetallePedido(id, detalleId, { estado: nextStatus }, token);
+            }
+
+            setFeedback(`${label}: ${eligibleLineIds.length} línea(s) actualizada(s).`);
+            await loadPedido();
+        } catch (err) {
+            setError(err.message || "No se ha podido actualizar la selección.");
+        } finally {
+            setBusyAction("");
+        }
+    };
+
     if (loading) {
         return (
             <section className="staff-ops-shell">
@@ -156,7 +273,7 @@ export default function UniquePedido() {
                     <p className="staff-ops-eyebrow">Detalle de pedido</p>
                     <h1>Pedido {String(pedido.idPedido).slice(0, 8)}</h1>
                     <p>
-                        {pedido.idMesa ? `Mesa ${String(pedido.idMesa).slice(0, 8)} · ` : ""}
+                        {pedido.idMesa ? `${getMesaShortLabel(pedido.idMesa)} · ` : ""}
                         {translatePedidoStatus(pedidoStatus)} · {translateCanalPedido(canalPedido)} · {translateTipoEntrega(tipoEntrega)} · {formatDateTime(pedido.fechaModificacion ?? pedido.fechaPedido)}
                     </p>
                 </div>
@@ -244,20 +361,80 @@ export default function UniquePedido() {
                     </div>
                 )}
 
+                {selectableLineIds.length > 0 && (
+                    <div className="ops-lines-toolbar">
+                        <div className="ops-lines-toolbar__selection">
+                            <label className="ops-lines-toolbar__check">
+                                <input
+                                    type="checkbox"
+                                    checked={selectedLineIds.length > 0 && selectedLineIds.length === selectableLineIds.length}
+                                    onChange={toggleSelectAllLines}
+                                />
+                                <span>{canSelectAll ? "Seleccionar líneas accionables" : "Quitar selección"}</span>
+                            </label>
+                            <span>{selectedCount ? `${selectedCount} seleccionada(s)` : "Selecciona una o varias líneas"}</span>
+                        </div>
+
+                        {selectedTransitions.length > 0 && (
+                            <div className="ops-lines-toolbar__actions">
+                                {selectedTransitions.map((transition) => (
+                                    <button
+                                        key={`batch-${transition.value}`}
+                                        type="button"
+                                        className={transition.value === 2 ? "staff-ops-secondary" : "staff-ops-primary"}
+                                        disabled={busyAction === `batch-${transition.value}`}
+                                        onClick={() => handleBatchDetalleTransition(transition.value, transition.label)}
+                                    >
+                                        {busyAction === `batch-${transition.value}`
+                                            ? "Actualizando..."
+                                            : `${transition.label} (${transition.count})`}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 <div className="ops-lines">
                     {pedido.detalles.map((detalle) => {
-                        const detailStatus = resolveDetalleStatus(detalle.estado);
+                        const detailConfig = detalleActionMap[detalle.idDetallePedido] ?? {
+                            detailStatus: resolveDetalleStatus(detalle.estado),
+                            availableDetalleTransitions: [],
+                            canSelect: false
+                        };
+                        const detailStatus = detailConfig.detailStatus;
                         const canCancelLine = ["Administrador", "Camarero"].includes(roleName)
                             && detailStatus !== "CANCELADA"
+                            && detailStatus !== "ENTREGADA"
                             && !pedido.estaFacturado
                             && pedidoStatus !== "CANCELADO";
+                        const availableDetalleTransitions = detailConfig.availableDetalleTransitions;
 
                         return (
                             <article key={detalle.idDetallePedido} className="ops-line-item">
-                                <div>
+                                <div className="ops-line-item__main">
+                                    {detailConfig.canSelect && (
+                                        <label className="ops-line-item__check">
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedLineIds.includes(detalle.idDetallePedido)}
+                                                onChange={() => toggleLineSelection(detalle.idDetallePedido)}
+                                            />
+                                        </label>
+                                    )}
                                     <strong>{detalle.cantidad} x {detalle.platoNombre}</strong>
                                     <p>{formatMoney(detalle.precioUnitario)} por unidad</p>
-                                    <p>{detailStatus === "CANCELADA" && detalle.fechaCancelacion ? `Cancelada el ${formatDateTime(detalle.fechaCancelacion)}` : "Linea activa para facturacion"}</p>
+                                    <p>
+                                        {detailStatus === "CANCELADA" && detalle.fechaCancelacion
+                                            ? `Cancelada el ${formatDateTime(detalle.fechaCancelacion)}`
+                                            : detailStatus === "ACTIVA"
+                                                ? "Pendiente de servir o enviar a cocina"
+                                                : detailStatus === "EN_COCINA"
+                                                    ? "Preparándose en cocina"
+                                                    : detailStatus === "PREPARADO"
+                                                        ? "Lista para entregar"
+                                                        : "Entregada al cliente"}
+                                    </p>
                                 </div>
 
                                 <div className="ops-line-item__side">
@@ -265,6 +442,21 @@ export default function UniquePedido() {
                                         {translateDetalleStatus(detailStatus)}
                                     </span>
                                     <strong>{formatMoney(detalle.subtotal)}</strong>
+                                    {availableDetalleTransitions.length > 0 && (
+                                        <div className="ops-line-item__actions">
+                                            {availableDetalleTransitions.map((transition) => (
+                                                <button
+                                                    key={`${detalle.idDetallePedido}-${transition.value}`}
+                                                    type="button"
+                                                    className={transition.value === 2 ? "staff-ops-secondary" : "staff-ops-primary"}
+                                                    disabled={busyAction === `status-line-${detalle.idDetallePedido}-${transition.value}`}
+                                                    onClick={() => handleDetalleTransition(detalle.idDetallePedido, transition.value)}
+                                                >
+                                                    {busyAction === `status-line-${detalle.idDetallePedido}-${transition.value}` ? "Actualizando..." : transition.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
                                     {canCancelLine && (
                                         <button
                                             type="button"

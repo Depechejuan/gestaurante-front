@@ -3,7 +3,7 @@ import { useAuth } from "../Auth/Auth-Context";
 import { useStaffNotifications } from "../Auth/Staff-Notifications-Context";
 
 export default function DashboardStaff() {
-    const { roleName, hasToken } = useAuth();
+    const { roleName, hasToken, displayName } = useAuth();
     const { counts } = useStaffNotifications();
 
     const roleCopy = {
@@ -85,7 +85,7 @@ export default function DashboardStaff() {
             <article className="staff-dashboard__hero">
                 <div>
                     <p className="staff-dashboard__eyebrow">Turno activo</p>
-                    <h2>Bienvenido al panel interno de staff</h2>
+                    <h2>{displayName ? `Bienvenido, ${displayName}` : "Bienvenido al panel interno de staff"}</h2>
                     <p>{roleCopy[roleName]}</p>
                 </div>
 

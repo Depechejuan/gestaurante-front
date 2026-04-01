@@ -6,7 +6,7 @@ import { useStaffNotifications } from "../Auth/Staff-Notifications-Context.jsx";
 
 export default function StaffMenu({isMenuOpen, closeMenu}) {
     const navigate = useNavigate();
-    const { logout, roleName } = useAuth();
+    const { logout, roleName, displayName } = useAuth();
     const { counts } = useStaffNotifications();
     useBodyClass("staff");
     const handleLinkClick = () => {
@@ -31,6 +31,7 @@ export default function StaffMenu({isMenuOpen, closeMenu}) {
         <nav className={`staff-navbar ${isMenuOpen ? "open" : ""}`}>
             <div className="staff-navbar__card">
                 <p className="staff-navbar__title">Accesos staff</p>
+                <span className="staff-navbar__role">{displayName || "Sin sesion"}</span>
                 <span className="staff-navbar__role">{roleName}</span>
                 <ul className="nav-menu">
                     {staffLinks

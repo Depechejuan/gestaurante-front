@@ -28,6 +28,10 @@ export function assignFacturaCliente(id, body, token) {
     return authApiRequest(`/Factura/${id}/cliente`, { method: "PUT", body, token });
 }
 
+export function chargeFactura(id, body, token) {
+    return authApiRequest(`/Factura/${id}/cobrar`, { method: "POST", body, token });
+}
+
 export function sendFacturaEmail(id, body, token) {
     return authApiRequest(`/Factura/${id}/send-email`, { method: "POST", body, token });
 }

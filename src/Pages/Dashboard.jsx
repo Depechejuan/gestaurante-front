@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../Auth/Auth-Context";
 
 function Dashboard() {
-    const { roleName, sessionUserId, hasToken } = useAuth();
+    const { roleName, displayName, hasToken } = useAuth();
 
     const summaryCards = [
         {
@@ -66,8 +66,8 @@ function Dashboard() {
                         <strong>{hasToken ? "Valido" : "Faltante"}</strong>
                     </div>
                     <div>
-                        <span>Identificador</span>
-                        <strong>{sessionUserId ? String(sessionUserId).slice(0, 13) : "No disponible"}</strong>
+                        <span>Usuario</span>
+                        <strong>{displayName ?? "No disponible"}</strong>
                     </div>
                 </div>
             </article>

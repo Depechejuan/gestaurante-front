@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../Auth/Auth-Context";
+import useMesaLabels from "../Hooks/useMesaLabels";
 import getToken from "../services/get-token";
 import { getPedidos } from "../services/pedidos";
 import {
@@ -20,6 +21,7 @@ import "../styles/Staff/operations.css";
 export default function Pedidos() {
     const { roleName } = useAuth();
     const token = getToken();
+    const { getMesaShortLabel } = useMesaLabels(Boolean(token?.token));
     const [pedidos, setPedidos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -94,7 +96,7 @@ export default function Pedidos() {
                     {visiblePedidos.map((pedido) => {
                         const pedidoStatus = resolvePedidoStatus(pedido.estado);
                         const mesaLabel = pedido.idMesa
-                            ? `Mesa ${String(pedido.idMesa).slice(0, 8)}`
+                            ? getMesaShortLabel(pedido.idMesa)
                             : pedido.clienteNombre
                                 ? pedido.clienteNombre
                                 : "Sin mesa";

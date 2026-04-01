@@ -80,9 +80,12 @@ export function AuthProvider({ children }) {
     };
 
     const roleName = user ? roleMap[user.tipo] ?? "Sin rol" : null;
+    const displayName = user
+        ? [user.nombre, user.apellido1, user.apellido2].filter(Boolean).join(" ").trim() || user.email || roleName
+        : null;
 
     return (
-        <AuthContext.Provider value={{ user, loading, logout, roleName, hasToken, sessionUserId: user?.id ?? token?.id ?? null }}>
+        <AuthContext.Provider value={{ user, loading, logout, roleName, displayName, hasToken, sessionUserId: user?.id ?? token?.id ?? null }}>
             {children}
         </AuthContext.Provider>
     );

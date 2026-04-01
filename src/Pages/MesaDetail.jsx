@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import getToken from "../services/get-token";
 import { closeMesa, getMesa } from "../services/mesas";
+import useMesaLabels from "../Hooks/useMesaLabels";
 import { formatDateTime, formatMoney, orderStateClass, resolveDetalleStatus, resolvePedidoStatus, translateDetalleStatus, translatePedidoStatus } from "../utils/operations";
 import "../styles/Staff/operations.css";
 
@@ -17,6 +18,7 @@ export default function MesaDetail() {
     const [error, setError] = useState("");
     const [feedback, setFeedback] = useState("");
     const [isClosing, setIsClosing] = useState(false);
+    const { getMesaShortLabel } = useMesaLabels(Boolean(token?.token));
 
     const loadMesa = async () => {
         setLoading(true);
@@ -87,7 +89,7 @@ export default function MesaDetail() {
             <div className="staff-ops-header">
                 <div>
                     <p className="staff-ops-eyebrow">Mesa activa</p>
-                    <h1>Mesa {String(mesa.idMesa).slice(0, 8)}</h1>
+                    <h1>{getMesaShortLabel(mesa.idMesa)}</h1>
                     <p>{mesa.ubicacion} · {mesa.capacidad} personas · {mesa.estado ? "Disponible" : "Con servicio"}</p>
                 </div>
 

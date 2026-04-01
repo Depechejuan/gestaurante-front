@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
+import useMesaLabels from "../Hooks/useMesaLabels";
 import getToken from "../services/get-token";
-import { assignFacturaCliente, getFactura, searchFacturaClientes, sendFacturaEmail } from "../services/facturas";
+import { assignFacturaCliente, chargeFactura, getFactura, searchFacturaClientes, sendFacturaEmail, updateFactura } from "../services/facturas";
 import { formatDateTime, formatMoney, orderStateClass, resolveFacturaStatus, translateFacturaStatus } from "../utils/operations";
 import "../styles/Staff/operations.css";
 
 function createAssignForm(clienteFactura) {
     const isAnonymous = clienteFactura?.esAnonima;
     return {
-        idUsuarioCliente: clienteFactura?.idUsuarioCliente ?? "",
+        idUsuarioCliente: isAnonymous ? "" : clienteFactura?.idUsuarioCliente ?? "",
+        createCustomer: false,
         fiscalName: isAnonymous ? "" : clienteFactura?.billingName ?? "",
         dni: "",
         cif: "",
@@ -22,11 +24,31 @@ function createAssignForm(clienteFactura) {
     };
 }
 
+function createDiscountForm(factura) {
+    return {
+        tipoDescuento: factura?.tipoDescuento ?? 0,
+        valorDescuento: factura?.valorDescuento ?? 0,
+        motivoDescuento: factura?.motivoDescuento ?? ""
+    };
+}
+
+function createChargeForm() {
+    return {
+        metodoPago: 0,
+        importeEntregado: ""
+    };
+}
+
+function resolveDiscountLabel(tipoDescuento) {
+    return Number(tipoDescuento) === 1 ? "Porcentaje" : "Importe fijo";
+}
+
 export default function UniqueFactura() {
     const { id } = useParams();
     const location = useLocation();
     const token = getToken();
     const tokenValue = token?.token ?? "";
+    const { getMesaShortLabel } = useMesaLabels(Boolean(token?.token));
     const [factura, setFactura] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -36,9 +58,14 @@ export default function UniqueFactura() {
     const [searching, setSearching] = useState(false);
     const [assigning, setAssigning] = useState(false);
     const [assignForm, setAssignForm] = useState(createAssignForm(null));
+    const [discountForm, setDiscountForm] = useState(createDiscountForm(null));
+    const [updatingDiscount, setUpdatingDiscount] = useState(false);
+    const [chargeForm, setChargeForm] = useState(createChargeForm());
+    const [charging, setCharging] = useState(false);
     const [sendingEmail, setSendingEmail] = useState(false);
     const isStaffContext = location.pathname.startsWith("/staff/");
     const facturasBasePath = isStaffContext ? "/staff/facturas" : "/dashboard/facturas";
+    const anonymousOption = searchResults.find((cliente) => cliente.esAnonimo);
 
     useEffect(() => {
         const loadFactura = async () => {
@@ -49,6 +76,7 @@ export default function UniqueFactura() {
                 const nextFactura = response?.data ?? null;
                 setFactura(nextFactura);
                 setAssignForm(createAssignForm(nextFactura?.clienteFactura));
+                setDiscountForm(createDiscountForm(nextFactura));
             } catch (err) {
                 setError(err.message || "No se ha podido cargar la factura.");
             } finally {
@@ -58,6 +86,19 @@ export default function UniqueFactura() {
 
         loadFactura();
     }, [id, tokenValue]);
+
+    useEffect(() => {
+        const loadAnonymousOption = async () => {
+            try {
+                const response = await searchFacturaClientes("", token);
+                setSearchResults(response?.data ?? []);
+            } catch {
+                setSearchResults([]);
+            }
+        };
+
+        loadAnonymousOption();
+    }, [tokenValue]);
 
     const handlePrint = () => {
         window.print();
@@ -87,11 +128,6 @@ export default function UniqueFactura() {
     };
 
     const handleSearch = async () => {
-        if (!searchQuery.trim()) {
-            setSearchResults([]);
-            return;
-        }
-
         setSearching(true);
         setError("");
         try {
@@ -108,6 +144,7 @@ export default function UniqueFactura() {
         setAssignForm((current) => ({
             ...current,
             idUsuarioCliente: cliente.idUsuarioCliente,
+            createCustomer: false,
             fiscalName: cliente.fiscalName || cliente.fullName || current.fiscalName,
             dni: cliente.dni || "",
             cif: cliente.cif || "",
@@ -121,19 +158,62 @@ export default function UniqueFactura() {
         setFeedback(`Cliente seleccionado: ${cliente.fiscalName || cliente.fullName || cliente.email}`);
     };
 
-    const handleAssign = async (event) => {
+    const handleSaveDiscount = async (event) => {
         event.preventDefault();
+        setUpdatingDiscount(true);
+        setError("");
+        setFeedback("");
+        try {
+            const response = await updateFactura(id, {
+                tipoDescuento: Number(discountForm.tipoDescuento),
+                valorDescuento: Number(discountForm.valorDescuento || 0),
+                motivoDescuento: discountForm.motivoDescuento
+            }, token);
+            const nextFactura = response?.data ?? null;
+            setFactura(nextFactura);
+            setDiscountForm(createDiscountForm(nextFactura));
+            setFeedback("Descuento actualizado correctamente.");
+        } catch (err) {
+            setError(err.message || "No se ha podido actualizar el descuento.");
+        } finally {
+            setUpdatingDiscount(false);
+        }
+    };
+
+    const handleChargeFactura = async (event) => {
+        event.preventDefault();
+        setCharging(true);
+        setError("");
+        setFeedback("");
+        try {
+            const response = await chargeFactura(id, {
+                metodoPago: Number(chargeForm.metodoPago),
+                importeEntregado: Number(chargeForm.metodoPago) === 0 ? Number(chargeForm.importeEntregado || 0) : null
+            }, token);
+            const nextFactura = response?.data ?? null;
+            setFactura(nextFactura);
+            setFeedback("Factura cobrada correctamente.");
+        } catch (err) {
+            setError(err.message || "No se ha podido cobrar la factura.");
+        } finally {
+            setCharging(false);
+        }
+    };
+
+    const submitAssign = async (createCustomer) => {
         setAssigning(true);
         setError("");
         setFeedback("");
         try {
             const response = await assignFacturaCliente(id, {
                 ...assignForm,
+                createCustomer,
                 idUsuarioCliente: assignForm.idUsuarioCliente || null
             }, token);
             const nextFactura = response?.data ?? null;
             setFactura(nextFactura);
             setAssignForm(createAssignForm(nextFactura?.clienteFactura));
+            setDiscountForm(createDiscountForm(nextFactura));
             setSearchResults([]);
             setSearchQuery("");
             setFeedback("Factura actualizada con los datos fiscales solicitados.");
@@ -142,6 +222,11 @@ export default function UniqueFactura() {
         } finally {
             setAssigning(false);
         }
+    };
+
+    const handleAssign = async (event, createCustomer = false) => {
+        event.preventDefault();
+        await submitAssign(createCustomer);
     };
 
     if (loading) {
@@ -169,6 +254,10 @@ export default function UniqueFactura() {
 
     const facturaStatus = resolveFacturaStatus(factura.estado);
     const clienteFactura = factura.clienteFactura ?? {};
+    const isPaid = facturaStatus === "PAGADO";
+    const chargePreview = Number(chargeForm.metodoPago) === 0
+        ? Math.max(0, Number(chargeForm.importeEntregado || 0) - Number(factura.totalConDescuento || 0))
+        : 0;
 
     return (
         <section className="staff-ops-shell">
@@ -177,7 +266,7 @@ export default function UniqueFactura() {
                     <p className="staff-ops-eyebrow">Factura</p>
                     <h1>Factura {String(factura.numeroFactura).slice(0, 8)}</h1>
                     <p>
-                        {factura.idMesa ? `Mesa ${String(factura.idMesa).slice(0, 8)} · ` : ""}
+                        {factura.idMesa ? `${getMesaShortLabel(factura.idMesa)} · ` : ""}
                         {formatDateTime(factura.fechaFactura)}
                     </p>
                 </div>
@@ -279,10 +368,119 @@ export default function UniqueFactura() {
 
                 <footer className="invoice-sheet__totals">
                     <p>Total bruto: <strong>{formatMoney(factura.precioTotal)}</strong></p>
-                    <p>Descuento: <strong>{formatMoney(factura.descuento)}</strong></p>
+                    <p>Descuento ({resolveDiscountLabel(factura.tipoDescuento)}): <strong>{formatMoney(factura.descuento)}</strong></p>
+                    {!!factura.motivoDescuento && <p>Motivo descuento: <strong>{factura.motivoDescuento}</strong></p>}
                     <p>Total final: <strong>{formatMoney(factura.totalConDescuento)}</strong></p>
+                    {factura.metodoCobro !== null && factura.metodoCobro !== undefined && (
+                        <>
+                            <p>Método de cobro: <strong>{Number(factura.metodoCobro) === 0 ? "Efectivo" : "Tarjeta"}</strong></p>
+                            {factura.fechaCobro && <p>Fecha de cobro: <strong>{formatDateTime(factura.fechaCobro)}</strong></p>}
+                            {factura.importeEntregado !== null && factura.importeEntregado !== undefined && (
+                                <p>Importe entregado: <strong>{formatMoney(factura.importeEntregado)}</strong></p>
+                            )}
+                            {factura.cambioEntregado !== null && factura.cambioEntregado !== undefined && Number(factura.cambioEntregado) > 0 && (
+                                <p>Cambio entregado: <strong>{formatMoney(factura.cambioEntregado)}</strong></p>
+                            )}
+                        </>
+                    )}
                 </footer>
             </article>
+
+            <section className="invoice-assign">
+                <div className="invoice-assign__header">
+                    <div>
+                        <p className="staff-ops-eyebrow">Cobro y descuento</p>
+                        <h2>Gestionar importe final</h2>
+                    </div>
+                    <span className="invoice-assign__hint">
+                        Ajusta descuentos antes de cobrar. El cobro en efectivo calculará el cambio automáticamente.
+                    </span>
+                </div>
+
+                {isPaid ? (
+                    <div className="invoice-assign__hint invoice-assign__hint--inline">
+                        La factura ya está cobrada. El descuento queda bloqueado para mantener la trazabilidad del cobro.
+                    </div>
+                ) : (
+                    <form className="invoice-assign__form" onSubmit={handleSaveDiscount}>
+                        <div className="invoice-choice-grid">
+                            <button
+                            type="button"
+                            className={`invoice-choice-card ${Number(discountForm.tipoDescuento) === 0 ? "invoice-choice-card--active" : "invoice-choice-card--inactive"}`}
+                            onClick={() => setDiscountForm((current) => ({ ...current, tipoDescuento: 0 }))}
+                        >
+                            Importe fijo
+                            </button>
+                            <button
+                            type="button"
+                            className={`invoice-choice-card ${Number(discountForm.tipoDescuento) === 1 ? "invoice-choice-card--active" : "invoice-choice-card--inactive"}`}
+                            onClick={() => setDiscountForm((current) => ({ ...current, tipoDescuento: 1 }))}
+                        >
+                            Porcentaje
+                        </button>
+                    </div>
+                        <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                        value={discountForm.valorDescuento}
+                        onChange={(event) => setDiscountForm((current) => ({ ...current, valorDescuento: event.target.value }))}
+                        placeholder={Number(discountForm.tipoDescuento) === 1 ? "Ej. 5" : "Ej. 2.50"}
+                    />
+                    <input
+                        type="text"
+                        maxLength="250"
+                        value={discountForm.motivoDescuento}
+                        onChange={(event) => setDiscountForm((current) => ({ ...current, motivoDescuento: event.target.value }))}
+                        placeholder="Motivo del descuento"
+                    />
+                    <button type="submit" className="staff-ops-secondary" disabled={updatingDiscount}>
+                        {updatingDiscount ? "Guardando..." : "Guardar descuento"}
+                    </button>
+                    </form>
+                )}
+
+                {!isPaid && (
+                    <form className="invoice-assign__form" onSubmit={handleChargeFactura}>
+                        <div className="invoice-choice-grid">
+                            <button
+                                type="button"
+                                className={`invoice-choice-card ${Number(chargeForm.metodoPago) === 0 ? "invoice-choice-card--active" : ""}`}
+                                onClick={() => setChargeForm((current) => ({ ...current, metodoPago: 0 }))}
+                            >
+                                Efectivo
+                            </button>
+                            <button
+                                type="button"
+                                className={`invoice-choice-card ${Number(chargeForm.metodoPago) === 1 ? "invoice-choice-card--active" : ""}`}
+                                onClick={() => setChargeForm((current) => ({ ...current, metodoPago: 1 }))}
+                            >
+                                Tarjeta
+                            </button>
+                        </div>
+
+                        {Number(chargeForm.metodoPago) === 0 && (
+                            <>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    value={chargeForm.importeEntregado}
+                                    onChange={(event) => setChargeForm((current) => ({ ...current, importeEntregado: event.target.value }))}
+                                    placeholder="Importe entregado en efectivo"
+                                />
+                                <p className="invoice-assign__hint invoice-assign__hint--inline">
+                                    Cambio a devolver: <strong>{formatMoney(chargePreview)}</strong>
+                                </p>
+                            </>
+                        )}
+
+                        <button type="submit" className="staff-ops-primary" disabled={charging}>
+                            {charging ? "Cobrando..." : "Cobrar factura"}
+                        </button>
+                    </form>
+                )}
+            </section>
 
             <section className="invoice-assign">
                 <div className="invoice-assign__header">
@@ -291,7 +489,7 @@ export default function UniqueFactura() {
                         <h2>Asignar factura a cliente</h2>
                     </div>
                     <span className="invoice-assign__hint">
-                        Busca por DNI o CIF y, si hace falta, completa los datos manualmente.
+                        La factura parte de Cliente anónimo. Puedes buscar un cliente existente o crear uno nuevo desde aquí.
                     </span>
                 </div>
 
@@ -317,13 +515,25 @@ export default function UniqueFactura() {
                                 onClick={() => handleSelectCustomer(cliente)}
                             >
                                 <strong>{cliente.fiscalName || cliente.fullName || cliente.email}</strong>
-                                <span>{cliente.dni || cliente.cif || "Sin documento"}</span>
+                                <span>{cliente.esAnonimo ? "Cliente por defecto" : (cliente.dni || cliente.cif || "Sin documento")}</span>
                             </button>
                         ))}
                     </div>
                 )}
 
-                <form className="invoice-assign__form" onSubmit={handleAssign}>
+                {anonymousOption && (
+                    <div className="invoice-assign__actions">
+                        <button
+                            type="button"
+                            className="staff-ops-secondary"
+                            onClick={() => handleSelectCustomer(anonymousOption)}
+                        >
+                            Usar cliente anónimo
+                        </button>
+                    </div>
+                )}
+
+                <form className="invoice-assign__form" onSubmit={(event) => handleAssign(event, false)}>
                     <input
                         value={assignForm.fiscalName}
                         onChange={(event) => setAssignForm({ ...assignForm, fiscalName: event.target.value })}
@@ -390,9 +600,24 @@ export default function UniqueFactura() {
                         />
                         Guardar estos datos también en la ficha del cliente si existe
                     </label>
-                    <button type="submit" className="staff-ops-primary" disabled={assigning}>
-                        {assigning ? "Guardando..." : "Asignar factura"}
-                    </button>
+                    <div className="invoice-assign__actions">
+                        <button
+                            type="button"
+                            className="staff-ops-primary"
+                            disabled={assigning}
+                            onClick={(event) => handleAssign(event, false)}
+                        >
+                            {assigning ? "Guardando..." : "Asignar factura"}
+                        </button>
+                        <button
+                            type="button"
+                            className="staff-ops-secondary"
+                            disabled={assigning}
+                            onClick={(event) => handleAssign(event, true)}
+                        >
+                            {assigning ? "Guardando..." : "Dar de alta cliente y asignar"}
+                        </button>
+                    </div>
                 </form>
             </section>
 

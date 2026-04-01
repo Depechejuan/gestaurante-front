@@ -19,7 +19,6 @@ export default function PlatosPublic() {
         ...plato,
         tipoVisible: resolvePlatoType(plato, index)
     }));
-    const tipos = [...new Set(platosConTipo.map((plato) => plato.tipoVisible))];
 
     if (loading) {
         return (
@@ -62,14 +61,6 @@ export default function PlatosPublic() {
                     <span className="menu-public__cta-note">En sala, el pedido se hace desde el QR de la mesa.</span>
                 </div>
             </section>
-
-            <nav className="menu-public__type-nav menu-public__type-nav--sticky" aria-label="Tipos de platos">
-                {tipos.map((tipo) => (
-                    <a key={tipo} href={`#tipo-${tipo.toLowerCase().replace(/\s+/g, "-")}`}>
-                        {tipo}
-                    </a>
-                ))}
-            </nav>
 
             <ListPlatosPublic platos={platosConTipo} />
         </section>

@@ -40,6 +40,7 @@ export default function MesaQrMenu() {
     const [sessionError, setSessionError] = useState("");
     const [isLocked, setIsLocked] = useState(false);
     const [publicOrders, setPublicOrders] = useState([]);
+    const [resolvedMesaId, setResolvedMesaId] = useState("");
 
     const loadPublicOrders = async (mesaId, sessionToken) => {
         try {
@@ -67,6 +68,7 @@ export default function MesaQrMenu() {
                     throw new Error("No se ha podido abrir la sesión de mesa.");
                 }
 
+                setResolvedMesaId(session.idMesa ?? "");
                 const nextState = saveTablePublicSession(id, session.sessionToken, session.expiresAt);
                 setTableState(nextState);
                 await loadPublicOrders(id, session.sessionToken);
@@ -142,12 +144,11 @@ export default function MesaQrMenu() {
         }
 
         const canSend = tableState.sessionToken
-            && isGuid(id)
             && cartSnapshot.items.every((item) => isGuid(item.backendId));
 
         if (!canSend) {
             setCartFeedback(
-                "El carrito queda guardado en este dispositivo, pero el envio real al backend sigue pendiente de la integracion final de platos."
+                "El carrito queda guardado en este dispositivo, pero no todos los platos de la carta tienen un identificador valido para enviarse al backend."
             );
             setSending(false);
             return;
@@ -231,7 +232,7 @@ export default function MesaQrMenu() {
                 </div>
                 <div className="mesa-session-card">
                     <span>Sesion activa</span>
-                    <strong>{tableState.mesaId}</strong>
+                    <strong>{resolvedMesaId ? `Mesa ${id}` : tableState.mesaId}</strong>
                     <small>
                         Caduca {tableState.sessionExpiresAt ? formatDateTime(tableState.sessionExpiresAt) : "en 4 horas"}
                     </small>

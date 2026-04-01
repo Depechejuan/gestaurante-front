@@ -30,7 +30,8 @@
 }
 
 .staff-ops-primary,
-.staff-ops-secondary {
+.staff-ops-secondary,
+.staff-ops-danger {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -50,6 +51,12 @@
     border: 1px solid rgba(18, 61, 47, 0.14);
     background: rgba(255, 255, 255, 0.88);
     color: #12342b;
+}
+
+.staff-ops-danger {
+    border: 0;
+    background: #b94a38;
+    color: #fff6f3;
 }
 
 .staff-ops-secondary--link {
@@ -185,6 +192,10 @@
     background: rgba(255, 255, 255, 0.88);
 }
 
+.ops-inline-form--full {
+    margin-top: 1rem;
+}
+
 .ops-inline-form__grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
@@ -210,6 +221,12 @@
     flex-direction: row !important;
     align-items: center;
     align-self: end;
+}
+
+.ops-inline-form__checks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .ops-inline-form__checkbox input {

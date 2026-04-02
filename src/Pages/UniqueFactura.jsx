@@ -310,7 +310,6 @@ export default function UniqueFactura() {
                         <p className="invoice-sheet__eyebrow">Gestaurante</p>
                         <h2>Factura simplificada</h2>
                         <p>C/ Servicio 17 · 28000 Madrid</p>
-                        <p>gestaurante@local.test · +34 910 000 000</p>
                     </div>
 
                     <div className="invoice-sheet__status">

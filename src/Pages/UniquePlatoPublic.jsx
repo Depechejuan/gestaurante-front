@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import getPlatos from "../services/get-platos";
 import { getPublicDish } from "../services/public-catalog";
 import "../styles/Customer/platos.css";
 
@@ -29,19 +28,6 @@ export default function UniquePlatoPublic() {
                 if (!cancelled)
                     setPlato(response?.data ?? null);
             } catch (err) {
-                try {
-                    const platos = await getPlatos();
-                    const fallbackDish = (platos ?? []).find((item) => String(item.idPlato ?? item.id) === String(id)) ?? null;
-
-                    if (!cancelled && fallbackDish) {
-                        setPlato(fallbackDish);
-                        setError("");
-                        return;
-                    }
-                } catch {
-                    // Dejamos que abajo se muestre el error original.
-                }
-
                 if (!cancelled)
                     setError(err.message || "No se ha podido cargar el detalle del plato.");
             } finally {

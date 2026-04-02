@@ -24,12 +24,16 @@ export default function ListPlatosPublic({platos, onAddToCart, showTypeNav = tru
 
     const groupedPlatos = useMemo(() => {
         const groups = new Map();
-        (platos ?? []).forEach((plato, index) => {
+        (platos ?? []).forEach((plato) => {
+            const publicId = String(plato.idPlato ?? plato.id ?? "");
+            if (!publicId)
+                return;
+
             const type = plato.tipoVisible ?? "Otros";
             const existing = groups.get(type) ?? [];
             existing.push({
                 ...plato,
-                _fallbackId: plato.id ?? plato.idPlato ?? `${type}-${index}`
+                _publicId: publicId
             });
             groups.set(type, existing);
         });
@@ -48,7 +52,7 @@ export default function ListPlatosPublic({platos, onAddToCart, showTypeNav = tru
             return;
         }
 
-        const amount = Number(amounts[plato._fallbackId] ?? 1);
+        const amount = Number(amounts[plato._publicId] ?? 1);
         onAddToCart(plato, amount);
         setBasketFeedback(`${amount} x ${plato.nombre} añadido.`);
     };
@@ -56,7 +60,7 @@ export default function ListPlatosPublic({platos, onAddToCart, showTypeNav = tru
     if (!groupedPlatos.length) {
         return (
             <div className="menu-public__empty">
-                <p>{interactive ? "No hay platos disponibles para pedir online en este momento." : "Aun no hay platos visibles en la carta publica."}</p>
+                <p>{interactive ? "No hay platos disponibles para pedir online en este momento." : "No hay platos visibles en la carta en este momento."}</p>
             </div>
         );
     }
@@ -102,8 +106,8 @@ export default function ListPlatosPublic({platos, onAddToCart, showTypeNav = tru
 
                     <div className="platos-list">
                         {items.map((plato) => (
-                            <article className="plato-unique" key={plato._fallbackId}>
-                                <Link className="plato-media-link" to={`/carta/${plato.idPlato ?? plato.id}`}>
+                            <article className="plato-unique" key={plato._publicId}>
+                                <Link className="plato-media-link" to={`/carta/${plato._publicId}`}>
                                     <figure className="plato-media">
                                         {plato.imagen ? (
                                             <img src={plato.imagen} alt={plato.nombre} className="plato-pic" />
@@ -116,7 +120,7 @@ export default function ListPlatosPublic({platos, onAddToCart, showTypeNav = tru
                                 <section className="plato-info">
                                     <div className="plato-info__top">
                                         <h3>
-                                            <Link className="plato-title-link" to={`/carta/${plato.idPlato ?? plato.id}`}>
+                                            <Link className="plato-title-link" to={`/carta/${plato._publicId}`}>
                                                 {plato.nombre}
                                             </Link>
                                         </h3>
@@ -128,14 +132,14 @@ export default function ListPlatosPublic({platos, onAddToCart, showTypeNav = tru
                                     {!!plato.alergenos?.length && (
                                         <div className="plato-allergen-list">
                                             {plato.alergenos.map((alergeno) => (
-                                                <span key={`${plato._fallbackId}-${alergeno}`} className="plato-allergen-badge">
+                                                <span key={`${plato._publicId}-${alergeno}`} className="plato-allergen-badge">
                                                     {alergeno}
                                                 </span>
                                             ))}
                                         </div>
                                     )}
                                     <div className="plato-info__actions">
-                                        <Link className="plato-detail-link" to={`/carta/${plato.idPlato ?? plato.id}`}>
+                                        <Link className="plato-detail-link" to={`/carta/${plato._publicId}`}>
                                             Ver detalle
                                         </Link>
                                     </div>
@@ -146,15 +150,15 @@ export default function ListPlatosPublic({platos, onAddToCart, showTypeNav = tru
 
                                     {interactive && (
                                         <section className="plato-cart">
-                                            <label htmlFor={`amount-${plato._fallbackId}`} className="sr-only">Cantidad</label>
+                                            <label htmlFor={`amount-${plato._publicId}`} className="sr-only">Cantidad</label>
                                             <input
-                                                id={`amount-${plato._fallbackId}`}
+                                                id={`amount-${plato._publicId}`}
                                                 className="plato-amount"
                                                 type="number"
                                                 min="1"
                                                 max="10"
-                                                value={amounts[plato._fallbackId] ?? 1}
-                                                onChange={(event) => handleChange(plato._fallbackId, event.target.value)}
+                                                value={amounts[plato._publicId] ?? 1}
+                                                onChange={(event) => handleChange(plato._publicId, event.target.value)}
                                             />
                                             <button type="button" className="cart-button cart-button--inline" onClick={() => addToBasket(plato)}>
                                                 <img className="cart" src={cart} alt="" />

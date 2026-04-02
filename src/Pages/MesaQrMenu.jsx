@@ -99,7 +99,7 @@ export default function MesaQrMenu() {
         const numericPrice = Number.parseFloat(String(plato.precio).replace(",", ".").replace(" EUR", ""));
         const unitPrice = Number.isNaN(numericPrice) ? 0 : numericPrice;
         const nextState = addItemToTableCart(id, {
-            id: String(plato.id ?? plato.idPlato ?? plato._fallbackId),
+            id: String(plato.idPlato ?? plato.id),
             backendId: plato.idPlato ?? plato.id ?? null,
             nombre: plato.nombre,
             quantity: amount,

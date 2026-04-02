@@ -40,7 +40,7 @@ export default function CustomerAccount() {
         { to: "/pedido-online", label: "Pedir online", description: "Haz un pedido de recogida o delivery." },
         { to: "/cuenta/pedidos", label: "Mis pedidos", description: "Consulta tu histórico y el estado actual." },
         { to: "/cuenta/direcciones", label: "Direcciones", description: "Gestiona tus direcciones guardadas." },
-        { to: "/cuenta/metodos-pago", label: "Métodos de pago", description: "Guarda y reutiliza pagos mock." }
+        { to: "/cuenta/metodos-pago", label: "Métodos de pago", description: "Guarda y reutiliza tus métodos de pago." }
     ];
 
     const handleSubmit = async (event) => {

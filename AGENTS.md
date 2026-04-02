@@ -84,7 +84,6 @@ Valores habituales:
 PUBLIC_URL=http://localhost:5173
 VITE_API_HOST=http://localhost:3003
 VITE_API_PORT=3003
-VITE_ENABLE_MOCK_PUBLIC_CATALOG=false
 ```
 
 ### Ejecutar en desarrollo
@@ -109,7 +108,7 @@ npm run build
 ## Puntos delicados
 - El pedido online y el QR usan `localStorage` hasta confirmar.
 - Hay dos tipos de sesión: empleados y clientes.
-- El fallback a catálogo mock solo debe activarse con `VITE_ENABLE_MOCK_PUBLIC_CATALOG=true` y solo en desarrollo.
+- El catálogo público debe consumirse siempre desde la API real; no se mantienen adaptadores de datos falsos en front.
 - Algunas vistas internas dependen de que el backend esté con migraciones aplicadas.
 
 ## Comandos rápidos

@@ -179,206 +179,209 @@ export default function OnlineOrder() {
                 </div>
                 <strong>{formatMoney(total)}</strong>
             </div>
-
-            <div className="online-order-summary">
-                <div>
-                    <span>Productos</span>
-                    <strong>{formatMoney(subtotal)}</strong>
+            <div className="mesa-order-card__body">
+                <div className="online-order-summary">
+                    <div>
+                        <span>Productos</span>
+                        <strong>{formatMoney(subtotal)}</strong>
+                    </div>
+                    <div>
+                        <span>Envío</span>
+                        <strong>{tipoEntrega === "DOMICILIO" ? formatMoney(shippingCost) : "Gratis"}</strong>
+                    </div>
+                    <div>
+                        <span>Total</span>
+                        <strong>{formatMoney(total)}</strong>
+                    </div>
                 </div>
-                <div>
-                    <span>Envío</span>
-                    <strong>{tipoEntrega === "DOMICILIO" ? formatMoney(shippingCost) : "Gratis"}</strong>
-                </div>
-                <div>
-                    <span>Total</span>
-                    <strong>{formatMoney(total)}</strong>
-                </div>
-            </div>
 
-            <div className="checkout-choice-group">
-                <div className="checkout-choice-group__header">
-                    <span className="public-eyebrow">Entrega</span>
-                    <p>Elige cómo quieres recibir tu pedido.</p>
+                <div className="checkout-choice-group">
+                    <div className="checkout-choice-group__header">
+                        <span className="public-eyebrow">Entrega</span>
+                        <p>Elige cómo quieres recibir tu pedido.</p>
+                    </div>
+                    <div className="checkout-choice-grid">
+                        <button
+                            type="button"
+                            className={`checkout-choice ${tipoEntrega === "RECOGIDA" ? "checkout-choice--active" : ""}`}
+                            onClick={() => setTipoEntrega("RECOGIDA")}
+                        >
+                            <strong>Recogida</strong>
+                            <span>Recoge tu pedido en el restaurante.</span>
+                        </button>
+                        <button
+                            type="button"
+                            className={`checkout-choice ${tipoEntrega === "DOMICILIO" ? "checkout-choice--active" : ""}`}
+                            onClick={() => {
+                                setTipoEntrega("DOMICILIO");
+                                setPagarOnline(true);
+                            }}
+                        >
+                            <strong>Domicilio</strong>
+                            <span>Entrega con gasto variable según el importe.</span>
+                        </button>
+                    </div>
                 </div>
-                <div className="checkout-choice-grid">
-                    <button
-                        type="button"
-                        className={`checkout-choice ${tipoEntrega === "RECOGIDA" ? "checkout-choice--active" : ""}`}
-                        onClick={() => setTipoEntrega("RECOGIDA")}
-                    >
-                        <strong>Recogida</strong>
-                        <span>Recoge tu pedido en el restaurante.</span>
-                    </button>
-                    <button
-                        type="button"
-                        className={`checkout-choice ${tipoEntrega === "DOMICILIO" ? "checkout-choice--active" : ""}`}
-                        onClick={() => {
-                            setTipoEntrega("DOMICILIO");
-                            setPagarOnline(true);
-                        }}
-                    >
-                        <strong>Domicilio</strong>
-                        <span>Entrega con gasto variable según el importe.</span>
-                    </button>
+
+                <div className="checkout-rules">
+                    <p><strong>Gastos de envío</strong></p>
+                    <ul>
+                        <li>Menos de 20 €: 5 €</li>
+                        <li>De 20 € a 29,99 €: 2 €</li>
+                        <li>Desde 30 €: gratis</li>
+                    </ul>
                 </div>
-            </div>
 
-            <div className="checkout-rules">
-                <p><strong>Gastos de envío</strong></p>
-                <ul>
-                    <li>Menos de 20 €: 5 €</li>
-                    <li>De 20 € a 29,99 €: 2 €</li>
-                    <li>Desde 30 €: gratis</li>
-                </ul>
-            </div>
-
-            {tipoEntrega === "DOMICILIO" && (
-                <>
-                    <label>Dirección de entrega</label>
-                    <select value={selectedAddress} onChange={(e) => setSelectedAddress(e.target.value)}>
-                        <option value="">Selecciona una dirección</option>
-                        {addresses.map((address) => (
-                            <option key={address.idClienteDireccion} value={address.idClienteDireccion}>
-                                {address.alias} · {address.street}
-                            </option>
-                        ))}
-                    </select>
-                    {!addresses.length && hasCustomerSession ? (
-                        <p className="customer-form-feedback">Necesitas guardar al menos una dirección en tu cuenta para los envíos a domicilio.</p>
-                    ) : null}
-                </>
-            )}
-
-            <div className="checkout-choice-group">
-                <div className="checkout-choice-group__header">
-                    <span className="public-eyebrow">Pago</span>
-                    <p>{tipoEntrega === "DOMICILIO" ? "El domicilio requiere pago online." : "Elige si prefieres pagar ahora o al recoger."}</p>
-                </div>
-                <div className="checkout-choice-grid">
-                    <button
-                        type="button"
-                        className={`checkout-choice ${pagarOnline ? "checkout-choice--active" : ""}`}
-                        onClick={() => setPagarOnline(true)}
-                    >
-                        <strong>Pagar ahora</strong>
-                        <span>Guarda el pedido como abonado y genera la factura al momento.</span>
-                    </button>
-                    <button
-                        type="button"
-                        className={`checkout-choice ${!pagarOnline ? "checkout-choice--active" : ""}`}
-                        disabled={tipoEntrega === "DOMICILIO"}
-                        onClick={() => setPagarOnline(false)}
-                    >
-                        <strong>Pagar al recoger</strong>
-                        <span>Disponible solo en recogida. El staff cobrará al entregar.</span>
-                    </button>
-                </div>
-            </div>
-
-            {pagarOnline && (
-                <>
-                    <label className="checkout-inline-check">
-                        <input
-                            type="checkbox"
-                            checked={useSavedPaymentMethod}
-                            onChange={(e) => setUseSavedPaymentMethod(e.target.checked)}
-                        />
-                        Usar una tarjeta guardada
-                    </label>
-
-                    {useSavedPaymentMethod && paymentMethods.length > 0 ? (
-                        <select value={selectedPaymentMethod} onChange={(e) => setSelectedPaymentMethod(e.target.value)}>
-                            <option value="">Selecciona una tarjeta guardada</option>
-                            {paymentMethods.map((method) => (
-                                <option key={method.idClienteMetodoPago} value={method.idClienteMetodoPago}>
-                                    {method.brand} · **** {method.last4}
+                {tipoEntrega === "DOMICILIO" && (
+                    <>
+                        <label>Dirección de entrega</label>
+                        <select value={selectedAddress} onChange={(e) => setSelectedAddress(e.target.value)}>
+                            <option value="">Selecciona una dirección</option>
+                            {addresses.map((address) => (
+                                <option key={address.idClienteDireccion} value={address.idClienteDireccion}>
+                                    {address.alias} · {address.street}
                                 </option>
                             ))}
                         </select>
-                    ) : (
-                        <>
-                            <input
-                                type="text"
-                                placeholder="Número de tarjeta"
-                                value={newCard.cardNumber}
-                                onChange={(e) => setNewCard({ ...newCard, cardNumber: e.target.value })}
-                            />
-                            <input
-                                type="text"
-                                placeholder="Titular"
-                                value={newCard.holderName}
-                                onChange={(e) => setNewCard({ ...newCard, holderName: e.target.value })}
-                            />
-                            <div className="mesa-order-item__actions">
-                                <input
-                                    type="number"
-                                    min="1"
-                                    max="12"
-                                    placeholder="Mes"
-                                    value={newCard.expMonth}
-                                    onChange={(e) => setNewCard({ ...newCard, expMonth: e.target.value })}
-                                />
-                                <input
-                                    type="number"
-                                    min="2026"
-                                    placeholder="Año"
-                                    value={newCard.expYear}
-                                    onChange={(e) => setNewCard({ ...newCard, expYear: e.target.value })}
-                                />
-                            </div>
-                            <label className="checkout-inline-check">
-                                <input
-                                    type="checkbox"
-                                    checked={newCard.saveForFuture}
-                                    onChange={(e) => setNewCard({ ...newCard, saveForFuture: e.target.checked })}
-                                />
-                                Guardar para futuros pedidos
-                            </label>
-                        </>
-                    )}
-                </>
-            )}
+                        {!addresses.length && hasCustomerSession ? (
+                            <p className="customer-form-feedback">Necesitas guardar al menos una dirección en tu cuenta para los envíos a domicilio.</p>
+                        ) : null}
+                    </>
+                )}
 
-            {!cart.length ? (
-                <p className="mesa-order-empty">Tu carrito online está vacío.</p>
-            ) : (
-                <div className="mesa-order-items">
-                    {cart.map((item) => (
-                        <article key={item.id} className="mesa-order-item">
-                            <div>
-                                <strong>{item.nombre}</strong>
-                                <p>{formatMoney(item.unitPrice)} · {item.quantity} uds.</p>
-                            </div>
-                            <div className="online-cart-item__actions">
-                                <div className="online-cart-stepper">
-                                    <button type="button" onClick={() => handleAdjustCartItem(item.id, item.quantity - 1)}>-</button>
-                                    <span>{item.quantity}</span>
-                                    <button type="button" onClick={() => handleAdjustCartItem(item.id, item.quantity + 1)}>+</button>
-                                </div>
-                                <button type="button" className="staff-ops-secondary" onClick={() => handleRemoveCartItem(item.id)}>Quitar</button>
-                            </div>
-                        </article>
-                    ))}
-                </div>
-            )}
-
-            {!hasCustomerSession ? (
-                <div className="checkout-guest-cta">
-                    <p>Para confirmar el pedido necesitas una cuenta de cliente validada.</p>
-                    <div className="menu-public__cta-row">
-                        <button type="button" className="staff-ops-primary mesa-order-submit" disabled={!cart.length} onClick={handleRequireRegister}>
-                            Regístrate para continuar
+                <div className="checkout-choice-group">
+                    <div className="checkout-choice-group__header">
+                        <span className="public-eyebrow">Pago</span>
+                        <p>{tipoEntrega === "DOMICILIO" ? "El domicilio requiere pago online." : "Elige si prefieres pagar ahora o al recoger."}</p>
+                    </div>
+                    <div className="checkout-choice-grid">
+                        <button
+                            type="button"
+                            className={`checkout-choice ${pagarOnline ? "checkout-choice--active" : ""}`}
+                            onClick={() => setPagarOnline(true)}
+                        >
+                            <strong>Pagar ahora</strong>
+                            <span>Guarda el pedido como abonado y genera la factura al momento.</span>
                         </button>
-                        <Link to={`/login?redirect=${encodeURIComponent("/pedido-online")}`} className="customer-btn-secondary customer-btn-secondary--inline">
-                            Ya tengo cuenta
-                        </Link>
+                        <button
+                            type="button"
+                            className={`checkout-choice ${!pagarOnline ? "checkout-choice--active" : ""}`}
+                            disabled={tipoEntrega === "DOMICILIO"}
+                            onClick={() => setPagarOnline(false)}
+                        >
+                            <strong>Pagar al recoger</strong>
+                            <span>Disponible solo en recogida. El staff cobrará al entregar.</span>
+                        </button>
                     </div>
                 </div>
-            ) : (
-                <button type="button" className="staff-ops-primary mesa-order-submit" disabled={sending || !cart.length} onClick={handleSubmit}>
-                    {sending ? "Enviando..." : "Confirmar pedido online"}
-                </button>
-            )}
+
+                {pagarOnline && (
+                    <>
+                        <label className="checkout-inline-check">
+                            <input
+                                type="checkbox"
+                                checked={useSavedPaymentMethod}
+                                onChange={(e) => setUseSavedPaymentMethod(e.target.checked)}
+                            />
+                            Usar una tarjeta guardada
+                        </label>
+
+                        {useSavedPaymentMethod && paymentMethods.length > 0 ? (
+                            <select value={selectedPaymentMethod} onChange={(e) => setSelectedPaymentMethod(e.target.value)}>
+                                <option value="">Selecciona una tarjeta guardada</option>
+                                {paymentMethods.map((method) => (
+                                    <option key={method.idClienteMetodoPago} value={method.idClienteMetodoPago}>
+                                        {method.brand} · **** {method.last4}
+                                    </option>
+                                ))}
+                            </select>
+                        ) : (
+                            <>
+                                <input
+                                    type="text"
+                                    placeholder="Número de tarjeta"
+                                    value={newCard.cardNumber}
+                                    onChange={(e) => setNewCard({ ...newCard, cardNumber: e.target.value })}
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="Titular"
+                                    value={newCard.holderName}
+                                    onChange={(e) => setNewCard({ ...newCard, holderName: e.target.value })}
+                                />
+                                <div className="mesa-order-item__actions">
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        max="12"
+                                        placeholder="Mes"
+                                        value={newCard.expMonth}
+                                        onChange={(e) => setNewCard({ ...newCard, expMonth: e.target.value })}
+                                    />
+                                    <input
+                                        type="number"
+                                        min="2026"
+                                        placeholder="Año"
+                                        value={newCard.expYear}
+                                        onChange={(e) => setNewCard({ ...newCard, expYear: e.target.value })}
+                                    />
+                                </div>
+                                <label className="checkout-inline-check">
+                                    <input
+                                        type="checkbox"
+                                        checked={newCard.saveForFuture}
+                                        onChange={(e) => setNewCard({ ...newCard, saveForFuture: e.target.checked })}
+                                    />
+                                    Guardar para futuros pedidos
+                                </label>
+                            </>
+                        )}
+                    </>
+                )}
+
+                {!cart.length ? (
+                    <p className="mesa-order-empty">Tu carrito online está vacío.</p>
+                ) : (
+                    <div className="mesa-order-items">
+                        {cart.map((item) => (
+                            <article key={item.id} className="mesa-order-item">
+                                <div>
+                                    <strong>{item.nombre}</strong>
+                                    <p>{formatMoney(item.unitPrice)} · {item.quantity} uds.</p>
+                                </div>
+                                <div className="online-cart-item__actions">
+                                    <div className="online-cart-stepper">
+                                        <button type="button" onClick={() => handleAdjustCartItem(item.id, item.quantity - 1)}>-</button>
+                                        <span>{item.quantity}</span>
+                                        <button type="button" onClick={() => handleAdjustCartItem(item.id, item.quantity + 1)}>+</button>
+                                    </div>
+                                    <button type="button" className="staff-ops-secondary" onClick={() => handleRemoveCartItem(item.id)}>Quitar</button>
+                                </div>
+                            </article>
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            <div className="mesa-order-card__footer">
+                {!hasCustomerSession ? (
+                    <div className="checkout-guest-cta">
+                        <p>Para confirmar el pedido necesitas una cuenta de cliente validada.</p>
+                        <div className="menu-public__cta-row">
+                            <button type="button" className="staff-ops-primary mesa-order-submit" disabled={!cart.length} onClick={handleRequireRegister}>
+                                Regístrate para continuar
+                            </button>
+                            <Link to={`/login?redirect=${encodeURIComponent("/pedido-online")}`} className="customer-btn-secondary customer-btn-secondary--inline">
+                                Ya tengo cuenta
+                            </Link>
+                        </div>
+                    </div>
+                ) : (
+                    <button type="button" className="staff-ops-primary mesa-order-submit" disabled={sending || !cart.length} onClick={handleSubmit}>
+                        {sending ? "Enviando..." : "Confirmar pedido online"}
+                    </button>
+                )}
+            </div>
         </section>
     );
 

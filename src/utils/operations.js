@@ -37,9 +37,9 @@ const tipoEntregaByValue = {
 const estadoPagoByValue = {
     0: "NO_APLICA",
     1: "PENDIENTE_LOCAL",
-    2: "PAGADO_LOCAL",
-    3: "PAGADO_MOCK",
-    4: "REEMBOLSADO_MOCK"
+    2: "PAGADO_ONLINE",
+    3: "PAGADO_LOCAL",
+    4: "REEMBOLSADO_ONLINE"
 };
 
 export function resolvePedidoStatus(status) {
@@ -162,8 +162,8 @@ export function translateEstadoPago(value) {
         NO_APLICA: "Sin cobro",
         PENDIENTE_LOCAL: "Pago en local",
         PAGADO_LOCAL: "Cobrado en local",
-        PAGADO_MOCK: "Pagado online",
-        REEMBOLSADO_MOCK: "Reembolsado"
+        PAGADO_ONLINE: "Pagado online",
+        REEMBOLSADO_ONLINE: "Reembolsado"
     };
 
     return dictionary[status] ?? status ?? "Estado de pago";

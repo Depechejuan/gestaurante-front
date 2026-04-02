@@ -259,6 +259,23 @@
     overflow: hidden;
 }
 
+.mesa-order-card__body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 0.25rem;
+    scrollbar-gutter: stable;
+}
+
+.mesa-order-card__footer {
+    flex-shrink: 0;
+    padding-top: 1rem;
+    margin-top: 1rem;
+    border-top: 1px solid rgba(230, 244, 241, 0.08);
+    background: linear-gradient(180deg, rgba(18, 60, 54, 0) 0%, rgba(18, 60, 54, 0.94) 18%, rgba(18, 60, 54, 0.98) 100%);
+}
+
 .mesa-order-card__header h2 {
     margin: 0.2rem 0 0;
 }
@@ -275,15 +292,9 @@
     gap: 0.8rem;
 }
 
-.mesa-order-card--cart .mesa-order-items {
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow-y: auto;
-    padding-right: 0.2rem;
-}
-
+.mesa-order-card--cart .mesa-order-items,
 .mesa-order-card--cart .mesa-order-empty {
-    flex: 1 1 auto;
+    flex: 0 0 auto;
 }
 
 .mesa-order-item,
@@ -656,6 +667,17 @@
     .mesa-order-card--cart {
         max-height: none;
         overflow: visible;
+    }
+
+    .mesa-order-card__body {
+        overflow: visible;
+        padding-right: 0;
+    }
+
+    .mesa-order-card__footer {
+        padding-top: 0.85rem;
+        margin-top: 0.85rem;
+        background: transparent;
     }
 
     .mesa-order-sidebar--desktop {

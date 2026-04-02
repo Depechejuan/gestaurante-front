@@ -20,6 +20,12 @@ export function addOnlineCartItem(item) {
     return cart;
 }
 
+export function addManyOnlineCartItems(items) {
+    const next = (items ?? []).reduce((cart, item) => mergeCartItems(cart, item), readCart());
+    writeCart(next);
+    return next;
+}
+
 export function updateOnlineCartItem(itemId, quantity) {
     const next = updateCartItemsQuantity(readCart(), itemId, quantity);
     writeCart(next);

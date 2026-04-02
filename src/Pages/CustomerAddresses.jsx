@@ -1,16 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { useCustomerAuth } from "../Auth/Customer-Auth-Context";
 import { createCustomerAddress, deleteCustomerAddress, getCustomerAddresses, updateCustomerAddress } from "../services/customer-account";
 
 const emptyForm = { alias: "", street: "", city: "", province: "", postalCode: "", notes: "", isDefault: false };
 
 export default function CustomerAddresses() {
+    const location = useLocation();
     const { token } = useCustomerAuth();
     const [addresses, setAddresses] = useState([]);
     const [form, setForm] = useState(emptyForm);
     const [editingId, setEditingId] = useState("");
     const [error, setError] = useState("");
     const [feedback, setFeedback] = useState("");
+    const redirect = useMemo(() => new URLSearchParams(location.search).get("redirect") ?? "", [location.search]);
 
     const load = async () => {
         try {
@@ -59,7 +62,10 @@ export default function CustomerAddresses() {
 
     return (
         <section className="staff-ops-shell">
-            <div className="staff-ops-header"><h1>Direcciones</h1></div>
+            <div className="staff-ops-header">
+                <h1>Direcciones</h1>
+                {redirect ? <Link to={redirect} className="staff-ops-secondary">Volver al checkout</Link> : null}
+            </div>
             {error && <div className="staff-ops-warning"><p>{error}</p></div>}
             {feedback && <div className="staff-ops-warning staff-ops-warning--success"><p>{feedback}</p></div>}
             <form onSubmit={handleSubmit} className="customer-contact-form">

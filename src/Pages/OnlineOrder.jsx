@@ -79,6 +79,15 @@ export default function OnlineOrder() {
         load();
     }, [hasCustomerSession, token?.token]);
 
+    useEffect(() => {
+        const cartMessage = location.state?.cartMessage;
+        if (!cartMessage)
+            return;
+
+        setFeedback(cartMessage);
+        navigate(location.pathname + location.search, { replace: true, state: null });
+    }, [location.pathname, location.search, location.state, navigate]);
+
     const subtotal = useMemo(() => cart.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0), [cart]);
     const shippingCost = useMemo(() => resolveShippingCost(subtotal, tipoEntrega), [subtotal, tipoEntrega]);
     const total = useMemo(() => subtotal + shippingCost, [subtotal, shippingCost]);
@@ -183,8 +192,11 @@ export default function OnlineOrder() {
                 expYear: "",
                 saveForFuture: true
             });
-            setFeedback(`Pedido ${String(response?.data?.idPedido ?? "").slice(0, 8)} creado correctamente.`);
-            navigate("/pedido-online");
+            navigate("/pedido-online", {
+                state: {
+                    cartMessage: `Pedido ${String(response?.data?.idPedido ?? "").slice(0, 8)} creado correctamente.`
+                }
+            });
         } catch (err) {
             setError(err.message || "No se ha podido crear el pedido online.");
         } finally {

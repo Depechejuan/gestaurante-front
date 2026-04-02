@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useCustomerAuth } from "../Auth/Customer-Auth-Context";
-import { updateCustomerProfile } from "../services/customer-account";
+import { getCustomerOrders, updateCustomerProfile } from "../services/customer-account";
+import { formatDateTime, formatMoney, translatePedidoStatus } from "../utils/operations";
 
 export default function CustomerAccount() {
     const { customer, token, logout, setCustomer } = useCustomerAuth();
@@ -20,6 +21,7 @@ export default function CustomerAccount() {
     const [feedback, setFeedback] = useState("");
     const [error, setError] = useState("");
     const [saving, setSaving] = useState(false);
+    const [recentOrders, setRecentOrders] = useState([]);
 
     useEffect(() => {
         setForm({
@@ -36,12 +38,27 @@ export default function CustomerAccount() {
         });
     }, [customer?.firstName, customer?.lastName, customer?.phone, customer?.fiscalName, customer?.dni, customer?.cif, customer?.billingStreet, customer?.billingCity, customer?.billingProvince, customer?.billingPostalCode]);
 
+    useEffect(() => {
+        const loadOrders = async () => {
+            try {
+                const response = await getCustomerOrders(token.token);
+                setRecentOrders((response?.data ?? []).slice(0, 3));
+            } catch {
+                setRecentOrders([]);
+            }
+        };
+
+        if (token?.token)
+            loadOrders();
+    }, [token?.token]);
+
     const links = [
         { to: "/pedido-online", label: "Pedir online", description: "Haz un pedido de recogida o delivery." },
         { to: "/cuenta/pedidos", label: "Mis pedidos", description: "Consulta tu histórico y el estado actual." },
         { to: "/cuenta/direcciones", label: "Direcciones", description: "Gestiona tus direcciones guardadas." },
         { to: "/cuenta/metodos-pago", label: "Métodos de pago", description: "Guarda y reutiliza tus métodos de pago." }
     ];
+    const latestOrder = useMemo(() => recentOrders[0] ?? null, [recentOrders]);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -100,6 +117,42 @@ export default function CustomerAccount() {
                         <p>{link.description}</p>
                     </Link>
                 ))}
+            </section>
+
+            <section className="checkout-section">
+                <div className="checkout-section__header">
+                    <span className="checkout-section__step">1</span>
+                    <div>
+                        <h2>Actividad reciente</h2>
+                        <p>Ten a mano tu perfil, tus direcciones y tus últimos pedidos para repetir más rápido.</p>
+                    </div>
+                </div>
+                <div className="staff-dashboard__grid">
+                    <article className="staff-dashboard__card">
+                        <h3>Pedidos recientes</h3>
+                        <p>{recentOrders.length ? `${recentOrders.length} pedidos visibles en tu panel.` : "Todavía no has hecho pedidos online."}</p>
+                    </article>
+                    <article className="staff-dashboard__card">
+                        <h3>Último pedido</h3>
+                        <p>{latestOrder ? `${translatePedidoStatus(latestOrder.estado)} · ${formatMoney(latestOrder.total)}` : "Cuando hagas tu primer pedido aparecerá aquí."}</p>
+                    </article>
+                </div>
+                {recentOrders.length ? (
+                    <div className="comandas-list">
+                        {recentOrders.map((order) => (
+                            <article key={order.idPedido} className="comanda-card">
+                                <div className="comanda-card__top">
+                                    <div>
+                                        <h3>Pedido {String(order.idPedido).slice(0, 8)}</h3>
+                                        <p>{translatePedidoStatus(order.estado)} · {formatDateTime(order.fechaPedido)}</p>
+                                    </div>
+                                    <strong>{formatMoney(order.total)}</strong>
+                                </div>
+                                <Link to="/cuenta/pedidos" className="plato-detail-link">Ver histórico completo</Link>
+                            </article>
+                        ))}
+                    </div>
+                ) : null}
             </section>
         </section>
     );

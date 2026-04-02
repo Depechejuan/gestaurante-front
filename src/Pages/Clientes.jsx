@@ -62,6 +62,7 @@ export default function Clientes() {
             billingCity: cliente.billingCity ?? "",
             billingProvince: cliente.billingProvince ?? "",
             billingPostalCode: cliente.billingPostalCode ?? "",
+            activo: Boolean(cliente.activo),
             emailVerificado: Boolean(cliente.emailVerificado)
         });
         setFeedback("");
@@ -116,6 +117,7 @@ export default function Clientes() {
             if (editingClientId === cliente.idUsuarioCliente && editForm) {
                 setEditForm((currentForm) => ({
                     ...currentForm,
+                    activo: updatedCliente.activo,
                     emailVerificado: updatedCliente.emailVerificado
                 }));
             }
@@ -241,7 +243,6 @@ export default function Clientes() {
                                                 type="text"
                                                 value={editForm.fiscalName}
                                                 onChange={(event) => handleEditChange("fiscalName", event.target.value)}
-                                                required
                                             />
                                         </label>
                                         <label>

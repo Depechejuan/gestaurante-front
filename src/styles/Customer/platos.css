@@ -237,11 +237,12 @@
 
 .mesa-order-sidebar {
     position: sticky;
-    top: 1rem;
+    top: 5.4rem;
 }
 
 .mesa-order-sidebar--desktop {
     display: flex;
+    align-self: start;
 }
 
 .mesa-order-card__header {
@@ -255,22 +256,32 @@
 .mesa-order-card--cart {
     display: flex;
     flex-direction: column;
-    max-height: calc(100vh - 2rem);
-    overflow: hidden;
+    max-height: none;
+    overflow: visible;
+}
+
+.mesa-order-card--cart-preview {
+    max-height: calc(100vh - 7rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 0.25rem;
 }
 
 .mesa-order-card--cart-preview .mesa-order-card__body {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    min-height: auto;
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
 }
 
 .mesa-order-card__body {
     flex: 1 1 auto;
     min-height: 0;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    padding-right: 0.25rem;
+    overflow: visible;
+    padding-right: 0;
     scrollbar-gutter: stable;
 }
 
@@ -279,7 +290,7 @@
     padding-top: 1rem;
     margin-top: 1rem;
     border-top: 1px solid rgba(230, 244, 241, 0.08);
-    background: linear-gradient(180deg, rgba(18, 60, 54, 0) 0%, rgba(18, 60, 54, 0.94) 18%, rgba(18, 60, 54, 0.98) 100%);
+    background: transparent;
 }
 
 .mesa-order-card__header h2 {
@@ -398,10 +409,14 @@
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
+    position: sticky;
+    top: 5.4rem;
+    z-index: 34;
     padding: 1rem 1.1rem;
     border-radius: 1.2rem;
-    background: rgba(252, 194, 63, 0.09);
+    background: rgba(11, 44, 40, 0.96);
     border: 1px solid rgba(252, 194, 63, 0.24);
+    backdrop-filter: blur(14px);
 }
 
 .checkout-panel__total-top strong {
@@ -421,6 +436,13 @@
 
 .checkout-section--final {
     margin-bottom: 2rem;
+}
+
+.checkout-section--items .mesa-order-items {
+    max-height: calc(100vh - 24rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 0.25rem;
 }
 
 .checkout-section__header {
@@ -460,6 +482,40 @@
     border-radius: 1rem;
     background: rgba(10, 39, 34, 0.72);
     border: 1px solid rgba(230, 244, 241, 0.08);
+}
+
+.checkout-inline-panel label {
+    color: var(--color-text-customer-primary);
+    font-size: 0.92rem;
+    font-weight: 600;
+}
+
+.checkout-inline-panel input,
+.checkout-inline-panel select {
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.85rem 1rem;
+    border-radius: 0.95rem;
+    border: 1px solid rgba(230, 244, 241, 0.14);
+    background: rgba(6, 26, 23, 0.92);
+    color: var(--color-text-customer-primary);
+    font-size: 0.95rem;
+}
+
+.checkout-inline-panel input::placeholder {
+    color: rgba(183, 220, 212, 0.72);
+}
+
+.checkout-inline-panel input:focus,
+.checkout-inline-panel select:focus {
+    outline: none;
+    border-color: rgba(252, 194, 63, 0.45);
+    box-shadow: 0 0 0 4px rgba(252, 194, 63, 0.08);
+}
+
+.checkout-inline-panel select option {
+    color: #e6f4f1;
+    background: #0c2f2a;
 }
 
 .checkout-inline-helper {
@@ -558,6 +614,15 @@
     align-items: center;
     gap: 0.6rem;
     margin-bottom: 0.85rem;
+    color: var(--color-text-customer-primary);
+}
+
+.checkout-inline-check input {
+    width: auto;
+    min-height: auto;
+    padding: 0;
+    accent-color: #fcc23f;
+    box-shadow: none;
 }
 
 .online-cart-item__actions {
@@ -774,12 +839,17 @@
         position: static;
     }
 
-    .mesa-order-card--cart {
+    .mesa-order-card--cart,
+    .mesa-order-card--cart-preview {
         max-height: none;
         overflow: visible;
+        padding-right: 0;
     }
 
-    .mesa-order-card__body {
+    .mesa-order-card__body,
+    .mesa-order-card--cart-preview .mesa-order-card__body,
+    .checkout-section--items .mesa-order-items {
+        max-height: none;
         overflow: visible;
         padding-right: 0;
     }

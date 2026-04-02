@@ -13,7 +13,8 @@ const StaffNotificationsContext = createContext({
     connected: false,
     counts: {
         mesas: 0,
-        cocina: 0,
+        cocinaSala: 0,
+        cocinaOnline: 0,
         onlineRecogida: 0,
         onlineReparto: 0,
         listosSala: 0
@@ -29,14 +30,23 @@ function normalizeMesaLabel(order, getMesaShortLabel) {
     return order.clienteNombre || "Pedido sin mesa";
 }
 
-function shouldWatchKitchen(order) {
+function isRestaurantOrder(order) {
+    return resolveTipoEntrega(order.tipoEntrega) === "MESA"
+        && resolveCanalPedido(order.canalPedido) !== "ONLINE";
+}
+
+function isOnlineOrder(order) {
+    return resolveCanalPedido(order.canalPedido) === "ONLINE";
+}
+
+function isKitchenVisible(order) {
     const status = resolvePedidoStatus(order.estado);
-    return ["CONFIRMADO", "PREPARACION"].includes(status);
+    return ["CONFIRMADO", "PREPARACION", "LISTO"].includes(status);
 }
 
 function shouldWatchSala(order) {
     const status = resolvePedidoStatus(order.estado);
-    return resolveTipoEntrega(order.tipoEntrega) === "MESA" && ["PENDIENTE", "CONFIRMADO", "PREPARACION", "LISTO"].includes(status);
+    return isRestaurantOrder(order) && ["PENDIENTE", "CONFIRMADO", "PREPARACION", "LISTO"].includes(status);
 }
 
 function shouldWatchPickup(order) {
@@ -63,12 +73,13 @@ function buildCounts(orders) {
 
     return {
         mesas: mesas.size,
-        cocina: orders.filter(shouldWatchKitchen).length,
+        cocinaSala: orders.filter((order) => isRestaurantOrder(order) && isKitchenVisible(order)).length,
+        cocinaOnline: orders.filter((order) => isOnlineOrder(order) && isKitchenVisible(order)).length,
         onlineRecogida: orders.filter(shouldWatchPickup).length,
         onlineReparto: orders.filter(shouldWatchDelivery).length,
         listosSala: orders.filter((order) => {
             const status = resolvePedidoStatus(order.estado);
-            return ["LISTO"].includes(status) && ["MESA", "RECOGIDA"].includes(resolveTipoEntrega(order.tipoEntrega));
+            return status === "LISTO" && isRestaurantOrder(order);
         }).length
     };
 }
@@ -128,11 +139,13 @@ function buildNotification(roleName, previousOrder, nextOrder, getMesaShortLabel
 
 export function StaffNotificationsProvider({ children }) {
     const { hasToken, roleName } = useAuth();
-    const { getMesaShortLabel } = useMesaLabels(hasToken);
+    const canLoadMesaLabels = hasToken && ["Administrador", "Camarero"].includes(roleName);
+    const { getMesaShortLabel } = useMesaLabels(canLoadMesaLabels);
     const [notifications, setNotifications] = useState([]);
     const [counts, setCounts] = useState({
         mesas: 0,
-        cocina: 0,
+        cocinaSala: 0,
+        cocinaOnline: 0,
         onlineRecogida: 0,
         onlineReparto: 0,
         listosSala: 0
@@ -145,7 +158,8 @@ export function StaffNotificationsProvider({ children }) {
             setNotifications([]);
             setCounts({
                 mesas: 0,
-                cocina: 0,
+                cocinaSala: 0,
+                cocinaOnline: 0,
                 onlineRecogida: 0,
                 onlineReparto: 0,
                 listosSala: 0
@@ -200,7 +214,7 @@ export function StaffNotificationsProvider({ children }) {
         };
 
         pollOrders();
-        const interval = window.setInterval(pollOrders, 10000);
+        const interval = window.setInterval(pollOrders, 20000);
 
         return () => {
             cancelled = true;

@@ -14,6 +14,7 @@ import {
     translatePedidoStatus,
     translateTipoEntrega
 } from "../utils/operations";
+import "../styles/Customer/form.css";
 
 export default function CustomerOrders() {
     const navigate = useNavigate();
@@ -81,22 +82,23 @@ export default function CustomerOrders() {
     };
 
     return (
-        <section className="staff-ops-shell">
-            <div className="staff-ops-header">
+        <section className="public-page public-page--menu customer-orders-page">
+            <section className="menu-public__hero">
                 <div>
-                    <p className="staff-ops-eyebrow">Cuenta cliente</p>
+                    <p className="public-eyebrow">Cuenta cliente</p>
                     <h1>Mis pedidos</h1>
+                    <p>Consulta tu historial y repite en segundos los pedidos que más haces.</p>
                 </div>
-            </div>
+            </section>
             {error && <div className="staff-ops-warning"><p>{error}</p></div>}
             {feedback && <div className="staff-ops-warning staff-ops-warning--success"><p>{feedback}</p></div>}
             {!orders.length ? (
                 <div className="staff-ops-empty"><p>Aún no tienes pedidos online.</p></div>
             ) : (
-                <div className="comandas-list">
+                <div className="customer-orders-list">
                     {orders.map((order) => (
-                        <article key={order.idPedido} className="comanda-card">
-                            <div className="comanda-card__top">
+                        <article key={order.idPedido} className="customer-order-card">
+                            <div className="customer-order-card__top">
                                 <div>
                                     <span className={`mesa-detail-card__label ops-badge ${orderStateClass(resolvePedidoStatus(order.estado))}`}>
                                         {translatePedidoStatus(order.estado)}
@@ -105,10 +107,25 @@ export default function CustomerOrders() {
                                 </div>
                                 <strong>{formatMoney(order.total)}</strong>
                             </div>
-                            <p>{translateTipoEntrega(order.tipoEntrega)} · {translateEstadoPago(order.estadoPago)} · {formatDateTime(order.fechaPedido)}</p>
-                            {order.detalles?.length ? <p>{order.detalles.length} lineas · {order.detalles.map((detail) => detail.platoNombre).join(", ")}</p> : null}
+                            <div className="customer-order-card__meta">
+                                <span>{translateTipoEntrega(order.tipoEntrega)}</span>
+                                <span>{translateEstadoPago(order.estadoPago)}</span>
+                                <span>{formatDateTime(order.fechaPedido)}</span>
+                            </div>
+                            {order.detalles?.length ? (
+                                <div className="customer-order-card__items">
+                                    <p>{order.detalles.length} líneas</p>
+                                    <ul>
+                                        {order.detalles.map((detail) => (
+                                            <li key={detail.idDetallePedido}>
+                                                {detail.cantidad} x {detail.platoNombre}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ) : null}
                             <div className="menu-public__cta-row">
-                                <button type="button" className="staff-ops-primary" onClick={() => handleRepeatOrder(order)}>
+                                <button type="button" className="customer-btn-primary customer-btn-primary--inline" onClick={() => handleRepeatOrder(order)}>
                                     Repetir pedido
                                 </button>
                                 <Link to="/pedido-online" className="customer-btn-secondary customer-btn-secondary--inline">

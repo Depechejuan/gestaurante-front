@@ -3,7 +3,7 @@ import getToken from "../services/get-token";
 import getBasicUser from "../services/get-basic-user";
 import { SESSION_CHANGED_EVENT } from "../services/session-events";
 import deleteToken from "../services/delete-token";
-import { EMPLOYEE_ROLE_NAMES } from "../constants/roles";
+import { extractEmployeeRoleFromJwt, resolveEmployeeRoleName } from "../constants/roles";
 
 export const AuthContext = createContext(null);
 
@@ -74,7 +74,9 @@ export function AuthProvider({ children }) {
         setUser(null);
     };
 
-    const roleName = user ? EMPLOYEE_ROLE_NAMES[user.tipo] ?? "Sin rol" : null;
+    const roleName = user
+        ? resolveEmployeeRoleName(user.tipo)
+        : extractEmployeeRoleFromJwt(token?.token);
     const displayName = user
         ? [user.nombre, user.apellido1, user.apellido2].filter(Boolean).join(" ").trim() || user.email || roleName
         : null;

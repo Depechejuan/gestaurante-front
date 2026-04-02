@@ -3,6 +3,7 @@ import sendLogin from "../../services/login";
 import saveToken from "../../services/save-token";
 import { loginCustomer } from "../../services/customer-account";
 import { saveCustomerToken } from "../../services/customer-token-storage";
+import { resolveEmployeeRoleName } from "../../constants/roles";
 import AuthLoginForm from "./Auth-Login-Form";
 
 function Login() {
@@ -40,12 +41,12 @@ function Login() {
             return;
         }
 
-        const tipo = response.data.tipo;
-        if (tipo === 0) {
+        const roleName = resolveEmployeeRoleName(response.data.tipo);
+        if (roleName === "Administrador") {
             navigate("/dashboard");
             return;
         }
-        if (tipo === 1 || tipo === 2 || tipo === 3) {
+        if (["Camarero", "Cocinero", "Repartidor"].includes(roleName)) {
             navigate("/staff");
             return;
         }

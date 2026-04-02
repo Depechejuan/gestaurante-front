@@ -16,18 +16,25 @@ import {
 import "../styles/Staff/operations.css";
 
 const viewConfig = {
+    todos: {
+        label: "Todos",
+        title: "Todos los pedidos online",
+        empty: "No hay pedidos online activos ahora mismo.",
+        roles: ["Administrador", "Camarero", "Cocinero"],
+        match: () => true
+    },
     recogida: {
         label: "Recogidas",
         title: "Pedidos online para recoger",
         empty: "No hay recogidas activas ahora mismo.",
-        roles: ["Administrador", "Camarero"],
+        roles: ["Administrador", "Camarero", "Cocinero"],
         match: (pedido) => resolveTipoEntrega(pedido.tipoEntrega) === "RECOGIDA"
     },
     reparto: {
         label: "Reparto",
         title: "Pedidos online a domicilio",
         empty: "No hay pedidos de reparto activos ahora mismo.",
-        roles: ["Administrador", "Repartidor"],
+        roles: ["Administrador", "Cocinero", "Repartidor"],
         match: (pedido) => resolveTipoEntrega(pedido.tipoEntrega) === "DOMICILIO"
     }
 };
@@ -36,7 +43,7 @@ function resolveDefaultView(roleName) {
     if (roleName === "Repartidor")
         return "reparto";
 
-    return "recogida";
+    return "todos";
 }
 
 export default function PedidosOnline() {
@@ -56,7 +63,7 @@ export default function PedidosOnline() {
 
     const requestedView = searchParams.get("view");
     const activeView = allowedViews.includes(requestedView) ? requestedView : allowedViews[0] ?? resolveDefaultView(roleName);
-    const activeConfig = viewConfig[activeView] ?? viewConfig.recogida;
+    const activeConfig = viewConfig[activeView] ?? viewConfig.todos;
 
     useEffect(() => {
         if (searchParams.get("view") === activeView)
@@ -87,7 +94,7 @@ export default function PedidosOnline() {
         };
 
         loadOrders();
-        const interval = window.setInterval(loadOrders, 15000);
+        const interval = window.setInterval(loadOrders, 30000);
         return () => window.clearInterval(interval);
     }, [activeView]);
 
@@ -135,8 +142,9 @@ export default function PedidosOnline() {
                 <div className="comandas-list">
                     {orders.map((order) => {
                         const status = resolvePedidoStatus(order.estado);
-                        const highlightClass = activeView === "reparto" ? "ops-highlight--delivery" : "ops-highlight--pickup";
-                        const highlightText = activeView === "reparto" ? "REPARTO" : "RECOGIDA";
+                        const deliveryType = resolveTipoEntrega(order.tipoEntrega);
+                        const highlightClass = deliveryType === "DOMICILIO" ? "ops-highlight--delivery" : "ops-highlight--pickup";
+                        const highlightText = deliveryType === "DOMICILIO" ? "REPARTO" : "RECOGIDA";
 
                         return (
                             <article key={order.idPedido} className={`comanda-card ops-highlight-card ${highlightClass}`}>
@@ -152,7 +160,7 @@ export default function PedidosOnline() {
                                     <strong>{highlightText}</strong> · {translatePedidoStatus(status)} · {translateEstadoPago(order.estadoPago)}
                                 </p>
                                 <p className="ops-inline-meta">
-                                    {activeView === "reparto"
+                                    {deliveryType === "DOMICILIO"
                                         ? order.clienteDireccionSnapshot || "Sin dirección"
                                         : order.clienteTelefono || "Sin teléfono"}
                                 </p>

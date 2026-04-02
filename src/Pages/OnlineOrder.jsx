@@ -6,6 +6,11 @@ import { getCustomerAddresses, getCustomerPaymentMethods } from "../services/cus
 import { getPublicCatalog } from "../services/public-catalog";
 import { addOnlineCartItem, clearOnlineCart, getOnlineCart, removeOnlineCartItem, updateOnlineCartItem } from "../services/online-order-storage";
 import { createOnlineOrder } from "../services/online-order";
+import {
+    clearOnlineCheckoutPreferences,
+    getOnlineCheckoutPreferences,
+    saveOnlineCheckoutPreferences
+} from "../services/online-checkout-preferences";
 import { formatMoney } from "../utils/operations";
 import { decorateCatalogItems } from "../utils/catalog";
 import cartIcon from "../assets/Icons/cart.svg";
@@ -24,6 +29,7 @@ function resolveShippingCost(subtotal, tipoEntrega) {
 }
 
 export default function OnlineOrder() {
+    const initialPreferences = useMemo(() => getOnlineCheckoutPreferences(), []);
     const navigate = useNavigate();
     const location = useLocation();
     const { customer, token, hasCustomerSession } = useCustomerAuth();
@@ -31,11 +37,11 @@ export default function OnlineOrder() {
     const [cart, setCart] = useState(() => getOnlineCart());
     const [addresses, setAddresses] = useState([]);
     const [paymentMethods, setPaymentMethods] = useState([]);
-    const [tipoEntrega, setTipoEntrega] = useState("RECOGIDA");
-    const [pagarOnline, setPagarOnline] = useState(false);
-    const [selectedAddress, setSelectedAddress] = useState("");
-    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
-    const [useSavedPaymentMethod, setUseSavedPaymentMethod] = useState(true);
+    const [tipoEntrega, setTipoEntrega] = useState(initialPreferences.tipoEntrega);
+    const [pagarOnline, setPagarOnline] = useState(initialPreferences.pagarOnline);
+    const [selectedAddress, setSelectedAddress] = useState(initialPreferences.selectedAddress);
+    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(initialPreferences.selectedPaymentMethod);
+    const [useSavedPaymentMethod, setUseSavedPaymentMethod] = useState(initialPreferences.useSavedPaymentMethod);
     const [newCard, setNewCard] = useState({
         cardNumber: "",
         holderName: "",
@@ -62,13 +68,23 @@ export default function OnlineOrder() {
                 const catalog = decorateCatalogItems(catalogResponse?.data ?? []);
                 const nextAddresses = addressesResponse?.data ?? [];
                 const nextMethods = methodsResponse?.data ?? [];
+                const defaultAddressId = nextAddresses.find((address) => address.isDefault)?.idClienteDireccion ?? nextAddresses[0]?.idClienteDireccion ?? "";
+                const defaultPaymentMethodId = nextMethods.find((method) => method.isDefault)?.idClienteMetodoPago ?? nextMethods[0]?.idClienteMetodoPago ?? "";
 
                 setPlatos(catalog);
                 setAddresses(nextAddresses);
                 setPaymentMethods(nextMethods);
-                setSelectedAddress(nextAddresses.find((address) => address.isDefault)?.idClienteDireccion ?? "");
-                setSelectedPaymentMethod(nextMethods.find((method) => method.isDefault)?.idClienteMetodoPago ?? "");
-                setUseSavedPaymentMethod(nextMethods.length > 0);
+                setSelectedAddress((currentAddress) =>
+                    nextAddresses.some((address) => address.idClienteDireccion === currentAddress)
+                        ? currentAddress
+                        : defaultAddressId
+                );
+                setSelectedPaymentMethod((currentPaymentMethod) =>
+                    nextMethods.some((method) => method.idClienteMetodoPago === currentPaymentMethod)
+                        ? currentPaymentMethod
+                        : defaultPaymentMethodId
+                );
+                setUseSavedPaymentMethod((currentValue) => nextMethods.length > 0 ? currentValue : false);
             } catch (err) {
                 setError(err.message || "No se ha podido cargar el catálogo online.");
             } finally {
@@ -80,13 +96,34 @@ export default function OnlineOrder() {
     }, [hasCustomerSession, token?.token]);
 
     useEffect(() => {
-        const cartMessage = location.state?.cartMessage;
-        if (!cartMessage)
+        if (location.state?.preferredAddressId)
+            setSelectedAddress(location.state.preferredAddressId);
+
+        if (location.state?.preferredPaymentMethodId)
+            setSelectedPaymentMethod(location.state.preferredPaymentMethodId);
+
+        if (typeof location.state?.useSavedPaymentMethod === "boolean")
+            setUseSavedPaymentMethod(location.state.useSavedPaymentMethod);
+    }, [location.state]);
+
+    useEffect(() => {
+        const nextMessage = location.state?.cartMessage ?? location.state?.checkoutMessage;
+        if (!nextMessage)
             return;
 
-        setFeedback(cartMessage);
+        setFeedback(nextMessage);
         navigate(location.pathname + location.search, { replace: true, state: null });
     }, [location.pathname, location.search, location.state, navigate]);
+
+    useEffect(() => {
+        saveOnlineCheckoutPreferences({
+            tipoEntrega,
+            pagarOnline,
+            selectedAddress,
+            selectedPaymentMethod,
+            useSavedPaymentMethod
+        });
+    }, [tipoEntrega, pagarOnline, selectedAddress, selectedPaymentMethod, useSavedPaymentMethod]);
 
     const subtotal = useMemo(() => cart.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0), [cart]);
     const shippingCost = useMemo(() => resolveShippingCost(subtotal, tipoEntrega), [subtotal, tipoEntrega]);
@@ -183,6 +220,7 @@ export default function OnlineOrder() {
             }, token.token);
 
             clearOnlineCart();
+            clearOnlineCheckoutPreferences();
             setCart([]);
             setCartOpen(false);
             setNewCard({
@@ -310,7 +348,7 @@ export default function OnlineOrder() {
                         <strong>{formatMoney(total)}</strong>
                     </div>
 
-                    <section className="checkout-section">
+                    <section className="checkout-section checkout-section--items">
                         <div className="checkout-section__header">
                             <span className="checkout-section__step">1</span>
                             <div>

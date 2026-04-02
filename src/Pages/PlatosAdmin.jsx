@@ -4,7 +4,7 @@ import PlatoAdminForm from "../Components/Forms/Plato-Admin-Form";
 import { useAppDialog } from "../Context/AppDialogContext";
 import { createCategoria, getCategorias } from "../services/categorias";
 import { createIngrediente, getIngredientes } from "../services/ingredientes";
-import { createPlato, deletePlato, getAdminPlatos } from "../services/platos";
+import { createPlato, getAdminPlatos, setPlatoDisponibilidad } from "../services/platos";
 import getToken from "../services/get-token";
 import "../styles/Admin/platos.css";
 
@@ -123,11 +123,14 @@ export default function PlatosAdmin() {
         }
     };
 
-    const handleDelete = async (plato) => {
+    const handleToggleDisponibilidad = async (plato) => {
+        const nextDisponibilidad = !plato.disponible;
         const confirmed = await confirm({
-            title: "Eliminar plato",
-            message: `¿Seguro que quieres eliminar el plato "${plato.nombre}"?`,
-            confirmLabel: "Eliminar"
+            title: nextDisponibilidad ? "Activar plato" : "Desactivar plato",
+            message: nextDisponibilidad
+                ? `¿Quieres volver a publicar el plato "${plato.nombre}" en la carta?`
+                : `¿Quieres ocultar el plato "${plato.nombre}" para que no pueda pedirse de nuevo?`,
+            confirmLabel: nextDisponibilidad ? "Activar" : "Desactivar"
         });
         if (!confirmed)
             return;
@@ -135,11 +138,14 @@ export default function PlatosAdmin() {
         setError("");
         setFeedback("");
         try {
-            await deletePlato(plato.idPlato ?? plato.id, token);
-            setFeedback("Plato eliminado correctamente.");
-            await loadPlatos();
+            const response = await setPlatoDisponibilidad(plato.idPlato ?? plato.id, nextDisponibilidad, token);
+            const updated = response?.data;
+            setPlatos((current) => current.map((item) => (
+                (item.idPlato ?? item.id) === (plato.idPlato ?? plato.id) ? updated : item
+            )));
+            setFeedback(nextDisponibilidad ? "Plato activado correctamente." : "Plato desactivado correctamente.");
         } catch (err) {
-            setError(err.message || "No se ha podido eliminar el plato.");
+            setError(err.message || "No se ha podido actualizar la disponibilidad del plato.");
         }
     };
 
@@ -191,7 +197,7 @@ export default function PlatosAdmin() {
                             <article key={plato.idPlato ?? plato.id} className="plato-admin-card">
                                 <div>
                                     <span className="plato-admin-card__state">
-                                        {plato.disponible ? "Disponible" : "Oculto"}
+                                        {plato.disponible ? "Activo" : "Desactivado"}
                                     </span>
                                     <h3>{plato.nombre}</h3>
                                     <p>{plato.descripcion}</p>
@@ -203,8 +209,8 @@ export default function PlatosAdmin() {
                                         <Link to={`/dashboard/plato/${plato.idPlato ?? plato.id}`} state={{ plato }}>
                                             Editar plato
                                         </Link>
-                                        <button type="button" onClick={() => handleDelete(plato)}>
-                                            Borrar plato
+                                        <button type="button" onClick={() => handleToggleDisponibilidad(plato)}>
+                                            {plato.disponible ? "Desactivar plato" : "Activar plato"}
                                         </button>
                                     </div>
                                 </div>

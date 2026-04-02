@@ -36,7 +36,7 @@ export default function DashboardStaff() {
             title: "Pedidos online",
             description: "Vista unificada para recogidas y reparto, destacada segun el rol.",
             to: "/staff/online",
-            roles: ["Administrador", "Camarero", "Repartidor"]
+            roles: ["Administrador", "Camarero", "Cocinero", "Repartidor"]
         },
         {
             title: "Facturas",
@@ -60,7 +60,7 @@ export default function DashboardStaff() {
         },
         {
             label: "Pedidos en cocina",
-            value: counts.cocina,
+            value: counts.cocinaSala + counts.cocinaOnline,
             roles: ["Administrador", "Cocinero"]
         },
         {

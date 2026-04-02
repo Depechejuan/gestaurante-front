@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useCustomerAuth } from "../Auth/Customer-Auth-Context";
 import { getCustomerOrders, updateCustomerProfile } from "../services/customer-account";
 import { formatDateTime, formatMoney, translatePedidoStatus } from "../utils/operations";
+import "../styles/Customer/form.css";
 
 export default function CustomerAccount() {
     const { customer, token, logout, setCustomer } = useCustomerAuth();
@@ -90,29 +91,72 @@ export default function CustomerAccount() {
             {error && <div className="staff-ops-warning"><p>{error}</p></div>}
             {feedback && <div className="staff-ops-warning staff-ops-warning--success"><p>{feedback}</p></div>}
 
-            <form onSubmit={handleSubmit} className="customer-contact-form">
-                <input value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} placeholder="Nombre" required />
-                <input value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} placeholder="Apellidos" required />
-                <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="Teléfono" required />
-                <input value={form.fiscalName} onChange={(e) => setForm({ ...form, fiscalName: e.target.value })} placeholder="Nombre fiscal o razón social" />
-                <div className="invoice-assign__row">
-                    <input value={form.dni} onChange={(e) => setForm({ ...form, dni: e.target.value, cif: "" })} placeholder="DNI" />
-                    <input value={form.cif} onChange={(e) => setForm({ ...form, cif: e.target.value, dni: "" })} placeholder="CIF" />
-                </div>
-                <input value={form.billingStreet} onChange={(e) => setForm({ ...form, billingStreet: e.target.value })} placeholder="Dirección fiscal" />
-                <div className="invoice-assign__row">
-                    <input value={form.billingPostalCode} onChange={(e) => setForm({ ...form, billingPostalCode: e.target.value })} placeholder="Código postal" />
-                    <input value={form.billingCity} onChange={(e) => setForm({ ...form, billingCity: e.target.value })} placeholder="Ciudad" />
-                    <input value={form.billingProvince} onChange={(e) => setForm({ ...form, billingProvince: e.target.value })} placeholder="Provincia" />
-                </div>
-                <button type="submit" className="customer-contact-form__submit" disabled={saving}>
-                    {saving ? "Guardando..." : "Actualizar perfil"}
-                </button>
-            </form>
+            <section className="customer-settings-shell">
+                <form onSubmit={handleSubmit} className="customer-contact-form customer-settings-card customer-profile-form">
+                    <div className="customer-settings-grid customer-settings-grid--compact">
+                        <div className="customer-form-group">
+                            <label>Nombre</label>
+                            <input value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} placeholder="Nombre" required />
+                        </div>
+                        <div className="customer-form-group">
+                            <label>Apellidos</label>
+                            <input value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} placeholder="Apellidos" required />
+                        </div>
+                    </div>
 
-            <section className="staff-dashboard__grid">
+                    <div className="customer-settings-grid customer-settings-grid--compact">
+                        <div className="customer-form-group">
+                            <label>Teléfono</label>
+                            <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="Teléfono" required />
+                        </div>
+                        <div className="customer-form-group">
+                            <label>Nombre fiscal o razón social</label>
+                            <input value={form.fiscalName} onChange={(e) => setForm({ ...form, fiscalName: e.target.value })} placeholder="Opcional" />
+                        </div>
+                    </div>
+
+                    <div className="customer-settings-grid customer-settings-grid--compact">
+                        <div className="customer-form-group">
+                            <label>DNI</label>
+                            <input value={form.dni} onChange={(e) => setForm({ ...form, dni: e.target.value, cif: "" })} placeholder="DNI" />
+                        </div>
+                        <div className="customer-form-group">
+                            <label>CIF</label>
+                            <input value={form.cif} onChange={(e) => setForm({ ...form, cif: e.target.value, dni: "" })} placeholder="CIF" />
+                        </div>
+                    </div>
+
+                    <div className="customer-form-group">
+                        <label>Dirección fiscal</label>
+                        <input value={form.billingStreet} onChange={(e) => setForm({ ...form, billingStreet: e.target.value })} placeholder="Dirección fiscal" />
+                    </div>
+
+                    <div className="customer-settings-grid customer-settings-grid--compact customer-settings-grid--triple">
+                        <div className="customer-form-group">
+                            <label>Código postal</label>
+                            <input value={form.billingPostalCode} onChange={(e) => setForm({ ...form, billingPostalCode: e.target.value })} placeholder="Código postal" />
+                        </div>
+                        <div className="customer-form-group">
+                            <label>Ciudad</label>
+                            <input value={form.billingCity} onChange={(e) => setForm({ ...form, billingCity: e.target.value })} placeholder="Ciudad" />
+                        </div>
+                        <div className="customer-form-group">
+                            <label>Provincia</label>
+                            <input value={form.billingProvince} onChange={(e) => setForm({ ...form, billingProvince: e.target.value })} placeholder="Provincia" />
+                        </div>
+                    </div>
+
+                    <div className="menu-public__cta-row">
+                        <button type="submit" className="customer-btn-primary" disabled={saving}>
+                            {saving ? "Guardando..." : "Actualizar perfil"}
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <section className="customer-dashboard-grid">
                 {links.map((link) => (
-                    <Link key={link.to} to={link.to} className="staff-dashboard__card">
+                    <Link key={link.to} to={link.to} className="customer-dashboard-card">
                         <h3>{link.label}</h3>
                         <p>{link.description}</p>
                     </Link>
@@ -127,21 +171,21 @@ export default function CustomerAccount() {
                         <p>Ten a mano tu perfil, tus direcciones y tus últimos pedidos para repetir más rápido.</p>
                     </div>
                 </div>
-                <div className="staff-dashboard__grid">
-                    <article className="staff-dashboard__card">
+                <div className="customer-dashboard-grid">
+                    <article className="customer-dashboard-card customer-dashboard-card--summary">
                         <h3>Pedidos recientes</h3>
                         <p>{recentOrders.length ? `${recentOrders.length} pedidos visibles en tu panel.` : "Todavía no has hecho pedidos online."}</p>
                     </article>
-                    <article className="staff-dashboard__card">
+                    <article className="customer-dashboard-card customer-dashboard-card--summary">
                         <h3>Último pedido</h3>
                         <p>{latestOrder ? `${translatePedidoStatus(latestOrder.estado)} · ${formatMoney(latestOrder.total)}` : "Cuando hagas tu primer pedido aparecerá aquí."}</p>
                     </article>
                 </div>
                 {recentOrders.length ? (
-                    <div className="comandas-list">
+                    <div className="customer-dashboard-recent-list">
                         {recentOrders.map((order) => (
-                            <article key={order.idPedido} className="comanda-card">
-                                <div className="comanda-card__top">
+                            <article key={order.idPedido} className="customer-dashboard-recent-card">
+                                <div className="customer-dashboard-recent-card__top">
                                     <div>
                                         <h3>Pedido {String(order.idPedido).slice(0, 8)}</h3>
                                         <p>{translatePedidoStatus(order.estado)} · {formatDateTime(order.fechaPedido)}</p>

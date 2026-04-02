@@ -14,6 +14,34 @@ function resolveApiHost() {
 
 const host = resolveApiHost();
 
+function resolveErrorMessage(payload) {
+    if (!payload)
+        return "Something Went Wrong";
+
+    if (typeof payload.error === "string" && payload.error.trim())
+        return payload.error;
+
+    if (typeof payload?.error?.message === "string" && payload.error.message.trim())
+        return payload.error.message;
+
+    if (typeof payload.message === "string" && payload.message.trim())
+        return payload.message;
+
+    if (typeof payload.title === "string" && payload.title.trim())
+        return payload.title;
+
+    if (payload.errors && typeof payload.errors === "object") {
+        const firstError = Object.values(payload.errors)
+            .flat()
+            .find((value) => typeof value === "string" && value.trim());
+
+        if (firstError)
+            return firstError;
+    }
+
+    return "Something Went Wrong";
+}
+
 async function parseResponse(response) {
     const contentType = response.headers.get("content-type") ?? "";
     if (!contentType.includes("application/json")) {
@@ -70,11 +98,11 @@ export async function apiRequest(path, options = {}) {
     const payload = await parseResponse(response);
 
     if (!response.ok) {
-        if (requireAuth && (response.status === 401 || response.status === 403)) {
+        if (requireAuth && response.status === 401) {
             deleteToken();
         }
 
-        const error = new Error(payload?.error?.message || payload?.error || payload?.message || "Something Went Wrong");
+        const error = new Error(resolveErrorMessage(payload));
         error.status = response.status;
         error.payload = payload;
         throw error;

@@ -55,9 +55,8 @@ export default function MesaQrMenu() {
             try {
                 const response = await openPublicMesaSession(id, initialState.sessionToken);
                 const session = response?.data;
-                if (!session?.sessionToken) {
+                if (!session?.sessionToken)
                     throw new Error("No se ha podido abrir la sesión de mesa.");
-                }
 
                 setResolvedMesaId(session.idMesa ?? "");
                 const nextState = saveTablePublicSession(id, session.sessionToken, session.expiresAt);
@@ -92,9 +91,8 @@ export default function MesaQrMenu() {
     );
 
     const handleAddToCart = (plato, amount) => {
-        if (isLocked || !tableState.sessionToken) {
+        if (isLocked || !tableState.sessionToken)
             return;
-        }
 
         const numericPrice = Number.parseFloat(String(plato.precio).replace(",", ".").replace(" EUR", ""));
         const unitPrice = Number.isNaN(numericPrice) ? 0 : numericPrice;
@@ -166,7 +164,7 @@ export default function MesaQrMenu() {
         }
     };
 
-    if (loading || sessionLoading) {
+    if (loading || sessionLoading)
         return (
             <section className="public-page public-page--menu">
                 <div className="menu-public__hero">
@@ -176,9 +174,8 @@ export default function MesaQrMenu() {
                 </div>
             </section>
         );
-    }
 
-    if (error) {
+    if (error)
         return (
             <section className="public-page public-page--menu">
                 <div className="menu-public__hero">
@@ -188,9 +185,8 @@ export default function MesaQrMenu() {
                 </div>
             </section>
         );
-    }
 
-    if (isLocked) {
+    if (isLocked)
         return (
             <section className="public-page public-page--menu">
                 <div className="menu-public__hero">
@@ -200,7 +196,6 @@ export default function MesaQrMenu() {
                 </div>
             </section>
         );
-    }
 
     return (
         <section className="public-page public-page--menu">

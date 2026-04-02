@@ -3,12 +3,12 @@ import { Link } from "react-router-dom";
 import cart from '../assets/Icons/cart.svg'
 
 function formatPrice(price) {
-    if (price == null || price === "") return "Precio pendiente";
+    if (price == null || price === "")
+        return "Precio pendiente";
 
     const numericPrice = Number.parseFloat(String(price).replace(",", "."));
-    if (Number.isNaN(numericPrice)) {
+    if (Number.isNaN(numericPrice))
         return `${price} EUR`;
-    }
 
     return `${numericPrice.toFixed(2)} EUR`;
 }
@@ -48,30 +48,27 @@ export default function ListPlatosPublic({platos, onAddToCart, showTypeNav = tru
     };
 
     const addToBasket = (plato) => {
-        if (!interactive) {
+        if (!interactive)
             return;
-        }
 
         const amount = Number(amounts[plato._publicId] ?? 1);
         onAddToCart(plato, amount);
         setBasketFeedback(`${amount} x ${plato.nombre} añadido.`);
     };
 
-    if (!groupedPlatos.length) {
+    if (!groupedPlatos.length)
         return (
             <div className="menu-public__empty">
                 <p>{interactive ? "No hay platos disponibles para pedir online en este momento." : "No hay platos visibles en la carta en este momento."}</p>
             </div>
         );
-    }
 
     const resolveIngredientes = (plato) => {
-        if (Array.isArray(plato.ingredientes) && plato.ingredientes.length) {
+        if (Array.isArray(plato.ingredientes) && plato.ingredientes.length)
             return plato.ingredientes
                 .map((ingrediente) => ingrediente.nombre ?? ingrediente)
                 .filter(Boolean)
                 .join(", ");
-        }
 
         return plato.ingredientes || "Ingredientes aun no definidos en detalle.";
     };

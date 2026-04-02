@@ -45,13 +45,11 @@ export default function EditUser({user}) {
     const validate = () => {
         const newErrors = {};
 
-        if (!dniRegex.test(userEdit.dni)) {
-        newErrors.dni = "Formato DNI inválido (12345678-A)";
-        }
+        if (!dniRegex.test(userEdit.dni))
+            newErrors.dni = "Formato DNI inválido (12345678-A)";
 
-        if (!nussRegex.test(userEdit.nuss)) {
-        newErrors.nuss = "Formato NUSS inválido (28-12345678-5)";
-        }
+        if (!nussRegex.test(userEdit.nuss))
+            newErrors.nuss = "Formato NUSS inválido (28-12345678-5)";
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;

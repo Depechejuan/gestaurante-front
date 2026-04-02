@@ -119,9 +119,8 @@ export default function UniquePedido() {
 
         selectedLineIds.forEach((detalleId) => {
             const config = detalleActionMap[detalleId];
-            if (!config) {
+            if (!config)
                 return;
-            }
 
             config.availableDetalleTransitions.forEach((transition) => {
                 const existing = transitions.get(transition.value) ?? { ...transition, count: 0 };
@@ -154,9 +153,8 @@ export default function UniquePedido() {
             message: "Se cancelarán todas las líneas activas del pedido. ¿Continuar?",
             confirmLabel: "Cancelar pedido"
         });
-        if (!confirmed) {
+        if (!confirmed)
             return;
-        }
 
         setBusyAction("cancel-pedido");
         setError("");
@@ -178,9 +176,8 @@ export default function UniquePedido() {
             message: "La línea dejará de contar para la factura. ¿Continuar?",
             confirmLabel: "Cancelar línea"
         });
-        if (!confirmed) {
+        if (!confirmed)
             return;
-        }
 
         setBusyAction(`cancel-line-${detalleId}`);
         setError("");
@@ -253,7 +250,7 @@ export default function UniquePedido() {
         }
     };
 
-    if (loading) {
+    if (loading)
         return (
             <section className="staff-ops-shell">
                 <div className="staff-ops-empty">
@@ -261,9 +258,8 @@ export default function UniquePedido() {
                 </div>
             </section>
         );
-    }
 
-    if (!pedido) {
+    if (!pedido)
         return (
             <section className="staff-ops-shell">
                 <div className="staff-ops-empty">
@@ -274,7 +270,6 @@ export default function UniquePedido() {
                 </Link>
             </section>
         );
-    }
 
     return (
         <section className="staff-ops-shell">

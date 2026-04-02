@@ -118,9 +118,8 @@ export default function UniqueFactura() {
             })
             : "";
 
-        if (targetEmail === false) {
+        if (targetEmail === false)
             return;
-        }
 
         setSendingEmail(true);
         setError("");

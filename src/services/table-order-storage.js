@@ -31,9 +31,8 @@ function isExpired(expiresAt) {
 function clearIfExpired(mesaId) {
     const key = getTableStorageKey(mesaId);
     const stored = readJson(key);
-    if (!stored) {
+    if (!stored)
         return null;
-    }
 
     if (isExpired(stored.expiresAt)) {
         localStorage.removeItem(key);
@@ -71,9 +70,8 @@ export function startTableSession(mesaId) {
     writeJson(ACTIVE_TABLE_KEY, activeSession);
 
     const existing = clearIfExpired(mesaId);
-    if (existing) {
+    if (existing)
         return existing;
-    }
 
     const initial = createEmptyState(mesaId);
     writeJson(getTableStorageKey(mesaId), initial);
@@ -92,9 +90,8 @@ export function getActiveTableSession() {
 
 export function getTableOrderState(mesaId) {
     const stored = clearIfExpired(mesaId);
-    if (!stored) {
+    if (!stored)
         return startTableSession(mesaId);
-    }
 
     return stored;
 }

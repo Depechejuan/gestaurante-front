@@ -15,25 +15,22 @@ function Login() {
     const handleSubmit = async (form) => {
         try {
             const response = await loginCustomer(form);
-            if (!response?.data) {
+            if (!response?.data)
                 throw new Error("No se ha podido iniciar sesión.");
-            }
 
             saveCustomerToken(response.data);
             navigate(redirect);
             return;
         } catch (error) {
-            if (error?.status !== 401) {
+            if (error?.status !== 401)
                 throw error;
-            }
 
             // Si no es una cuenta de cliente válida, probamos el acceso interno.
         }
 
         const response = await sendLogin(form);
-        if (!response?.data) {
+        if (!response?.data)
             throw new Error("No hemos podido iniciar sesión. Revisa tus credenciales e inténtalo de nuevo.");
-        }
 
         saveToken(response.data);
         if (employeeRedirect) {

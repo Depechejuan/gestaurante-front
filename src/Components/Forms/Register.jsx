@@ -41,29 +41,23 @@ function Register() {
     const validate = () => {
         const newErrors = {};
 
-        if (!form.email.trim()) {
+        if (!form.email.trim())
             newErrors.email = "El email es obligatorio";
-        }
 
-        if (!form.password.trim()) {
+        if (!form.password.trim())
             newErrors.password = "La contraseña es obligatoria";
-        }
 
-        if (!form.firstName.trim()) {
+        if (!form.firstName.trim())
             newErrors.firstName = "El nombre es obligatorio";
-        }
 
-        if (!form.firstLastName.trim()) {
+        if (!form.firstLastName.trim())
             newErrors.firstLastName = "El primer apellido es obligatorio";
-        }
 
-        if (!dniRegex.test(form.dni)) {
-        newErrors.dni = "Formato DNI inválido (12345678-Z)";
-        }
+        if (!dniRegex.test(form.dni))
+            newErrors.dni = "Formato DNI inválido (12345678-Z)";
 
-        if (!nussRegex.test(form.nuss)) {
-        newErrors.nuss = "Formato NUSS inválido (28-12345678-5)";
-        }
+        if (!nussRegex.test(form.nuss))
+            newErrors.nuss = "Formato NUSS inválido (28-12345678-5)";
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;

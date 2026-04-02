@@ -126,9 +126,8 @@ export default function Mesas() {
 
     const handleSaveEdit = async (event) => {
         event.preventDefault();
-        if (!editingMesaId) {
+        if (!editingMesaId)
             return;
-        }
 
         setSubmitting(true);
         setError("");
@@ -151,9 +150,8 @@ export default function Mesas() {
             message: `¿Seguro que quieres eliminar la mesa de ${mesa.ubicacion}?`,
             confirmLabel: "Eliminar"
         });
-        if (!confirmed) {
+        if (!confirmed)
             return;
-        }
 
         setError("");
         setFeedback("");

@@ -45,9 +45,8 @@ export default function MesaDetail() {
             message: "Se generará una factura con todos los pedidos activos de esta mesa. ¿Continuar?",
             confirmLabel: "Cerrar mesa"
         });
-        if (!confirmed) {
+        if (!confirmed)
             return;
-        }
 
         setIsClosing(true);
         setError("");
@@ -68,7 +67,7 @@ export default function MesaDetail() {
         }
     };
 
-    if (loading) {
+    if (loading)
         return (
             <section className="staff-ops-shell">
                 <div className="staff-ops-empty">
@@ -76,9 +75,8 @@ export default function MesaDetail() {
                 </div>
             </section>
         );
-    }
 
-    if (!mesa) {
+    if (!mesa)
         return (
             <section className="staff-ops-shell">
                 <div className="staff-ops-warning">
@@ -88,7 +86,6 @@ export default function MesaDetail() {
                 <Link to={backPath} className="staff-ops-secondary staff-ops-secondary--link">Volver a mesas</Link>
             </section>
         );
-    }
 
     return (
         <section className="staff-ops-shell">

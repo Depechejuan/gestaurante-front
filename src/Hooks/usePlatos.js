@@ -14,17 +14,14 @@ export default function usePlatos() {
                 setLoading(true);
                 setError(null);
                 const data = await getPlatos();
-                if (isMounted) {
+                if (isMounted)
                     setPlatos(data);
-                }
             } catch (err) {
-                if (isMounted) {
+                if (isMounted)
                     setError(err?.message || "No se ha podido cargar la carta.");
-                }
             } finally {
-                if (isMounted) {
+                if (isMounted)
                     setLoading(false);
-                }
             }
         };
 

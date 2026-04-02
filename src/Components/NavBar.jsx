@@ -29,9 +29,8 @@ export default function NavBar({input}) {
                 className={`${input === "staff" ? "menu-icon-staff" : "menu-icon-customer"}`}
                 onClick={handleMenuClick}
                 onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === 'Enter' || e.key === ' ')
                         handleMenuClick();
-                    }
                 }}
             />
             {input == "customer" &&

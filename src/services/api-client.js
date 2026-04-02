@@ -3,9 +3,8 @@ import getToken from "./get-token";
 
 function resolveApiHost() {
     const explicitHost = import.meta.env.VITE_API_HOST?.trim();
-    if (explicitHost) {
+    if (explicitHost)
         return explicitHost.replace(/\/+$/, "");
-    }
 
     const browserHost = typeof window !== "undefined" ? window.location.hostname : "127.0.0.1";
     const apiPort = import.meta.env.VITE_API_PORT?.trim() || "3000";
@@ -44,9 +43,8 @@ function resolveErrorMessage(payload) {
 
 async function parseResponse(response) {
     const contentType = response.headers.get("content-type") ?? "";
-    if (!contentType.includes("application/json")) {
+    if (!contentType.includes("application/json"))
         return null;
-    }
 
     try {
         return await response.json();
@@ -58,13 +56,11 @@ async function parseResponse(response) {
 function buildHeaders(headers = {}, hasBody = false, authToken = null) {
     const nextHeaders = { ...headers };
 
-    if (hasBody && !nextHeaders["Content-Type"]) {
+    if (hasBody && !nextHeaders["Content-Type"])
         nextHeaders["Content-Type"] = "application/json";
-    }
 
-    if (authToken) {
+    if (authToken)
         nextHeaders.Authorization = `Bearer ${authToken}`;
-    }
 
     return nextHeaders;
 }
@@ -98,9 +94,8 @@ export async function apiRequest(path, options = {}) {
     const payload = await parseResponse(response);
 
     if (!response.ok) {
-        if (requireAuth && response.status === 401) {
+        if (requireAuth && response.status === 401)
             deleteToken();
-        }
 
         const error = new Error(resolveErrorMessage(payload));
         error.status = response.status;

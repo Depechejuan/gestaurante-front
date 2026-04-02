@@ -68,9 +68,8 @@ export function resolveEstadoPago(value) {
 
 export function formatMoney(amount) {
     const numeric = Number(amount ?? 0);
-    if (Number.isNaN(numeric)) {
+    if (Number.isNaN(numeric))
         return "0,00 EUR";
-    }
 
     return new Intl.NumberFormat("es-ES", {
         style: "currency",
@@ -79,9 +78,8 @@ export function formatMoney(amount) {
 }
 
 export function formatDateTime(value) {
-    if (!value) {
+    if (!value)
         return "Sin fecha";
-    }
 
     try {
         return new Intl.DateTimeFormat("es-ES", {

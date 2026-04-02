@@ -5,13 +5,11 @@ export default function CustomerProtectedRoute() {
     const location = useLocation();
     const { customer, loading } = useCustomerAuth();
 
-    if (loading) {
+    if (loading)
         return null;
-    }
 
-    if (!customer) {
+    if (!customer)
         return <Navigate to="/login" replace state={{ redirectTo: `${location.pathname}${location.search}` }} />;
-    }
 
     return <Outlet />;
 }

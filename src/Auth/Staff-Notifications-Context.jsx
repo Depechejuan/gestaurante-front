@@ -203,9 +203,8 @@ export function StaffNotificationsProvider({ children }) {
                     }
                 });
 
-                if (freshNotifications.length) {
+                if (freshNotifications.length)
                     setNotifications((current) => [...freshNotifications, ...current].slice(0, 5));
-                }
 
                 previousOrdersRef.current = nextOrders;
             } catch {

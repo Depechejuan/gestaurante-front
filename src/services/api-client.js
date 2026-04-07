@@ -71,18 +71,19 @@ export async function apiRequest(path, options = {}) {
         body,
         headers,
         token,
-        requireAuth = false
+        requireAuth = false,
+        isFormData = false
     } = options;
 
     const activeToken = token?.token ?? getToken()?.token ?? null;
-    const requestHeaders = buildHeaders(headers, body !== undefined, requireAuth ? activeToken : null);
+    const requestHeaders = buildHeaders(headers, body !== undefined && !isFormData, requireAuth ? activeToken : null);
 
     let response;
     try {
         response = await fetch(`${host}${path}`, {
             method,
             headers: requestHeaders,
-            body: body === undefined ? undefined : JSON.stringify(body)
+            body: body === undefined ? undefined : isFormData ? body : JSON.stringify(body)
         });
     } catch (error) {
         const networkError = new Error("No se ha podido establecer conexión con el servidor.");

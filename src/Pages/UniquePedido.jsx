@@ -10,6 +10,7 @@ import {
     formatDateTime,
     formatMoney,
     isPedidoReadyForFactura,
+    normalizeDeliveryAddress,
     orderStateClass,
     resolveCanalPedido,
     resolveDetalleStatus,
@@ -412,17 +413,17 @@ export default function UniquePedido() {
                         <article className="mesa-detail-card">
                             <span className="mesa-detail-card__label">Cliente</span>
                             <strong>{pedido.clienteNombre || "Cliente online"}</strong>
-                            <p>{pedido.clienteEmail || "Sin email"}</p>
+                            {!isRepartidorDeliveryOrder && <p>{pedido.clienteEmail || "Sin email"}</p>}
                         </article>
                         <article className="mesa-detail-card">
                             <span className="mesa-detail-card__label">Contacto</span>
                             <strong>{pedido.clienteTelefono || "Sin teléfono"}</strong>
-                            <p>{translateTipoEntrega(tipoEntrega)}</p>
+                            {!isRepartidorDeliveryOrder && <p>{translateTipoEntrega(tipoEntrega)}</p>}
                         </article>
                         {pedido.clienteDireccionSnapshot && (
                             <article className="mesa-detail-card">
                                 <span className="mesa-detail-card__label">Entrega</span>
-                                <strong>{pedido.clienteDireccionSnapshot}</strong>
+                                <strong>{isRepartidorDeliveryOrder ? normalizeDeliveryAddress(pedido.clienteDireccionSnapshot) : pedido.clienteDireccionSnapshot}</strong>
                             </article>
                         )}
                     </div>

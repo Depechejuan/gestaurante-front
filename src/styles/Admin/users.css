@@ -91,6 +91,8 @@
     align-items: flex-start;
     gap: 0.35rem;
     margin-left: 0;
+    min-width: 0;
+    flex: 1 1 auto;
 }
 
 .user-role-pill {
@@ -136,6 +138,9 @@
 .user-email {
     margin: 0;
     color: var(--admin-muted, #6f675d);
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    max-width: 100%;
 }
 
 .user-action {

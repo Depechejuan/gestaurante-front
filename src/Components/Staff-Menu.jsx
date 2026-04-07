@@ -19,7 +19,7 @@ export default function StaffMenu({isMenuOpen, closeMenu}) {
         navigate("/", {replace: true})
     }
     const staffLinks = [
-        { to: "/staff", label: "Resumen", end: true, roles: ["Administrador", "Camarero", "Cocinero", "Repartidor"] },
+        { to: "/staff", label: "Panel", end: true, roles: ["Administrador", "Camarero", "Cocinero", "Repartidor"] },
         { to: "/staff/mesas", label: "Mesas", roles: ["Administrador", "Camarero"], badge: counts.mesas },
         { to: "/staff/pedidos", label: "Pedidos", roles: ["Administrador", "Camarero", "Cocinero"], badge: roleName === "Cocinero" ? counts.cocinaSala : counts.listosSala },
         { to: "/staff/online", label: "Pedidos online", roles: ["Administrador", "Camarero", "Cocinero", "Repartidor"], badge: roleName === "Repartidor" ? counts.onlineReparto : roleName === "Cocinero" ? counts.cocinaOnline : counts.onlineRecogida + counts.onlineReparto },
@@ -30,7 +30,7 @@ export default function StaffMenu({isMenuOpen, closeMenu}) {
     return (
         <nav className={`staff-navbar ${isMenuOpen ? "open" : ""}`}>
             <div className="staff-navbar__card">
-                <p className="staff-navbar__title">Accesos staff</p>
+                <p className="staff-navbar__title">Panel</p>
                 <span className="staff-navbar__role">{displayName || "Sin sesion"}</span>
                 <span className="staff-navbar__role">{roleName}</span>
                 <ul className="nav-menu">

@@ -167,6 +167,17 @@ export function translateEstadoPago(value) {
     return dictionary[status] ?? status ?? "Estado de pago";
 }
 
+export function normalizeDeliveryAddress(value) {
+    const address = String(value ?? "").trim();
+    if (!address)
+        return "";
+
+    const separator = " · ";
+    return address.includes(separator)
+        ? address.split(separator).slice(1).join(separator).trim()
+        : address;
+}
+
 export function orderStateClass(status) {
     const normalized = String(status ?? "").toLowerCase();
     return normalized ? `ops-badge--${normalized}` : "ops-badge--neutral";

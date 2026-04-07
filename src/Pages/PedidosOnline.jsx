@@ -6,6 +6,7 @@ import { getPedidos } from "../services/pedidos";
 import {
     formatDateTime,
     formatMoney,
+    normalizeDeliveryAddress,
     orderStateClass,
     resolveCanalPedido,
     resolvePedidoStatus,
@@ -164,11 +165,14 @@ export default function PedidosOnline() {
                                 <p className="ops-inline-meta">
                                     <strong>{highlightText}</strong> · {translateEstadoPago(order.estadoPago)}
                                 </p>
-                                <p className="ops-inline-meta">
-                                    {deliveryType === "DOMICILIO"
-                                        ? order.clienteDireccionSnapshot || "Sin dirección"
-                                        : order.clienteTelefono || "Sin teléfono"}
-                                </p>
+                                {deliveryType === "DOMICILIO" ? (
+                                    <>
+                                        <p className="ops-inline-meta">{order.clienteTelefono || "Sin teléfono"}</p>
+                                        <p className="ops-inline-meta">{normalizeDeliveryAddress(order.clienteDireccionSnapshot) || "Sin dirección"}</p>
+                                    </>
+                                ) : (
+                                    <p className="ops-inline-meta">{order.clienteTelefono || "Sin teléfono"}</p>
+                                )}
                                 <p className="ops-inline-meta">{formatDateTime(order.fechaPedido)}</p>
 
                                 <div className="comanda-card__footer">

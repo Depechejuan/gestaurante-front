@@ -7,19 +7,13 @@ export default function DashboardStaff() {
     const { counts } = useStaffNotifications();
 
     const roleCopy = {
-        Administrador: "Tienes visibilidad transversal sobre la operativa diaria.",
-        Camarero: "Accede rapido a mesas y pedidos para mantener el servicio fluido.",
-        Cocinero: "Prioriza pedidos y preparacion sin ruido de secciones no necesarias.",
-        Repartidor: "Centra tu jornada en entregas de domicilio y pedidos listos para salir."
+        Administrador: "Panel de control de Administración",
+        Camarero: "Panel de control de Camareros",
+        Cocinero: "Panel de control de Cocina",
+        Repartidor: "Panel de control de Reparto"
     };
 
     const shortcuts = [
-        {
-            title: "Resumen",
-            description: "Vista inicial del turno y acceso condicionado por token.",
-            to: "/staff",
-            roles: ["Administrador", "Camarero", "Cocinero", "Repartidor"]
-        },
         {
             title: "Mesas",
             description: "Pensado para administracion de sala y seguimiento del servicio.",
@@ -84,9 +78,9 @@ export default function DashboardStaff() {
         <section className="staff-dashboard">
             <article className="staff-dashboard__hero">
                 <div>
-                    <p className="staff-dashboard__eyebrow">Turno activo</p>
+                    <p className="staff-dashboard__eyebrow">Panel de control</p>
                     <h2>{displayName ? `Bienvenido, ${displayName}` : "Bienvenido al panel interno de staff"}</h2>
-                    <p>{roleCopy[roleName]}</p>
+                    <p>{roleCopy[roleName] ?? "Panel de control de staff"}</p>
                 </div>
 
                 <div className="staff-dashboard__token">
@@ -115,15 +109,6 @@ export default function DashboardStaff() {
                             <p>{shortcut.description}</p>
                         </Link>
                     ))}
-            </article>
-
-            <article className="staff-dashboard__note">
-                <h3>Estado del producto</h3>
-                <p>
-                    El panel de staff ya combina operativa de sala, cocina, pedidos online,
-                    facturacion y clientes segun el rol activo. Los pedidos online llegan
-                    cerrados desde cliente y se distinguen por recogida o domicilio.
-                </p>
             </article>
         </section>
     )

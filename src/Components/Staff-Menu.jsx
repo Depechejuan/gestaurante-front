@@ -21,7 +21,7 @@ export default function StaffMenu({isMenuOpen, closeMenu}) {
     const staffLinks = [
         { to: "/staff", label: "Resumen", end: true, roles: ["Administrador", "Camarero", "Cocinero", "Repartidor"] },
         { to: "/staff/mesas", label: "Mesas", roles: ["Administrador", "Camarero"], badge: counts.mesas },
-        { to: "/staff/pedidos", label: "Pedidos", roles: ["Administrador", "Camarero", "Cocinero", "Repartidor"], badge: roleName === "Cocinero" ? counts.cocinaSala : counts.listosSala },
+        { to: "/staff/pedidos", label: "Pedidos", roles: ["Administrador", "Camarero", "Cocinero"], badge: roleName === "Cocinero" ? counts.cocinaSala : counts.listosSala },
         { to: "/staff/online", label: "Pedidos online", roles: ["Administrador", "Camarero", "Cocinero", "Repartidor"], badge: roleName === "Repartidor" ? counts.onlineReparto : roleName === "Cocinero" ? counts.cocinaOnline : counts.onlineRecogida + counts.onlineReparto },
         { to: "/staff/facturas", label: "Facturas", roles: ["Administrador", "Camarero"] },
         { to: "/staff/clientes", label: "Clientes", roles: ["Administrador", "Camarero"] }

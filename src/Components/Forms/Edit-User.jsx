@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { resolveEmployeeRoleValue } from "../../constants/roles";
 import "../../styles/Admin/users.css";
 
 const tipoOptions = [
@@ -16,7 +17,7 @@ export default function EditUser({user}) {
         nuss: user.nuss ?? "",
         email: user.email ?? "",
         password: "",
-        tipo: user.tipo ?? 0
+        tipo: Number(resolveEmployeeRoleValue(user.tipo) ?? 0)
     })
     const [errors, setErrors] = useState({});
     const [isSubmitted, setIsSubmitted] = useState(false);

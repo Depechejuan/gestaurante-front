@@ -118,6 +118,16 @@
     color: #224a7d;
 }
 
+.role-3 {
+    background: rgba(123, 82, 168, 0.14);
+    color: #7b52a8;
+}
+
+.role-unknown {
+    background: rgba(111, 103, 93, 0.14);
+    color: #6f675d;
+}
+
 .user-name {
     margin: 0;
     font-size: 1.12rem;

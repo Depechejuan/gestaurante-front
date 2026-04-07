@@ -295,6 +295,13 @@
     color: #557268;
 }
 
+.ops-inline-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-bottom: 0.45rem;
+}
+
 .mesa-detail-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
@@ -520,6 +527,29 @@
     display: flex;
     flex-direction: column;
     gap: 0.9rem;
+}
+
+.invoice-assign__summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: 0.9rem;
+}
+
+.invoice-assign__summary-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 1rem 1.1rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(18, 61, 47, 0.1);
+    background: rgba(249, 252, 250, 0.95);
+}
+
+.invoice-assign__summary-label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #557268;
 }
 
 .invoice-assign__search input,

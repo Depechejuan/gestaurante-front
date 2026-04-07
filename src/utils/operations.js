@@ -97,10 +97,10 @@ export function translatePedidoStatus(status) {
     const normalizedStatus = resolvePedidoStatus(status);
     const dictionary = {
         PENDIENTE: "Pendiente",
-        CONFIRMADO: "Confirmado",
-        PREPARACION: "En preparacion",
+        CONFIRMADO: "Pendiente",
+        PREPARACION: "En preparación",
         LISTO: "Listo",
-        EN_CAMINO: "En camino",
+        EN_CAMINO: "En entrega",
         ENTREGADO: "Entregado",
         CANCELADO: "Cancelado"
     };
@@ -170,4 +170,83 @@ export function translateEstadoPago(value) {
 export function orderStateClass(status) {
     const normalized = String(status ?? "").toLowerCase();
     return normalized ? `ops-badge--${normalized}` : "ops-badge--neutral";
+}
+
+function normalizeTextForSort(value) {
+    return String(value ?? "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim()
+        .toLowerCase();
+}
+
+function resolveDishCategoryOrder(value) {
+    const normalized = normalizeTextForSort(value);
+
+    const explicitOrder = [
+        "bebidas",
+        "vinos",
+        "ensaladas",
+        "entrantes",
+        "platos principales",
+        "pizzas",
+        "pizzas especiales",
+        "pastas",
+        "postre",
+        "cafe"
+    ];
+
+    const explicitIndex = explicitOrder.findIndex((entry) => normalized === entry || normalized.includes(entry));
+    if (explicitIndex >= 0)
+        return explicitIndex;
+
+    if (normalized.includes("postre"))
+        return 90;
+
+    if (normalized.includes("cafe"))
+        return 91;
+
+    return 50;
+}
+
+export function sortPedidoDetalles(detalles = []) {
+    return [...detalles].sort((left, right) => {
+        const leftCategory = left.categoriaDescripcion ?? left.tipoVisible ?? "";
+        const rightCategory = right.categoriaDescripcion ?? right.tipoVisible ?? "";
+
+        const categoryDifference = resolveDishCategoryOrder(leftCategory) - resolveDishCategoryOrder(rightCategory);
+        if (categoryDifference !== 0)
+            return categoryDifference;
+
+        const typeDifference = normalizeTextForSort(leftCategory).localeCompare(normalizeTextForSort(rightCategory), "es");
+        if (typeDifference !== 0)
+            return typeDifference;
+
+        return normalizeTextForSort(left.platoNombre ?? left.nombre).localeCompare(normalizeTextForSort(right.platoNombre ?? right.nombre), "es");
+    });
+}
+
+export function isDetalleBillable(detalle) {
+    return resolveDetalleStatus(detalle?.estado) !== "CANCELADA";
+}
+
+export function isDetalleDelivered(detalle) {
+    return resolveDetalleStatus(detalle?.estado) === "ENTREGADA";
+}
+
+export function isPedidoReadyForFactura(pedido) {
+    const detallesFacturables = (pedido?.detalles ?? []).filter(isDetalleBillable);
+    if (!detallesFacturables.length)
+        return false;
+
+    return detallesFacturables.every(isDetalleDelivered);
+}
+
+export function resolvePedidoFacturaLabel(pedido) {
+    if (pedido?.estaFacturado)
+        return "Facturado";
+
+    return isPedidoReadyForFactura(pedido)
+        ? "Listo para facturar"
+        : "Pendiente de factura";
 }

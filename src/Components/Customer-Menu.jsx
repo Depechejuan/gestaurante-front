@@ -25,8 +25,12 @@ export default function CustomerMenu({isMenuOpen, closeMenu}) {
 
     const renderLogout = hasCustomerSession ? (
         <li>
-            <button type="button" onClick={() => { logout(); handleLinkClick(); }}>
-                Cerrar sesión cliente
+            <button
+                type="button"
+                className="customer-menu__logout"
+                onClick={() => { logout(); handleLinkClick(); }}
+            >
+                Cerrar sesión
             </button>
         </li>
     ) : null;

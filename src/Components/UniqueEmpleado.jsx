@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Link, useLocation } from "react-router-dom";
 import EditUser from "./Forms/Edit-User";
 import PhotoContainer from "./PhotoContainer";
+import { resolveEmployeeRoleClass, resolveEmployeeRoleName } from "../constants/roles";
 
 import anon from '../assets/img/empty-user.png'
 
@@ -13,8 +14,6 @@ export default function UniqueEmpleado() {
     const showForm = () => {
         setIsShowed(prev => !prev)
     }
-
-    const rol = ["Administrador", "Camarero", "Cocinero"];
 
     if (!user) {
         return (
@@ -38,7 +37,7 @@ export default function UniqueEmpleado() {
                     <div className="user-text">
                         <p className="users-eyebrow">Empleado</p>
                         <h2>{user.nombre} {user.apellido1} {user.apellido2}</h2>
-                        <span className={`user-role-pill role-${user.tipo}`}>{rol[user.tipo]}</span>
+                        <span className={`user-role-pill ${resolveEmployeeRoleClass(user.tipo)}`}>{resolveEmployeeRoleName(user.tipo)}</span>
                         <p className="user-email">{user.email}</p>
                     </div>
                 </div>
@@ -63,7 +62,7 @@ export default function UniqueEmpleado() {
                 </div>
                 <div className="user-detail-card">
                     <span className="user-detail-card__label">Rol</span>
-                    <strong>{rol[user.tipo]}</strong>
+                    <strong>{resolveEmployeeRoleName(user.tipo)}</strong>
                 </div>
             </div>
 

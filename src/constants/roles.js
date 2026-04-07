@@ -24,6 +24,25 @@ export function resolveEmployeeRoleName(value) {
     return "Sin rol";
 }
 
+export function resolveEmployeeRoleValue(value) {
+    if (typeof value === "number")
+        return value;
+
+    if (typeof value === "string") {
+        const normalized = value.trim().toUpperCase();
+        const entry = Object.entries(EMPLOYEE_ROLE_NAMES_BY_ENUM).find(([key]) => key === normalized);
+        if (entry)
+            return Object.keys(EMPLOYEE_ROLE_NAMES).find((roleValue) => EMPLOYEE_ROLE_NAMES[roleValue] === entry[1]) ?? null;
+    }
+
+    return null;
+}
+
+export function resolveEmployeeRoleClass(value) {
+    const normalizedValue = resolveEmployeeRoleValue(value);
+    return normalizedValue == null ? "role-unknown" : `role-${normalizedValue}`;
+}
+
 function decodeBase64Url(value) {
     if (!value)
         return null;

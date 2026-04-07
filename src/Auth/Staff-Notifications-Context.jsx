@@ -60,7 +60,7 @@ function shouldWatchDelivery(order) {
     const status = resolvePedidoStatus(order.estado);
     return resolveCanalPedido(order.canalPedido) === "ONLINE"
         && resolveTipoEntrega(order.tipoEntrega) === "DOMICILIO"
-        && ["CONFIRMADO", "PREPARACION", "LISTO", "EN_CAMINO"].includes(status);
+        && ["PENDIENTE", "CONFIRMADO", "PREPARACION", "LISTO", "EN_CAMINO"].includes(status);
 }
 
 function buildCounts(orders) {
@@ -113,18 +113,18 @@ function buildNotification(roleName, previousOrder, nextOrder, getMesaShortLabel
             message: `${orderLabel} está listo${deliveryType === "RECOGIDA" ? " para entregar" : ` en ${mesaLabel}`}.`
         };
 
+    if ((roleName === "Administrador" || roleName === "Repartidor") && orderChannel === "ONLINE" && deliveryType === "DOMICILIO" && !previousOrder)
+        return {
+            type: "reparto",
+            title: "Nuevo pedido online",
+            message: `${orderLabel} ha entrado para reparto a domicilio.`
+        };
+
     if ((roleName === "Administrador" || roleName === "Repartidor") && nextStatus === "LISTO" && prevStatus !== "LISTO" && deliveryType === "DOMICILIO")
         return {
             type: "reparto",
             title: "Pedido listo para reparto",
             message: `${orderLabel} puede salir a domicilio.`
-        };
-
-    if ((roleName === "Administrador" || roleName === "Repartidor") && nextStatus === "EN_CAMINO" && prevStatus !== "EN_CAMINO" && deliveryType === "DOMICILIO")
-        return {
-            type: "reparto",
-            title: "Pedido en camino",
-            message: `${orderLabel} ya va de camino al cliente.`
         };
 
     if ((roleName === "Administrador" || roleName === "Camarero") && orderChannel === "ONLINE" && !previousOrder)

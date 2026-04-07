@@ -4,7 +4,7 @@ import { useAppDialog } from "../Context/AppDialogContext";
 import getToken from "../services/get-token";
 import { closeMesa, getMesa } from "../services/mesas";
 import useMesaLabels from "../Hooks/useMesaLabels";
-import { formatDateTime, formatMoney, orderStateClass, resolveDetalleStatus, resolvePedidoStatus, translateDetalleStatus, translatePedidoStatus } from "../utils/operations";
+import { formatDateTime, formatMoney, isPedidoReadyForFactura, orderStateClass, resolveDetalleStatus, resolvePedidoStatus, sortPedidoDetalles, translateDetalleStatus, translatePedidoStatus } from "../utils/operations";
 import "../styles/Staff/operations.css";
 
 export default function MesaDetail() {
@@ -161,7 +161,7 @@ export default function MesaDetail() {
                                     </div>
 
                                     <ul>
-                                        {pedido.detalles.map((detalle) => {
+                                        {sortPedidoDetalles(pedido.detalles).map((detalle) => {
                                             const detailStatus = resolveDetalleStatus(detalle.estado);
                                             return (
                                                 <li key={detalle.idDetallePedido}>
@@ -172,7 +172,7 @@ export default function MesaDetail() {
                                     </ul>
 
                                     <div className="comanda-card__footer">
-                                        <span>{formatDateTime(pedido.fechaModificacion ?? pedido.fechaPedido)}</span>
+                                        <span>{isPedidoReadyForFactura(pedido) ? "Listo para facturar" : formatDateTime(pedido.fechaModificacion ?? pedido.fechaPedido)}</span>
                                         <Link to={`/staff/pedidos/${pedido.idPedido}`}>
                                             Ver pedido
                                         </Link>

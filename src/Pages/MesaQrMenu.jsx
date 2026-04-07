@@ -13,7 +13,7 @@ import {
     startTableSession,
     updateTableCartItemQuantity
 } from "../services/table-order-storage";
-import { formatDateTime, formatMoney, resolvePedidoStatus, translatePedidoStatus } from "../utils/operations";
+import { formatDateTime, formatMoney, resolvePedidoStatus, sortPedidoDetalles, translatePedidoStatus } from "../utils/operations";
 import { decorateCatalogItems } from "../utils/catalog";
 import "../styles/Customer/platos.css";
 
@@ -298,7 +298,7 @@ export default function MesaQrMenu() {
                                             {translatePedidoStatus(resolvePedidoStatus(pedido.estado))}
                                         </p>
                                         <ul>
-                                            {pedido.detalles.map((detalle) => (
+                                            {sortPedidoDetalles(pedido.detalles).map((detalle) => (
                                                 <li key={detalle.idDetallePedido}>
                                                     {detalle.cantidad} x {detalle.platoNombre}
                                                 </li>

@@ -83,9 +83,13 @@ function App() {
 				<Route element={<ProtectedRoute role={STAFF_ROLES} />}>
 					<Route path="staff" element={<LayoutStaff />}>
 						<Route index element={<DashboardStaff />} />
-						<Route path="mesas" element={<Mesas />} />
-						<Route path="mesas/:id" element={<MesaDetail />} />
-						<Route path="pedidos" element={<Pedidos />} />
+						<Route element={<ProtectedRoute role={["Administrador", "Camarero"]} />}>
+							<Route path="mesas" element={<Mesas />} />
+							<Route path="mesas/:id" element={<MesaDetail />} />
+						</Route>
+						<Route element={<ProtectedRoute role={["Administrador", "Camarero", "Cocinero"]} />}>
+							<Route path="pedidos" element={<Pedidos />} />
+						</Route>
 						<Route path="pedidos/:id" element={<UniquePedido />} />
 						<Route path="online" element={<PedidosOnline />} />
 						<Route path="entregas" element={<Navigate to="/staff/online?view=recogida" replace />} />

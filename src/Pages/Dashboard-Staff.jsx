@@ -30,7 +30,7 @@ export default function DashboardStaff() {
             title: "Pedidos",
             description: "Seguimiento en tiempo real para sala y cocina con estados reales.",
             to: "/staff/pedidos",
-            roles: ["Administrador", "Camarero", "Cocinero", "Repartidor"]
+            roles: ["Administrador", "Camarero", "Cocinero"]
         },
         {
             title: "Pedidos online",

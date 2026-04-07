@@ -10,7 +10,9 @@ import {
     orderStateClass,
     resolveCanalPedido,
     resolveDetalleStatus,
+    resolvePedidoFacturaLabel,
     resolvePedidoStatus,
+    sortPedidoDetalles,
     resolveTipoEntrega,
     translateCanalPedido,
     translateDetalleStatus,
@@ -126,11 +128,11 @@ export default function Pedidos() {
                                     {mesaLabel} · {translateCanalPedido(pedido.canalPedido)} · {translateTipoEntrega(pedido.tipoEntrega)} · {translateEstadoPago(pedido.estadoPago)}
                                 </p>
                                 <p className="ops-inline-meta">
-                                    {pedido.estaFacturado ? "Facturado" : "Pendiente de factura"} · {formatDateTime(pedido.fechaModificacion ?? pedido.fechaPedido)}
+                                    {resolvePedidoFacturaLabel(pedido)} · {formatDateTime(pedido.fechaModificacion ?? pedido.fechaPedido)}
                                 </p>
 
                                 <ul>
-                                    {pedido.detalles.map((detalle) => {
+                                    {sortPedidoDetalles(pedido.detalles).map((detalle) => {
                                         const detailStatus = resolveDetalleStatus(detalle.estado);
                                         return (
                                             <li key={detalle.idDetallePedido}>

@@ -150,14 +150,19 @@ export default function PedidosOnline() {
                             <article key={order.idPedido} className={`comanda-card ops-highlight-card ${highlightClass}`}>
                                 <div className="comanda-card__top">
                                     <div>
-                                        <span className="mesa-detail-card__label ops-badge ops-badge--neutral">PEDIDO ONLINE</span>
+                                        <div className="ops-inline-badges">
+                                            <span className="mesa-detail-card__label ops-badge ops-badge--neutral">PEDIDO ONLINE</span>
+                                            <span className={`mesa-detail-card__label ops-badge ${orderStateClass(status)}`}>
+                                                {translatePedidoStatus(status)}
+                                            </span>
+                                        </div>
                                         <h3>{order.clienteNombre || "Cliente online"}</h3>
                                     </div>
                                     <strong>{formatMoney(order.total)}</strong>
                                 </div>
 
                                 <p className="ops-inline-meta">
-                                    <strong>{highlightText}</strong> · {translatePedidoStatus(status)} · {translateEstadoPago(order.estadoPago)}
+                                    <strong>{highlightText}</strong> · {translateEstadoPago(order.estadoPago)}
                                 </p>
                                 <p className="ops-inline-meta">
                                     {deliveryType === "DOMICILIO"

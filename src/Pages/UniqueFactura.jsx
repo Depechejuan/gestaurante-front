@@ -44,6 +44,14 @@ function resolveDiscountLabel(tipoDescuento) {
     return Number(tipoDescuento) === 1 ? "Porcentaje" : "Importe fijo";
 }
 
+function resolveDiscountValueLabel(tipoDescuento, valorDescuento) {
+    const numericValue = Number(valorDescuento || 0);
+    if (Number(tipoDescuento) === 1)
+        return `${numericValue.toFixed(2)} %`;
+
+    return formatMoney(numericValue);
+}
+
 export default function UniqueFactura() {
     const { id } = useParams();
     const location = useLocation();
@@ -375,8 +383,7 @@ export default function UniqueFactura() {
 
                 <footer className="invoice-sheet__totals">
                     <p>Total bruto: <strong>{formatMoney(factura.precioTotal)}</strong></p>
-                    <p>Descuento ({resolveDiscountLabel(factura.tipoDescuento)}): <strong>{formatMoney(factura.descuento)}</strong></p>
-                    {!!factura.motivoDescuento && <p>Motivo descuento: <strong>{factura.motivoDescuento}</strong></p>}
+                    <p>Descuento: <strong>{formatMoney(factura.descuento)}</strong></p>
                     <p>Total final: <strong>{formatMoney(factura.totalConDescuento)}</strong></p>
                     {factura.metodoCobro !== null && factura.metodoCobro !== undefined && (
                         <>
@@ -396,12 +403,31 @@ export default function UniqueFactura() {
             <section className="invoice-assign">
                 <div className="invoice-assign__header">
                     <div>
-                        <p className="staff-ops-eyebrow">Cobro y descuento</p>
-                        <h2>Gestionar importe final</h2>
+                        <p className="staff-ops-eyebrow">Descuento interno</p>
+                        <h2>Gestionar descuento aplicado</h2>
                     </div>
                     <span className="invoice-assign__hint">
-                        Ajusta descuentos antes de cobrar. El cobro en efectivo calculará el cambio automáticamente.
+                        Este bloque es interno. El motivo del descuento no se imprimirá ni se enviará por email.
                     </span>
+                </div>
+
+                <div className="invoice-assign__summary">
+                    <div className="invoice-assign__summary-card">
+                        <span className="invoice-assign__summary-label">Tipo</span>
+                        <strong>{resolveDiscountLabel(factura.tipoDescuento)}</strong>
+                    </div>
+                    <div className="invoice-assign__summary-card">
+                        <span className="invoice-assign__summary-label">Valor configurado</span>
+                        <strong>{resolveDiscountValueLabel(factura.tipoDescuento, factura.valorDescuento)}</strong>
+                    </div>
+                    <div className="invoice-assign__summary-card">
+                        <span className="invoice-assign__summary-label">Importe aplicado</span>
+                        <strong>{formatMoney(factura.descuento)}</strong>
+                    </div>
+                    <div className="invoice-assign__summary-card">
+                        <span className="invoice-assign__summary-label">Motivo interno</span>
+                        <strong>{factura.motivoDescuento || "Sin motivo registrado"}</strong>
+                    </div>
                 </div>
 
                 {isPaid ? (
@@ -446,8 +472,24 @@ export default function UniqueFactura() {
                     </button>
                     </form>
                 )}
+            </section>
 
-                {!isPaid && (
+            <section className="invoice-assign">
+                <div className="invoice-assign__header">
+                    <div>
+                        <p className="staff-ops-eyebrow">Cobro</p>
+                        <h2>Registrar cobro de factura</h2>
+                    </div>
+                    <span className="invoice-assign__hint">
+                        El cobro en efectivo calculará automáticamente el cambio a devolver.
+                    </span>
+                </div>
+
+                {isPaid ? (
+                    <div className="invoice-assign__hint invoice-assign__hint--inline">
+                        Esta factura ya está cobrada y el registro de cobro queda bloqueado.
+                    </div>
+                ) : (
                     <form className="invoice-assign__form" onSubmit={handleChargeFactura}>
                         <div className="invoice-choice-grid">
                             <button

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import getToken from "../services/get-token"
 import getEmpleados from "../services/get-empleados";
 import PhotoContainer from "./PhotoContainer";
-import { EMPLOYEE_ROLE_NAMES } from "../constants/roles";
+import { resolveEmployeeRoleClass, resolveEmployeeRoleName } from "../constants/roles";
 
 import "../styles/Admin/users.css"
 
@@ -106,7 +106,7 @@ export default function Empleados() {
                             <Link to={`/dashboard/empleados/${user.id}`} className="user-container" state={{user}}>
                                 <PhotoContainer photoURL={user.imageURL ? user.imageURL : anon} style="user-photo" alt={user.nombre} />
                                 <div className="user-info">
-                                    <span className={`user-role-pill role-${user.tipo}`}>{EMPLOYEE_ROLE_NAMES[user.tipo] ?? "Sin rol"}</span>
+                                    <span className={`user-role-pill ${resolveEmployeeRoleClass(user.tipo)}`}>{resolveEmployeeRoleName(user.tipo)}</span>
                                     <h3 className="user-name">{user.nombre} {user.apellido1} {user.apellido2}</h3>
                                     <p className="user-email">{user.email}</p>
                                     <span className="user-action">Abrir ficha</span>

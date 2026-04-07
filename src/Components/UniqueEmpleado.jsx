@@ -5,7 +5,8 @@ import EditUser from "./Forms/Edit-User";
 import PhotoContainer from "./PhotoContainer";
 import { resolveEmployeeRoleClass, resolveEmployeeRoleName } from "../constants/roles";
 import getToken from "../services/get-token";
-import { getEmpleado } from "../services/empleados";
+import { getEmpleado, updateEmpleado } from "../services/empleados";
+import { formatDni, formatNuss } from "../utils/identity";
 
 import anon from '../assets/img/empty-user.png'
 
@@ -16,7 +17,8 @@ export default function UniqueEmpleado() {
     const [user, setUser] = useState(location.state?.user ?? null);
     const [loading, setLoading] = useState(!location.state?.user);
     const [error, setError] = useState("");
-    const token = getToken();
+    const [toggling, setToggling] = useState(false);
+    const [token] = useState(() => getToken());
 
     useEffect(() => {
         if (user || !id || !token?.token) {
@@ -43,6 +45,22 @@ export default function UniqueEmpleado() {
     const showForm = () => {
         setIsShowed(prev => !prev)
     }
+
+    const handleToggleActive = async () => {
+        if (!user)
+            return;
+
+        setToggling(true);
+        setError("");
+        try {
+            const response = await updateEmpleado(user.id, { Activo: !user.activo }, token);
+            setUser(response?.data ?? user);
+        } catch (err) {
+            setError(err.message || "No se ha podido cambiar el estado del empleado.");
+        } finally {
+            setToggling(false);
+        }
+    };
 
     if (loading) {
         return (
@@ -75,23 +93,34 @@ export default function UniqueEmpleado() {
                         <p className="users-eyebrow">Empleado</p>
                         <h2>{user.nombre} {user.apellido1} {user.apellido2}</h2>
                         <span className={`user-role-pill ${resolveEmployeeRoleClass(user.tipo)}`}>{resolveEmployeeRoleName(user.tipo)}</span>
+                        <span className={`user-role-pill ${user.activo ? "role-1" : "role-unknown"}`}>{user.activo ? "Activo" : "Desactivado"}</span>
                         <p className="user-email">{user.email}</p>
                     </div>
                 </div>
 
-                <button type="button" className="user-edit-toggle" onClick={showForm}>
-                    {isShowed ? "Cerrar edicion" : "Editar usuario"}
-                </button>
+                <div className="user-detail__actions">
+                    <button type="button" className="user-edit-toggle" onClick={showForm}>
+                        {isShowed ? "Cancelar edicion" : "Editar empleado"}
+                    </button>
+                    <button
+                        type="button"
+                        className={user.activo ? "user-state-toggle user-state-toggle--danger" : "user-state-toggle"}
+                        onClick={handleToggleActive}
+                        disabled={toggling}
+                    >
+                        {toggling ? "Guardando..." : user.activo ? "Desactivar empleado" : "Activar empleado"}
+                    </button>
+                </div>
             </div>
 
             <div className="user-detail-info">
                 <div className="user-detail-card">
                     <span className="user-detail-card__label">DNI</span>
-                    <strong>{user.dni}</strong>
+                    <strong>{formatDni(user.dni) || "No indicado"}</strong>
                 </div>
                 <div className="user-detail-card">
                     <span className="user-detail-card__label">NUSS</span>
-                    <strong>{user.nuss}</strong>
+                    <strong>{formatNuss(user.nuss) || "No indicado"}</strong>
                 </div>
                 <div className="user-detail-card">
                     <span className="user-detail-card__label">Email</span>

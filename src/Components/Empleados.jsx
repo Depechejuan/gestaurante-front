@@ -1,20 +1,54 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Link } from "react-router-dom";
 
 import getToken from "../services/get-token"
 import getEmpleados from "../services/get-empleados";
 import PhotoContainer from "./PhotoContainer";
-import { resolveEmployeeRoleClass, resolveEmployeeRoleName } from "../constants/roles";
+import { resolveEmployeeRoleClass, resolveEmployeeRoleName, resolveEmployeeRoleValue } from "../constants/roles";
+import { formatDni, formatNuss } from "../utils/identity";
 
 import "../styles/Admin/users.css"
 
 import anon from '../assets/img/empty-user.png'
+
+const employeeSections = [
+    { key: "administradores", title: "Administradores", roleValue: 0 },
+    { key: "camareros", title: "Camareros", roleValue: 1 },
+    { key: "cocineros", title: "Cocineros", roleValue: 2 },
+    { key: "repartidores", title: "Repartidores", roleValue: 3 }
+];
+
+function sortEmployees(leftEmployee, rightEmployee) {
+    const leftName = `${leftEmployee.nombre} ${leftEmployee.apellido1} ${leftEmployee.apellido2}`.trim();
+    const rightName = `${rightEmployee.nombre} ${rightEmployee.apellido1} ${rightEmployee.apellido2}`.trim();
+    return leftName.localeCompare(rightName, "es");
+}
+
+function buildEmployeeSections(users) {
+    const activeUsers = users.filter((user) => user.activo);
+    const inactiveUsers = users.filter((user) => !user.activo).sort(sortEmployees);
+
+    return [
+        ...employeeSections.map((section) => ({
+            ...section,
+            users: activeUsers
+                .filter((user) => Number(resolveEmployeeRoleValue(user.tipo)) === section.roleValue)
+                .sort(sortEmployees)
+        })),
+        {
+            key: "desactivados",
+            title: "Empleados desactivados",
+            users: inactiveUsers
+        }
+    ].filter((section) => section.users.length);
+}
 
 export default function Empleados() {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
     const [token] = useState(() => getToken());
+    const groupedUsers = useMemo(() => buildEmployeeSections(users), [users]);
 
     useEffect(() => {
         if (!token?.token) {
@@ -100,19 +134,37 @@ export default function Empleados() {
                     <p>No hay usuarios disponibles en este momento.</p>
                 </div>
             ) : (
-                <div className="users-grid">
-                    {users.map((user) => (
-                        <article key={user.id} className="user-basic">
-                            <Link to={`/dashboard/empleados/${user.id}`} className="user-container" state={{user}}>
-                                <PhotoContainer photoURL={user.imageURL ? user.imageURL : anon} style="user-photo" alt={user.nombre} />
-                                <div className="user-info">
-                                    <span className={`user-role-pill ${resolveEmployeeRoleClass(user.tipo)}`}>{resolveEmployeeRoleName(user.tipo)}</span>
-                                    <h3 className="user-name">{user.nombre} {user.apellido1} {user.apellido2}</h3>
-                                    <p className="user-email">{user.email}</p>
-                                    <span className="user-action">Abrir ficha</span>
+                <div className="users-sections">
+                    {groupedUsers.map((section) => (
+                        <section key={section.key} className="users-section">
+                            <div className="users-section__header">
+                                <div>
+                                    <p className="users-eyebrow">Equipo</p>
+                                    <h3>{section.title}</h3>
                                 </div>
-                            </Link>
-                        </article>
+                                <span className="users-section__count">{section.users.length}</span>
+                            </div>
+
+                            <div className="users-grid">
+                                {section.users.map((user) => (
+                                    <article key={user.id} className="user-basic">
+                                        <Link to={`/dashboard/empleados/${user.id}`} className="user-container" state={{user}}>
+                                            <PhotoContainer photoURL={user.imageURL ? user.imageURL : anon} style="user-photo" alt={user.nombre} />
+                                            <div className="user-info">
+                                                <span className={`user-role-pill ${resolveEmployeeRoleClass(user.tipo)}`}>{resolveEmployeeRoleName(user.tipo)}</span>
+                                                <h3 className="user-name">{user.nombre} {user.apellido1} {user.apellido2}</h3>
+                                                <p className="user-email">{user.email}</p>
+                                                <ul className="user-meta-list">
+                                                    <li>DNI: {formatDni(user.dni) || "No indicado"}</li>
+                                                    <li>NUSS: {formatNuss(user.nuss) || "No indicado"}</li>
+                                                </ul>
+                                                <span className="user-action">Abrir ficha</span>
+                                            </div>
+                                        </Link>
+                                    </article>
+                                ))}
+                            </div>
+                        </section>
                     ))}
                 </div>
             )}

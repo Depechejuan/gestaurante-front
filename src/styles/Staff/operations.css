@@ -4,6 +4,32 @@
     gap: 1rem;
 }
 
+.staff-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.staff-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(18, 61, 47, 0.14);
+}
+
+.staff-section:first-child {
+    padding-top: 0;
+    border-top: 0;
+}
+
+.staff-section__header {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: center;
+}
+
 .staff-ops-eyebrow {
     margin: 0 0 0.35rem;
     font-size: 0.78rem;
@@ -236,6 +262,11 @@
 .ops-inline-meta {
     margin: 0.6rem 0 0 !important;
     color: #557268;
+}
+
+.ops-inline-meta--wrap {
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .ops-search {

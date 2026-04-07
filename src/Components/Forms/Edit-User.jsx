@@ -2,6 +2,7 @@ import { useState } from "react"
 import getToken from "../../services/get-token";
 import { updateEmpleado } from "../../services/empleados";
 import { resolveEmployeeRoleValue } from "../../constants/roles";
+import { formatDni, formatNuss } from "../../utils/identity";
 import "../../styles/Admin/users.css";
 
 const tipoOptions = [
@@ -17,11 +18,12 @@ export default function EditUser({user, onSaved}) {
         nombre: user.nombre ?? "",
         apellido1: user.apellido1 ?? "",
         apellido2: user.apellido2 ?? "",
-        dni: user.dni ?? "",
-        nuss: user.nuss ?? "",
+        dni: formatDni(user.dni ?? ""),
+        nuss: formatNuss(user.nuss ?? ""),
         email: user.email ?? "",
         password: "",
         tipo: Number(resolveEmployeeRoleValue(user.tipo) ?? 0),
+        activo: Boolean(user.activo),
         photo: null
     })
     const [errors, setErrors] = useState({});
@@ -53,11 +55,11 @@ export default function EditUser({user, onSaved}) {
                 Apellido1: userEdit.apellido1,
                 Apellido2: userEdit.apellido2,
                 Email: userEdit.email,
-                DNI: userEdit.dni.replace("-", ""),
-                NUSS: userEdit.nuss.replaceAll("-", ""),
+                DNI: userEdit.dni.trim().toUpperCase(),
+                NUSS: userEdit.nuss.trim(),
                 Password: userEdit.password,
                 Tipo: userEdit.tipo,
-                Activo: String(user.activo ?? true),
+                Activo: userEdit.activo,
                 Photo: userEdit.photo
             }, token);
 

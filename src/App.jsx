@@ -43,6 +43,7 @@ import CustomerPaymentMethods from './Pages/CustomerPaymentMethods';
 import CustomerProtectedRoute from './Routes/CustomerProtectedRoute';
 import PedidosOnline from './Pages/PedidosOnline';
 import Clientes from './Pages/Clientes';
+import UniqueCliente from './Pages/UniqueCliente';
 import { ADMIN_ROLES, BILLING_ROLES, STAFF_ROLES } from './constants/roles';
 
 function App() {
@@ -98,6 +99,7 @@ function App() {
 							<Route path="facturas" element={<Facturas />} />
 							<Route path="facturas/:id" element={<UniqueFactura />} />
 							<Route path="clientes" element={<Clientes />} />
+							<Route path="clientes/:id" element={<UniqueCliente />} />
 						</Route>
 					</Route>
 				</Route>
@@ -112,6 +114,7 @@ function App() {
 						<Route path="facturas" element={<Facturas />} />
 						<Route path="facturas/:id" element={<UniqueFactura />} />
 						<Route path="clientes" element={<Clientes />} />
+						<Route path="clientes/:id" element={<UniqueCliente />} />
 						<Route path="mesas" element={<Mesas />} />
 						<Route path="mesas/:id" element={<MesaDetail />} />
 						<Route path="carta" element={<PlatosAdmin />} />

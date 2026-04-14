@@ -12,19 +12,16 @@ export default function usePlatos() {
         const fetchPlatos = async () => {
             try {
                 setLoading(true);
+                setError(null);
                 const data = await getPlatos();
-                if (isMounted) {
+                if (isMounted)
                     setPlatos(data);
-                }
             } catch (err) {
-                console.error(err);
-                if (isMounted) {
-                    setError("Error cargando platos");
-                }
+                if (isMounted)
+                    setError(err?.message || "No se ha podido cargar la carta.");
             } finally {
-                if (isMounted) {
+                if (isMounted)
                     setLoading(false);
-                }
             }
         };
 

@@ -31,6 +31,7 @@ import UniqueFactura from './Pages/UniqueFactura';
 import PlatosAdmin from './Pages/PlatosAdmin';
 import UniquePlatoAdmin from './Pages/UniquePlatoAdmin';
 import PlatosPublic from './Pages/PlatosPublic';
+import UniquePlatoPublic from './Pages/UniquePlatoPublic';
 import MesaQrMenu from './Pages/MesaQrMenu';
 import CustomerRegister from './Pages/CustomerRegister';
 import CustomerVerifyEmail from './Pages/CustomerVerifyEmail';
@@ -42,6 +43,8 @@ import CustomerPaymentMethods from './Pages/CustomerPaymentMethods';
 import CustomerProtectedRoute from './Routes/CustomerProtectedRoute';
 import PedidosOnline from './Pages/PedidosOnline';
 import Clientes from './Pages/Clientes';
+import UniqueCliente from './Pages/UniqueCliente';
+import { ADMIN_ROLES, BILLING_ROLES, STAFF_ROLES } from './constants/roles';
 
 function App() {
 
@@ -60,6 +63,7 @@ function App() {
 					<Route path="/" element={<Home />} />
 					<Route path="/login" element={<Login />} />
 					<Route path="/carta" element={<PlatosPublic />} />
+					<Route path="/carta/:id" element={<UniquePlatoPublic />} />
 					<Route path="/mesa/:id" element={<MesaQrMenu />} />
 					<Route path="/pedido-online" element={<OnlineOrder />} />
 					<Route path="/checkout" element={<OnlineOrder />} />
@@ -77,26 +81,31 @@ function App() {
 				</Route>
 
 				{/* STAFF */}
-				<Route element={<ProtectedRoute role={["Camarero", "Cocinero", "Administrador", "Repartidor"]} />}>
+				<Route element={<ProtectedRoute role={STAFF_ROLES} />}>
 					<Route path="staff" element={<LayoutStaff />}>
 						<Route index element={<DashboardStaff />} />
-						<Route path="mesas" element={<Mesas />} />
-						<Route path="mesas/:id" element={<MesaDetail />} />
-						<Route path="pedidos" element={<Pedidos />} />
+						<Route element={<ProtectedRoute role={["Administrador", "Camarero"]} />}>
+							<Route path="mesas" element={<Mesas />} />
+							<Route path="mesas/:id" element={<MesaDetail />} />
+						</Route>
+						<Route element={<ProtectedRoute role={["Administrador", "Camarero", "Cocinero"]} />}>
+							<Route path="pedidos" element={<Pedidos />} />
+						</Route>
 						<Route path="pedidos/:id" element={<UniquePedido />} />
 						<Route path="online" element={<PedidosOnline />} />
 						<Route path="entregas" element={<Navigate to="/staff/online?view=recogida" replace />} />
 						<Route path="reparto" element={<Navigate to="/staff/online?view=reparto" replace />} />
-						<Route element={<ProtectedRoute role={["Administrador", "Camarero"]} />}>
+						<Route element={<ProtectedRoute role={BILLING_ROLES} />}>
 							<Route path="facturas" element={<Facturas />} />
 							<Route path="facturas/:id" element={<UniqueFactura />} />
 							<Route path="clientes" element={<Clientes />} />
+							<Route path="clientes/:id" element={<UniqueCliente />} />
 						</Route>
 					</Route>
 				</Route>
 
 				{/* ADMIN */}
-				<Route element={<ProtectedRoute role={["Administrador"]} />}>
+				<Route element={<ProtectedRoute role={ADMIN_ROLES} />}>
 					<Route path="dashboard" element={<LayoutAdmin />}>
 						<Route index element={<Dashboard />} />
 						<Route path="register" element={<Register />} />
@@ -105,6 +114,7 @@ function App() {
 						<Route path="facturas" element={<Facturas />} />
 						<Route path="facturas/:id" element={<UniqueFactura />} />
 						<Route path="clientes" element={<Clientes />} />
+						<Route path="clientes/:id" element={<UniqueCliente />} />
 						<Route path="mesas" element={<Mesas />} />
 						<Route path="mesas/:id" element={<MesaDetail />} />
 						<Route path="carta" element={<PlatosAdmin />} />

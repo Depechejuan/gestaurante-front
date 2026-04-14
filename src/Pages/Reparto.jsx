@@ -19,7 +19,7 @@ export default function Reparto() {
             setOrders(nextOrders);
         };
         load();
-        const interval = window.setInterval(load, 15000);
+        const interval = window.setInterval(load, 30000);
         return () => window.clearInterval(interval);
     }, []);
 

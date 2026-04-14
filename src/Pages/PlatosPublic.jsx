@@ -1,24 +1,12 @@
 import { Link } from "react-router-dom";
 import ListPlatosPublic from "../Components/ListPlatosPublic";
 import usePlatos from "../Hooks/usePlatos";
+import { decorateCatalogItems } from "../utils/catalog";
 import '../styles/Customer/platos.css'
-
-function resolvePlatoType(plato, index) {
-    return (
-        plato?.categoria ||
-        plato?.tipo ||
-        plato?.categoriaDescripcion ||
-        (plato?.idCategoria ? `Categoria ${String(plato.idCategoria).slice(0, 4)}` : null) ||
-        ["Entrantes", "Pastas", "Paellas", "Carnes", "Postres"][index % 5]
-    );
-}
 
 export default function PlatosPublic() {
     const { platos, loading, error } = usePlatos();
-    const platosConTipo = (platos ?? []).map((plato, index) => ({
-        ...plato,
-        tipoVisible: resolvePlatoType(plato, index)
-    }));
+    const platosConTipo = decorateCatalogItems(platos ?? []);
 
     if (loading) {
         return (

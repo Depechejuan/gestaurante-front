@@ -97,6 +97,106 @@
     scroll-margin-top: 10rem;
 }
 
+.plato-detail-card {
+    display: grid;
+    grid-template-columns: minmax(18rem, 0.9fr) minmax(0, 1.1fr);
+    gap: 1.5rem;
+    padding: 1.5rem;
+    border: 1px solid rgba(230, 244, 241, 0.1);
+    border-radius: 1.8rem;
+    background: rgba(18, 60, 54, 0.82);
+}
+
+.plato-detail-card__media {
+    overflow: hidden;
+    border-radius: 1.4rem;
+    border: 1px solid rgba(230, 244, 241, 0.08);
+    background: rgba(10, 39, 34, 0.72);
+    min-height: 20rem;
+}
+
+.plato-detail-card__image,
+.plato-detail-card__placeholder {
+    width: 100%;
+    height: 100%;
+    min-height: 20rem;
+    object-fit: cover;
+}
+
+.plato-detail-card__placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-customer-secondary);
+}
+
+.plato-detail-card__content,
+.plato-detail-card__section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.plato-detail-card__header {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.plato-detail-card__price {
+    font-size: 1.2rem;
+    white-space: nowrap;
+}
+
+.plato-detail-card__description {
+    margin: 0;
+    color: var(--color-text-customer-secondary);
+}
+
+.plato-detail-card__list {
+    margin: 0;
+    padding-left: 1.1rem;
+    color: var(--color-text-customer-secondary);
+}
+
+.plato-detail-card__allergens,
+.plato-allergen-list,
+.plato-info__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+}
+
+.plato-allergen-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2rem;
+    padding: 0.4rem 0.7rem;
+    border-radius: 999px;
+    background: rgba(252, 194, 63, 0.16);
+    border: 1px solid rgba(252, 194, 63, 0.26);
+    color: #ffd67a;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.plato-allergen-badge--detail {
+    font-size: 0.88rem;
+}
+
+.plato-media-link,
+.plato-title-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.plato-detail-link {
+    color: var(--color-link-customer-underscore);
+    text-decoration: none;
+    font-weight: 700;
+}
+
 .mesa-session-card,
 .mesa-order-card {
     padding: 1.2rem;
@@ -137,11 +237,12 @@
 
 .mesa-order-sidebar {
     position: sticky;
-    top: 1rem;
+    top: 5.4rem;
 }
 
 .mesa-order-sidebar--desktop {
     display: flex;
+    align-self: start;
 }
 
 .mesa-order-card__header {
@@ -155,8 +256,41 @@
 .mesa-order-card--cart {
     display: flex;
     flex-direction: column;
-    max-height: calc(100vh - 2rem);
-    overflow: hidden;
+    max-height: none;
+    overflow: visible;
+}
+
+.mesa-order-card--cart-preview {
+    max-height: calc(100vh - 7rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 0.25rem;
+}
+
+.mesa-order-card--cart-preview .mesa-order-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-height: auto;
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+}
+
+.mesa-order-card__body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: visible;
+    padding-right: 0;
+    scrollbar-gutter: stable;
+}
+
+.mesa-order-card__footer {
+    flex-shrink: 0;
+    padding-top: 1rem;
+    margin-top: 1rem;
+    border-top: 1px solid rgba(230, 244, 241, 0.08);
+    background: transparent;
 }
 
 .mesa-order-card__header h2 {
@@ -175,15 +309,9 @@
     gap: 0.8rem;
 }
 
-.mesa-order-card--cart .mesa-order-items {
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow-y: auto;
-    padding-right: 0.2rem;
-}
-
+.mesa-order-card--cart .mesa-order-items,
 .mesa-order-card--cart .mesa-order-empty {
-    flex: 1 1 auto;
+    flex: 0 0 auto;
 }
 
 .mesa-order-item,
@@ -252,6 +380,155 @@
     display: flex;
     justify-content: space-between;
     gap: 1rem;
+}
+
+.online-order-summary--compact {
+    margin-bottom: 0;
+}
+
+.checkout-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.checkout-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.checkout-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 58rem;
+}
+
+.checkout-panel__total-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    position: sticky;
+    top: 5.4rem;
+    z-index: 34;
+    padding: 1rem 1.1rem;
+    border-radius: 1.2rem;
+    background: rgba(11, 44, 40, 0.96);
+    border: 1px solid rgba(252, 194, 63, 0.24);
+    backdrop-filter: blur(14px);
+}
+
+.checkout-panel__total-top strong {
+    font-size: 1.25rem;
+    color: #ffd67a;
+}
+
+.checkout-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.95rem;
+    padding: 1.2rem;
+    border-radius: 1.4rem;
+    border: 1px solid rgba(230, 244, 241, 0.1);
+    background: rgba(18, 60, 54, 0.76);
+}
+
+.checkout-section--final {
+    margin-bottom: 2rem;
+}
+
+.checkout-section--items .mesa-order-items {
+    max-height: calc(100vh - 24rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 0.25rem;
+}
+
+.checkout-section__header {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+}
+
+.checkout-section__header h2,
+.checkout-section__header p {
+    margin: 0;
+}
+
+.checkout-section__header p {
+    color: var(--color-text-customer-secondary);
+}
+
+.checkout-section__step {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    background: rgba(252, 194, 63, 0.18);
+    border: 1px solid rgba(252, 194, 63, 0.3);
+    color: #ffd67a;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.checkout-inline-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0.95rem;
+    border-radius: 1rem;
+    background: rgba(10, 39, 34, 0.72);
+    border: 1px solid rgba(230, 244, 241, 0.08);
+}
+
+.checkout-inline-panel label {
+    color: var(--color-text-customer-primary);
+    font-size: 0.92rem;
+    font-weight: 600;
+}
+
+.checkout-inline-panel input,
+.checkout-inline-panel select {
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.85rem 1rem;
+    border-radius: 0.95rem;
+    border: 1px solid rgba(230, 244, 241, 0.14);
+    background: rgba(6, 26, 23, 0.92);
+    color: var(--color-text-customer-primary);
+    font-size: 0.95rem;
+}
+
+.checkout-inline-panel input::placeholder {
+    color: rgba(183, 220, 212, 0.72);
+}
+
+.checkout-inline-panel input:focus,
+.checkout-inline-panel select:focus {
+    outline: none;
+    border-color: rgba(252, 194, 63, 0.45);
+    box-shadow: 0 0 0 4px rgba(252, 194, 63, 0.08);
+}
+
+.checkout-inline-panel select option {
+    color: #e6f4f1;
+    background: #0c2f2a;
+}
+
+.checkout-inline-helper {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.checkout-inline-helper p {
+    margin: 0;
+    color: var(--color-text-customer-secondary);
 }
 
 .checkout-choice-group {
@@ -337,6 +614,15 @@
     align-items: center;
     gap: 0.6rem;
     margin-bottom: 0.85rem;
+    color: var(--color-text-customer-primary);
+}
+
+.checkout-inline-check input {
+    width: auto;
+    min-height: auto;
+    padding: 0;
+    accent-color: #fcc23f;
+    box-shadow: none;
 }
 
 .online-cart-item__actions {
@@ -532,6 +818,7 @@
 @media (max-width: 900px) {
     .menu-public__hero--mesa,
     .mesa-order-shell,
+    .plato-detail-card,
     .plato-unique {
         grid-template-columns: 1fr;
     }
@@ -552,9 +839,25 @@
         position: static;
     }
 
-    .mesa-order-card--cart {
+    .mesa-order-card--cart,
+    .mesa-order-card--cart-preview {
         max-height: none;
         overflow: visible;
+        padding-right: 0;
+    }
+
+    .mesa-order-card__body,
+    .mesa-order-card--cart-preview .mesa-order-card__body,
+    .checkout-section--items .mesa-order-items {
+        max-height: none;
+        overflow: visible;
+        padding-right: 0;
+    }
+
+    .mesa-order-card__footer {
+        padding-top: 0.85rem;
+        margin-top: 0.85rem;
+        background: transparent;
     }
 
     .mesa-order-sidebar--desktop {
@@ -563,6 +866,12 @@
 
     .checkout-choice-grid {
         grid-template-columns: 1fr;
+    }
+
+    .checkout-panel__total-top,
+    .checkout-inline-helper {
+        flex-direction: column;
+        align-items: flex-start;
     }
 
     .online-cart-fab {

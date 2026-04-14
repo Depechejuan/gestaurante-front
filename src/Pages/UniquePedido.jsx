@@ -1,17 +1,23 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAuth } from "../Auth/Auth-Context";
+import { useAppDialog } from "../Context/AppDialogContext";
 import useMesaLabels from "../Hooks/useMesaLabels";
 import getToken from "../services/get-token";
 import { cancelDetallePedido, cancelPedido, getPedido, updateDetallePedido, updatePedido } from "../services/pedidos";
+import { createFactura } from "../services/facturas";
 import {
     formatDateTime,
     formatMoney,
+    isPedidoReadyForFactura,
+    normalizeDeliveryAddress,
     orderStateClass,
     resolveCanalPedido,
     resolveDetalleStatus,
+    resolvePedidoFacturaLabel,
     resolveEstadoPago,
     resolvePedidoStatus,
+    sortPedidoDetalles,
     resolveTipoEntrega,
     translateCanalPedido,
     translateDetalleStatus,
@@ -56,6 +62,7 @@ export default function UniquePedido() {
     const [feedback, setFeedback] = useState("");
     const [busyAction, setBusyAction] = useState("");
     const [selectedLineIds, setSelectedLineIds] = useState([]);
+    const { confirm, prompt } = useAppDialog();
 
     const loadPedido = async () => {
         setLoading(true);
@@ -79,6 +86,20 @@ export default function UniquePedido() {
     const tipoEntrega = resolveTipoEntrega(pedido?.tipoEntrega);
     const canalPedido = resolveCanalPedido(pedido?.canalPedido);
     const estadoPago = resolveEstadoPago(pedido?.estadoPago);
+    const canGenerateFactura = ["Administrador", "Camarero"].includes(roleName)
+        && canalPedido !== "ONLINE"
+        && !pedido?.estaFacturado
+        && isPedidoReadyForFactura(pedido);
+    const isRepartidorDeliveryOrder = roleName === "Repartidor"
+        && canalPedido === "ONLINE"
+        && tipoEntrega === "DOMICILIO";
+    const canCancelPedido = (["Administrador", "Camarero"].includes(roleName)
+        && pedidoStatus !== "CANCELADO"
+        && !pedido?.estaFacturado)
+        || (isRepartidorDeliveryOrder && ["LISTO", "EN_CAMINO"].includes(pedidoStatus));
+    const backPath = isRepartidorDeliveryOrder
+        ? "/staff/online?view=reparto"
+        : pedido?.idMesa ? `/staff/mesas/${pedido.idMesa}` : "/staff/pedidos";
     const availableTransitions = useMemo(
         () => (pedidoTransitions[pedidoStatus] ?? []).filter((transition) => {
             const allowedRole = transition.roles.includes(roleName);
@@ -117,9 +138,8 @@ export default function UniquePedido() {
 
         selectedLineIds.forEach((detalleId) => {
             const config = detalleActionMap[detalleId];
-            if (!config) {
+            if (!config)
                 return;
-            }
 
             config.availableDetalleTransitions.forEach((transition) => {
                 const existing = transitions.get(transition.value) ?? { ...transition, count: 0 };
@@ -147,16 +167,39 @@ export default function UniquePedido() {
     };
 
     const handleCancelPedido = async () => {
-        const confirmed = window.confirm("Se cancelaran todas las lineas activas del pedido. ¿Continuar?");
-        if (!confirmed) {
-            return;
+        let motivo = "Cancelado desde panel interno";
+        if (isRepartidorDeliveryOrder) {
+            const promptValue = await prompt({
+                title: "Cancelar reparto",
+                message: "Indica el motivo por el que el pedido no puede entregarse.",
+                inputLabel: "Motivo de cancelación",
+                placeholder: "Ej. cliente ausente, dirección incorrecta...",
+                confirmLabel: "Cancelar pedido"
+            });
+            if (promptValue === false)
+                return;
+
+            if (!String(promptValue ?? "").trim()) {
+                setError("Debes indicar un motivo para cancelar el reparto.");
+                return;
+            }
+
+            motivo = String(promptValue).trim();
+        } else {
+            const confirmed = await confirm({
+                title: "Cancelar pedido",
+                message: "Se cancelarán todas las líneas activas del pedido. ¿Continuar?",
+                confirmLabel: "Cancelar pedido"
+            });
+            if (!confirmed)
+                return;
         }
 
         setBusyAction("cancel-pedido");
         setError("");
         setFeedback("");
         try {
-            await cancelPedido(id, { motivo: "Cancelado desde panel interno" }, token);
+            await cancelPedido(id, { motivo }, token);
             setFeedback("Pedido cancelado correctamente.");
             await loadPedido();
         } catch (err) {
@@ -167,10 +210,13 @@ export default function UniquePedido() {
     };
 
     const handleCancelDetalle = async (detalleId) => {
-        const confirmed = window.confirm("La linea dejara de contar para la factura. ¿Continuar?");
-        if (!confirmed) {
+        const confirmed = await confirm({
+            title: "Cancelar línea",
+            message: "La línea dejará de contar para la factura. ¿Continuar?",
+            confirmLabel: "Cancelar línea"
+        });
+        if (!confirmed)
             return;
-        }
 
         setBusyAction(`cancel-line-${detalleId}`);
         setError("");
@@ -243,7 +289,27 @@ export default function UniquePedido() {
         }
     };
 
-    if (loading) {
+    const handleGenerateFactura = async () => {
+        setBusyAction("generar-factura");
+        setError("");
+        setFeedback("");
+        try {
+            const response = await createFactura({ idPedido: pedido.idPedido, estado: 0, descuento: 0 }, token);
+            const facturaId = response?.data?.numeroFactura;
+            setFeedback(
+                facturaId
+                    ? `Factura generada correctamente: ${String(facturaId).slice(0, 8)}.`
+                    : "Factura generada correctamente."
+            );
+            await loadPedido();
+        } catch (err) {
+            setError(err.message || "No se ha podido generar la factura del pedido.");
+        } finally {
+            setBusyAction("");
+        }
+    };
+
+    if (loading)
         return (
             <section className="staff-ops-shell">
                 <div className="staff-ops-empty">
@@ -251,9 +317,8 @@ export default function UniquePedido() {
                 </div>
             </section>
         );
-    }
 
-    if (!pedido) {
+    if (!pedido)
         return (
             <section className="staff-ops-shell">
                 <div className="staff-ops-empty">
@@ -264,7 +329,6 @@ export default function UniquePedido() {
                 </Link>
             </section>
         );
-    }
 
     return (
         <section className="staff-ops-shell">
@@ -291,14 +355,25 @@ export default function UniquePedido() {
                         </button>
                     ))}
 
-                    {["Administrador", "Camarero"].includes(roleName) && pedidoStatus !== "CANCELADO" && !pedido.estaFacturado && (
+                    {canCancelPedido && (
                         <button
                             type="button"
                             className="staff-ops-secondary"
                             disabled={busyAction === "cancel-pedido"}
                             onClick={handleCancelPedido}
                         >
-                            {busyAction === "cancel-pedido" ? "Cancelando..." : "Cancelar pedido"}
+                            {busyAction === "cancel-pedido" ? "Cancelando..." : isRepartidorDeliveryOrder ? "Cancelar reparto" : "Cancelar pedido"}
+                        </button>
+                    )}
+
+                    {canGenerateFactura && (
+                        <button
+                            type="button"
+                            className="staff-ops-secondary"
+                            disabled={busyAction === "generar-factura"}
+                            onClick={handleGenerateFactura}
+                        >
+                            {busyAction === "generar-factura" ? "Generando..." : "Generar factura"}
                         </button>
                     )}
                 </div>
@@ -327,8 +402,8 @@ export default function UniquePedido() {
                         <h2>{formatMoney(pedido.total)}</h2>
                     </div>
                     <div className="ops-detail-meta">
-                        <span>{pedido.estaFacturado ? "Facturado" : "Pendiente de factura"}</span>
-                        <span>{pedido.tieneLineasActivas ? "Con lineas activas" : "Sin lineas activas"}</span>
+                        <span>{resolvePedidoFacturaLabel(pedido)}</span>
+                        <span>{isPedidoReadyForFactura(pedido) ? "Todo entregado" : "Servicio en curso"}</span>
                         <span>{translateEstadoPago(estadoPago)}</span>
                     </div>
                 </div>
@@ -338,17 +413,17 @@ export default function UniquePedido() {
                         <article className="mesa-detail-card">
                             <span className="mesa-detail-card__label">Cliente</span>
                             <strong>{pedido.clienteNombre || "Cliente online"}</strong>
-                            <p>{pedido.clienteEmail || "Sin email"}</p>
+                            {!isRepartidorDeliveryOrder && <p>{pedido.clienteEmail || "Sin email"}</p>}
                         </article>
                         <article className="mesa-detail-card">
                             <span className="mesa-detail-card__label">Contacto</span>
                             <strong>{pedido.clienteTelefono || "Sin teléfono"}</strong>
-                            <p>{translateTipoEntrega(tipoEntrega)}</p>
+                            {!isRepartidorDeliveryOrder && <p>{translateTipoEntrega(tipoEntrega)}</p>}
                         </article>
                         {pedido.clienteDireccionSnapshot && (
                             <article className="mesa-detail-card">
                                 <span className="mesa-detail-card__label">Entrega</span>
-                                <strong>{pedido.clienteDireccionSnapshot}</strong>
+                                <strong>{isRepartidorDeliveryOrder ? normalizeDeliveryAddress(pedido.clienteDireccionSnapshot) : pedido.clienteDireccionSnapshot}</strong>
                             </article>
                         )}
                     </div>
@@ -396,7 +471,7 @@ export default function UniquePedido() {
                 )}
 
                 <div className="ops-lines">
-                    {pedido.detalles.map((detalle) => {
+                    {sortPedidoDetalles(pedido.detalles).map((detalle) => {
                         const detailConfig = detalleActionMap[detalle.idDetallePedido] ?? {
                             detailStatus: resolveDetalleStatus(detalle.estado),
                             availableDetalleTransitions: [],
@@ -474,8 +549,8 @@ export default function UniquePedido() {
                 </div>
             </article>
 
-            <Link to={pedido.idMesa ? `/staff/mesas/${pedido.idMesa}` : "/staff/pedidos"} className="staff-ops-secondary staff-ops-secondary--link">
-                {pedido.idMesa ? "Volver a la mesa" : "Volver a pedidos"}
+            <Link to={backPath} className="staff-ops-secondary staff-ops-secondary--link">
+                {isRepartidorDeliveryOrder ? "Volver a pedidos online" : pedido.idMesa ? "Volver a la mesa" : "Volver a pedidos"}
             </Link>
         </section>
     );

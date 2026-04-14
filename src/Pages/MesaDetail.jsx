@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
+import { useAppDialog } from "../Context/AppDialogContext";
 import getToken from "../services/get-token";
 import { closeMesa, getMesa } from "../services/mesas";
 import useMesaLabels from "../Hooks/useMesaLabels";
-import { formatDateTime, formatMoney, orderStateClass, resolveDetalleStatus, resolvePedidoStatus, translateDetalleStatus, translatePedidoStatus } from "../utils/operations";
+import { formatDateTime, formatMoney, isPedidoReadyForFactura, orderStateClass, resolveDetalleStatus, resolvePedidoStatus, sortPedidoDetalles, translateDetalleStatus, translatePedidoStatus } from "../utils/operations";
 import "../styles/Staff/operations.css";
 
 export default function MesaDetail() {
@@ -19,6 +20,7 @@ export default function MesaDetail() {
     const [feedback, setFeedback] = useState("");
     const [isClosing, setIsClosing] = useState(false);
     const { getMesaShortLabel } = useMesaLabels(Boolean(token?.token));
+    const { confirm } = useAppDialog();
 
     const loadMesa = async () => {
         setLoading(true);
@@ -38,10 +40,13 @@ export default function MesaDetail() {
     }, [id]);
 
     const handleCloseMesa = async () => {
-        const confirmed = window.confirm("Se generara una factura con todos los pedidos activos de esta mesa. ¿Continuar?");
-        if (!confirmed) {
+        const confirmed = await confirm({
+            title: "Cerrar mesa",
+            message: "Se generará una factura con todos los pedidos activos de esta mesa. ¿Continuar?",
+            confirmLabel: "Cerrar mesa"
+        });
+        if (!confirmed)
             return;
-        }
 
         setIsClosing(true);
         setError("");
@@ -62,7 +67,7 @@ export default function MesaDetail() {
         }
     };
 
-    if (loading) {
+    if (loading)
         return (
             <section className="staff-ops-shell">
                 <div className="staff-ops-empty">
@@ -70,9 +75,8 @@ export default function MesaDetail() {
                 </div>
             </section>
         );
-    }
 
-    if (!mesa) {
+    if (!mesa)
         return (
             <section className="staff-ops-shell">
                 <div className="staff-ops-warning">
@@ -82,7 +86,6 @@ export default function MesaDetail() {
                 <Link to={backPath} className="staff-ops-secondary staff-ops-secondary--link">Volver a mesas</Link>
             </section>
         );
-    }
 
     return (
         <section className="staff-ops-shell">
@@ -158,7 +161,7 @@ export default function MesaDetail() {
                                     </div>
 
                                     <ul>
-                                        {pedido.detalles.map((detalle) => {
+                                        {sortPedidoDetalles(pedido.detalles).map((detalle) => {
                                             const detailStatus = resolveDetalleStatus(detalle.estado);
                                             return (
                                                 <li key={detalle.idDetallePedido}>
@@ -169,7 +172,7 @@ export default function MesaDetail() {
                                     </ul>
 
                                     <div className="comanda-card__footer">
-                                        <span>{formatDateTime(pedido.fechaModificacion ?? pedido.fechaPedido)}</span>
+                                        <span>{isPedidoReadyForFactura(pedido) ? "Listo para facturar" : formatDateTime(pedido.fechaModificacion ?? pedido.fechaPedido)}</span>
                                         <Link to={`/staff/pedidos/${pedido.idPedido}`}>
                                             Ver pedido
                                         </Link>

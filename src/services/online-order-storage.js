@@ -1,15 +1,13 @@
+import { mergeCartItems, readStoredJson, removeCartItemById, updateCartItemsQuantity, writeStoredJson } from "./storage-utils";
+
 const ONLINE_CART_KEY = "GST_ONLINE_CART";
 
 function readCart() {
-    try {
-        return JSON.parse(localStorage.getItem(ONLINE_CART_KEY) ?? "[]");
-    } catch {
-        return [];
-    }
+    return readStoredJson(ONLINE_CART_KEY, []);
 }
 
 function writeCart(items) {
-    localStorage.setItem(ONLINE_CART_KEY, JSON.stringify(items));
+    writeStoredJson(ONLINE_CART_KEY, items);
 }
 
 export function getOnlineCart() {
@@ -17,28 +15,25 @@ export function getOnlineCart() {
 }
 
 export function addOnlineCartItem(item) {
-    const cart = readCart();
-    const index = cart.findIndex((entry) => entry.id === item.id);
-    if (index >= 0) {
-        cart[index] = { ...cart[index], quantity: cart[index].quantity + item.quantity };
-    } else {
-        cart.push(item);
-    }
-
+    const cart = mergeCartItems(readCart(), item);
     writeCart(cart);
     return cart;
 }
 
+export function addManyOnlineCartItems(items) {
+    const next = (items ?? []).reduce((cart, item) => mergeCartItems(cart, item), readCart());
+    writeCart(next);
+    return next;
+}
+
 export function updateOnlineCartItem(itemId, quantity) {
-    const next = readCart()
-        .map((item) => (item.id === itemId ? { ...item, quantity } : item))
-        .filter((item) => item.quantity > 0);
+    const next = updateCartItemsQuantity(readCart(), itemId, quantity);
     writeCart(next);
     return next;
 }
 
 export function removeOnlineCartItem(itemId) {
-    const next = readCart().filter((item) => item.id !== itemId);
+    const next = removeCartItemById(readCart(), itemId);
     writeCart(next);
     return next;
 }

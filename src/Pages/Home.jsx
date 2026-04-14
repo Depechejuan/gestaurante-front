@@ -27,7 +27,7 @@ function Home() {
                 <article className="public-info-card">
                     <span>Producto</span>
                     <strong>Carta viva</strong>
-                    <p>La carta publica sigue apoyada en mocks, pero ya refleja una estructura navegable por tipos.</p>
+                    <p>La carta publica ya se alimenta del catálogo real y mantiene una estructura navegable por tipos.</p>
                 </article>
                 <article className="public-info-card">
                     <span>Experiencia</span>

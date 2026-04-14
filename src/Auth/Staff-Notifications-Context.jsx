@@ -13,7 +13,8 @@ const StaffNotificationsContext = createContext({
     connected: false,
     counts: {
         mesas: 0,
-        cocina: 0,
+        cocinaSala: 0,
+        cocinaOnline: 0,
         onlineRecogida: 0,
         onlineReparto: 0,
         listosSala: 0
@@ -29,14 +30,23 @@ function normalizeMesaLabel(order, getMesaShortLabel) {
     return order.clienteNombre || "Pedido sin mesa";
 }
 
-function shouldWatchKitchen(order) {
+function isRestaurantOrder(order) {
+    return resolveTipoEntrega(order.tipoEntrega) === "MESA"
+        && resolveCanalPedido(order.canalPedido) !== "ONLINE";
+}
+
+function isOnlineOrder(order) {
+    return resolveCanalPedido(order.canalPedido) === "ONLINE";
+}
+
+function isKitchenVisible(order) {
     const status = resolvePedidoStatus(order.estado);
-    return ["CONFIRMADO", "PREPARACION"].includes(status);
+    return ["CONFIRMADO", "PREPARACION", "LISTO"].includes(status);
 }
 
 function shouldWatchSala(order) {
     const status = resolvePedidoStatus(order.estado);
-    return resolveTipoEntrega(order.tipoEntrega) === "MESA" && ["PENDIENTE", "CONFIRMADO", "PREPARACION", "LISTO"].includes(status);
+    return isRestaurantOrder(order) && ["PENDIENTE", "CONFIRMADO", "PREPARACION", "LISTO"].includes(status);
 }
 
 function shouldWatchPickup(order) {
@@ -50,7 +60,7 @@ function shouldWatchDelivery(order) {
     const status = resolvePedidoStatus(order.estado);
     return resolveCanalPedido(order.canalPedido) === "ONLINE"
         && resolveTipoEntrega(order.tipoEntrega) === "DOMICILIO"
-        && ["CONFIRMADO", "PREPARACION", "LISTO", "EN_CAMINO"].includes(status);
+        && ["PENDIENTE", "CONFIRMADO", "PREPARACION", "LISTO", "EN_CAMINO"].includes(status);
 }
 
 function buildCounts(orders) {
@@ -63,12 +73,13 @@ function buildCounts(orders) {
 
     return {
         mesas: mesas.size,
-        cocina: orders.filter(shouldWatchKitchen).length,
+        cocinaSala: orders.filter((order) => isRestaurantOrder(order) && isKitchenVisible(order)).length,
+        cocinaOnline: orders.filter((order) => isOnlineOrder(order) && isKitchenVisible(order)).length,
         onlineRecogida: orders.filter(shouldWatchPickup).length,
         onlineReparto: orders.filter(shouldWatchDelivery).length,
         listosSala: orders.filter((order) => {
             const status = resolvePedidoStatus(order.estado);
-            return ["LISTO"].includes(status) && ["MESA", "RECOGIDA"].includes(resolveTipoEntrega(order.tipoEntrega));
+            return status === "LISTO" && isRestaurantOrder(order);
         }).length
     };
 }
@@ -102,18 +113,18 @@ function buildNotification(roleName, previousOrder, nextOrder, getMesaShortLabel
             message: `${orderLabel} está listo${deliveryType === "RECOGIDA" ? " para entregar" : ` en ${mesaLabel}`}.`
         };
 
+    if ((roleName === "Administrador" || roleName === "Repartidor") && orderChannel === "ONLINE" && deliveryType === "DOMICILIO" && !previousOrder)
+        return {
+            type: "reparto",
+            title: "Nuevo pedido online",
+            message: `${orderLabel} ha entrado para reparto a domicilio.`
+        };
+
     if ((roleName === "Administrador" || roleName === "Repartidor") && nextStatus === "LISTO" && prevStatus !== "LISTO" && deliveryType === "DOMICILIO")
         return {
             type: "reparto",
             title: "Pedido listo para reparto",
             message: `${orderLabel} puede salir a domicilio.`
-        };
-
-    if ((roleName === "Administrador" || roleName === "Repartidor") && nextStatus === "EN_CAMINO" && prevStatus !== "EN_CAMINO" && deliveryType === "DOMICILIO")
-        return {
-            type: "reparto",
-            title: "Pedido en camino",
-            message: `${orderLabel} ya va de camino al cliente.`
         };
 
     if ((roleName === "Administrador" || roleName === "Camarero") && orderChannel === "ONLINE" && !previousOrder)
@@ -128,11 +139,13 @@ function buildNotification(roleName, previousOrder, nextOrder, getMesaShortLabel
 
 export function StaffNotificationsProvider({ children }) {
     const { hasToken, roleName } = useAuth();
-    const { getMesaShortLabel } = useMesaLabels(hasToken);
+    const canLoadMesaLabels = hasToken && ["Administrador", "Camarero"].includes(roleName);
+    const { getMesaShortLabel } = useMesaLabels(canLoadMesaLabels);
     const [notifications, setNotifications] = useState([]);
     const [counts, setCounts] = useState({
         mesas: 0,
-        cocina: 0,
+        cocinaSala: 0,
+        cocinaOnline: 0,
         onlineRecogida: 0,
         onlineReparto: 0,
         listosSala: 0
@@ -145,7 +158,8 @@ export function StaffNotificationsProvider({ children }) {
             setNotifications([]);
             setCounts({
                 mesas: 0,
-                cocina: 0,
+                cocinaSala: 0,
+                cocinaOnline: 0,
                 onlineRecogida: 0,
                 onlineReparto: 0,
                 listosSala: 0
@@ -189,9 +203,8 @@ export function StaffNotificationsProvider({ children }) {
                     }
                 });
 
-                if (freshNotifications.length) {
+                if (freshNotifications.length)
                     setNotifications((current) => [...freshNotifications, ...current].slice(0, 5));
-                }
 
                 previousOrdersRef.current = nextOrders;
             } catch {
@@ -200,7 +213,7 @@ export function StaffNotificationsProvider({ children }) {
         };
 
         pollOrders();
-        const interval = window.setInterval(pollOrders, 10000);
+        const interval = window.setInterval(pollOrders, 20000);
 
         return () => {
             cancelled = true;

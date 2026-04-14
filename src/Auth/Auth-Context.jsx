@@ -3,20 +3,14 @@ import getToken from "../services/get-token";
 import getBasicUser from "../services/get-basic-user";
 import { SESSION_CHANGED_EVENT } from "../services/session-events";
 import deleteToken from "../services/delete-token";
+import { extractEmployeeRoleFromJwt, resolveEmployeeRoleName } from "../constants/roles";
 
 export const AuthContext = createContext(null);
-const roleMap = {
-    0: "Administrador",
-    1: "Camarero",
-    2: "Cocinero",
-    3: "Repartidor"
-};
 
 export function useAuth() {
     const context = useContext(AuthContext);
-    if (!context) {
+    if (!context)
         throw new Error("useAuth debe usarse dentro de AuthProvider");
-    }
     return context;
 }
 
@@ -79,7 +73,9 @@ export function AuthProvider({ children }) {
         setUser(null);
     };
 
-    const roleName = user ? roleMap[user.tipo] ?? "Sin rol" : null;
+    const roleName = user
+        ? resolveEmployeeRoleName(user.tipo)
+        : extractEmployeeRoleFromJwt(token?.token);
     const displayName = user
         ? [user.nombre, user.apellido1, user.apellido2].filter(Boolean).join(" ").trim() || user.email || roleName
         : null;

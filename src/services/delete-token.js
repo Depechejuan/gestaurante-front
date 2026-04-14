@@ -1,7 +1,5 @@
-import { dispatchSessionChanged } from "./session-events";
+import { clearStoredSession } from "./auth-storage";
 
 export default function deleteToken() {
-    localStorage.removeItem("GST_Token");
-    localStorage.removeItem("GST_id")
-    dispatchSessionChanged();
+    clearStoredSession("GST_Token", "GST_id");
 }

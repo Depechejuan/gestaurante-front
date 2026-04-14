@@ -13,18 +13,9 @@ import {
     startTableSession,
     updateTableCartItemQuantity
 } from "../services/table-order-storage";
-import { formatDateTime, formatMoney, resolvePedidoStatus, translatePedidoStatus } from "../utils/operations";
+import { formatDateTime, formatMoney, resolvePedidoStatus, sortPedidoDetalles, translatePedidoStatus } from "../utils/operations";
+import { decorateCatalogItems } from "../utils/catalog";
 import "../styles/Customer/platos.css";
-
-function resolvePlatoType(plato, index) {
-    return (
-        plato?.categoria ||
-        plato?.tipo ||
-        plato?.categoriaDescripcion ||
-        (plato?.idCategoria ? `Categoria ${String(plato.idCategoria).slice(0, 4)}` : null) ||
-        ["Entrantes", "Pastas", "Paellas", "Carnes", "Postres"][index % 5]
-    );
-}
 
 function isGuid(value) {
     return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value ?? ""));
@@ -64,9 +55,8 @@ export default function MesaQrMenu() {
             try {
                 const response = await openPublicMesaSession(id, initialState.sessionToken);
                 const session = response?.data;
-                if (!session?.sessionToken) {
+                if (!session?.sessionToken)
                     throw new Error("No se ha podido abrir la sesión de mesa.");
-                }
 
                 setResolvedMesaId(session.idMesa ?? "");
                 const nextState = saveTablePublicSession(id, session.sessionToken, session.expiresAt);
@@ -93,14 +83,7 @@ export default function MesaQrMenu() {
         bootstrapSession();
     }, [id]);
 
-    const platosConTipo = useMemo(
-        () =>
-            (platos ?? []).map((plato, index) => ({
-                ...plato,
-                tipoVisible: resolvePlatoType(plato, index)
-            })),
-        [platos]
-    );
+    const platosConTipo = useMemo(() => decorateCatalogItems(platos ?? []), [platos]);
 
     const cartTotal = useMemo(
         () => tableState.cart.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0),
@@ -108,14 +91,13 @@ export default function MesaQrMenu() {
     );
 
     const handleAddToCart = (plato, amount) => {
-        if (isLocked || !tableState.sessionToken) {
+        if (isLocked || !tableState.sessionToken)
             return;
-        }
 
         const numericPrice = Number.parseFloat(String(plato.precio).replace(",", ".").replace(" EUR", ""));
         const unitPrice = Number.isNaN(numericPrice) ? 0 : numericPrice;
         const nextState = addItemToTableCart(id, {
-            id: String(plato.id ?? plato.idPlato ?? plato._fallbackId),
+            id: String(plato.idPlato ?? plato.id),
             backendId: plato.idPlato ?? plato.id ?? null,
             nombre: plato.nombre,
             quantity: amount,
@@ -182,7 +164,7 @@ export default function MesaQrMenu() {
         }
     };
 
-    if (loading || sessionLoading) {
+    if (loading || sessionLoading)
         return (
             <section className="public-page public-page--menu">
                 <div className="menu-public__hero">
@@ -192,9 +174,8 @@ export default function MesaQrMenu() {
                 </div>
             </section>
         );
-    }
 
-    if (error) {
+    if (error)
         return (
             <section className="public-page public-page--menu">
                 <div className="menu-public__hero">
@@ -204,9 +185,8 @@ export default function MesaQrMenu() {
                 </div>
             </section>
         );
-    }
 
-    if (isLocked) {
+    if (isLocked)
         return (
             <section className="public-page public-page--menu">
                 <div className="menu-public__hero">
@@ -216,7 +196,6 @@ export default function MesaQrMenu() {
                 </div>
             </section>
         );
-    }
 
     return (
         <section className="public-page public-page--menu">
@@ -319,7 +298,7 @@ export default function MesaQrMenu() {
                                             {translatePedidoStatus(resolvePedidoStatus(pedido.estado))}
                                         </p>
                                         <ul>
-                                            {pedido.detalles.map((detalle) => (
+                                            {sortPedidoDetalles(pedido.detalles).map((detalle) => (
                                                 <li key={detalle.idDetallePedido}>
                                                     {detalle.cantidad} x {detalle.platoNombre}
                                                 </li>

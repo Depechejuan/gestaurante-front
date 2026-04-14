@@ -104,6 +104,6 @@ No implica que todo deba implementarse de golpe. La recomendación es hacerlo po
 ### Ya implementado
 - CRUD real de mesas en staff/admin.
 - Detalle real de mesa con pedidos y cierre de mesa.
-- Gestor real de facturas en admin con impresion y email mock.
+- Gestor real de facturas en admin con impresión y envío por email.
 - Capa HTTP compartida con logout automatico ante `401/403`.
 - Flujo QR con sesion publica de mesa y carrito persistido en `localStorage`.

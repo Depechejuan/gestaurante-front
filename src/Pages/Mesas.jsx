@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useAppDialog } from "../Context/AppDialogContext";
 import getToken from "../services/get-token";
 import { createMesa, deleteMesa, getMesas, updateMesa } from "../services/mesas";
 import useMesaLabels from "../Hooks/useMesaLabels";
@@ -73,6 +74,7 @@ export default function Mesas() {
     const [editingMesaId, setEditingMesaId] = useState(null);
     const [editForm, setEditForm] = useState(EMPTY_FORM);
     const { getMesaShortLabel } = useMesaLabels(Boolean(token?.token));
+    const { confirm } = useAppDialog();
 
     const detailBasePath = isAdminView ? "/dashboard/mesas" : "/staff/mesas";
 
@@ -124,9 +126,8 @@ export default function Mesas() {
 
     const handleSaveEdit = async (event) => {
         event.preventDefault();
-        if (!editingMesaId) {
+        if (!editingMesaId)
             return;
-        }
 
         setSubmitting(true);
         setError("");
@@ -144,10 +145,13 @@ export default function Mesas() {
     };
 
     const handleDelete = async (mesa) => {
-        const confirmed = window.confirm(`¿Seguro que quieres eliminar la mesa de ${mesa.ubicacion}?`);
-        if (!confirmed) {
+        const confirmed = await confirm({
+            title: "Eliminar mesa",
+            message: `¿Seguro que quieres eliminar la mesa de ${mesa.ubicacion}?`,
+            confirmLabel: "Eliminar"
+        });
+        if (!confirmed)
             return;
-        }
 
         setError("");
         setFeedback("");

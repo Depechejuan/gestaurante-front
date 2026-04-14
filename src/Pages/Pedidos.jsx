@@ -8,8 +8,12 @@ import {
     formatDateTime,
     formatMoney,
     orderStateClass,
+    resolveCanalPedido,
     resolveDetalleStatus,
+    resolvePedidoFacturaLabel,
     resolvePedidoStatus,
+    sortPedidoDetalles,
+    resolveTipoEntrega,
     translateCanalPedido,
     translateDetalleStatus,
     translateEstadoPago,
@@ -18,10 +22,16 @@ import {
 } from "../utils/operations";
 import "../styles/Staff/operations.css";
 
+function isRestaurantOrder(pedido) {
+    return resolveTipoEntrega(pedido.tipoEntrega) === "MESA"
+        && resolveCanalPedido(pedido.canalPedido) !== "ONLINE";
+}
+
 export default function Pedidos() {
     const { roleName } = useAuth();
     const token = getToken();
-    const { getMesaShortLabel } = useMesaLabels(Boolean(token?.token));
+    const canLoadMesaLabels = Boolean(token?.token) && ["Administrador", "Camarero"].includes(roleName);
+    const { getMesaShortLabel } = useMesaLabels(canLoadMesaLabels);
     const [pedidos, setPedidos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -32,7 +42,8 @@ export default function Pedidos() {
             setError("");
             try {
                 const response = await getPedidos(token);
-                setPedidos(response?.data ?? []);
+                const restaurantOrders = (response?.data ?? []).filter(isRestaurantOrder);
+                setPedidos(restaurantOrders);
             } catch (err) {
                 setError(err.message || "No hemos podido cargar los pedidos.");
             } finally {
@@ -41,7 +52,7 @@ export default function Pedidos() {
         };
 
         loadPedidos();
-        const interval = window.setInterval(loadPedidos, 15000);
+        const interval = window.setInterval(loadPedidos, 30000);
         return () => window.clearInterval(interval);
     }, []);
 
@@ -70,8 +81,8 @@ export default function Pedidos() {
                     <p className="staff-ops-eyebrow">{roleName === "Cocinero" ? "Cocina" : "Operacion"}</p>
                     <h1>Pedidos</h1>
                     <p>
-                        Vista conectada al backend para sala y cocina. Cada pedido queda cerrado al enviarse
-                        y solo admite cancelaciones, no modificaciones estructurales.
+                        Aqui solo aparecen los pedidos del restaurante servidos en mesa o enviados desde QR.
+                        Los pedidos a domicilio o recogida se gestionan en la vista de pedidos online.
                     </p>
                 </div>
             </div>
@@ -117,11 +128,11 @@ export default function Pedidos() {
                                     {mesaLabel} · {translateCanalPedido(pedido.canalPedido)} · {translateTipoEntrega(pedido.tipoEntrega)} · {translateEstadoPago(pedido.estadoPago)}
                                 </p>
                                 <p className="ops-inline-meta">
-                                    {pedido.estaFacturado ? "Facturado" : "Pendiente de factura"} · {formatDateTime(pedido.fechaModificacion ?? pedido.fechaPedido)}
+                                    {resolvePedidoFacturaLabel(pedido)} · {formatDateTime(pedido.fechaModificacion ?? pedido.fechaPedido)}
                                 </p>
 
                                 <ul>
-                                    {pedido.detalles.map((detalle) => {
+                                    {sortPedidoDetalles(pedido.detalles).map((detalle) => {
                                         const detailStatus = resolveDetalleStatus(detalle.estado);
                                         return (
                                             <li key={detalle.idDetallePedido}>

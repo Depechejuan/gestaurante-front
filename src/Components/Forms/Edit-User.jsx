@@ -1,57 +1,86 @@
 import { useState } from "react"
+import getToken from "../../services/get-token";
+import { updateEmpleado } from "../../services/empleados";
+import { resolveEmployeeRoleValue } from "../../constants/roles";
+import { formatDni, formatNuss } from "../../utils/identity";
 import "../../styles/Admin/users.css";
 
 const tipoOptions = [
     { value: 0, label: 'Administrador' },
     { value: 1, label: 'Camarero' },
     { value: 2, label: 'Cocinero' },
+    { value: 3, label: 'Repartidor' },
 ];
 
-export default function EditUser({user}) {
+export default function EditUser({user, onSaved}) {
+    const token = getToken();
     const [userEdit, setUserEdit] = useState({
         nombre: user.nombre ?? "",
         apellido1: user.apellido1 ?? "",
         apellido2: user.apellido2 ?? "",
-        dni: user.dni ?? "",
-        nuss: user.nuss ?? "",
+        dni: formatDni(user.dni ?? ""),
+        nuss: formatNuss(user.nuss ?? ""),
         email: user.email ?? "",
         password: "",
-        tipo: user.tipo ?? 0
+        tipo: Number(resolveEmployeeRoleValue(user.tipo) ?? 0),
+        activo: Boolean(user.activo),
+        photo: null
     })
     const [errors, setErrors] = useState({});
-    const [isSubmitted, setIsSubmitted] = useState(false);
-    const dniRegex = /^\d{8}-[A-Z]$/;
-    const nussRegex = /^\d{2}-\d{8}-\d$/;
+    const [feedback, setFeedback] = useState("");
+    const [submitting, setSubmitting] = useState(false);
+    const dniRegex = /^\d{8}-?[A-Z]$/;
+    const nussRegex = /^\d{2}-?\d{10}-?\d$/;
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setIsSubmitted(false);
+        const { name, value, files } = e.target;
+        setFeedback("");
         setUserEdit({
             ...userEdit,
-            [name]: name === "tipo" ? Number(value) : value
+            [name]: name === "tipo" ? Number(value) : name === "photo" ? files?.[0] ?? null : value
         });
     }
 
     
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validate())
             return;
-        console.log("Enviar:", userEdit);
-        setIsSubmitted(true);
+
+        setSubmitting(true);
+        setFeedback("");
+        try {
+            const response = await updateEmpleado(user.id, {
+                Nombre: userEdit.nombre,
+                Apellido1: userEdit.apellido1,
+                Apellido2: userEdit.apellido2,
+                Email: userEdit.email,
+                DNI: userEdit.dni.trim().toUpperCase(),
+                NUSS: userEdit.nuss.trim(),
+                Password: userEdit.password,
+                Tipo: userEdit.tipo,
+                Activo: userEdit.activo,
+                Photo: userEdit.photo
+            }, token);
+
+            onSaved?.(response?.data ?? null);
+            setFeedback("Empleado actualizado correctamente.");
+        } catch (err) {
+            setErrors((current) => ({ ...current, submit: err.message || "No se ha podido actualizar el empleado." }));
+        } finally {
+            setSubmitting(false);
+        }
     };
 
 
     const validate = () => {
         const newErrors = {};
 
-        if (!dniRegex.test(userEdit.dni)) {
-        newErrors.dni = "Formato DNI inválido (12345678-A)";
-        }
+        if (!dniRegex.test(userEdit.dni.replace(/\s+/g, "")))
+            newErrors.dni = "Formato DNI inválido (12345678-A)";
 
-        if (!nussRegex.test(userEdit.nuss)) {
-        newErrors.nuss = "Formato NUSS inválido (28-12345678-5)";
-        }
+        if (!nussRegex.test(userEdit.nuss.replace(/\s+/g, "")))
+            newErrors.nuss = "Formato NUSS inválido (0111111111111 o 01-1111111111-1)";
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -152,14 +181,26 @@ export default function EditUser({user}) {
                                 </option>
                             ))}
                         </select>
+
+                        <label htmlFor="photo">Foto</label>
+                        <input
+                            id="photo"
+                            name="photo"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleChange}
+                        />
                     </section>
                 </div>
 
                 <div className="form-actions">
                     <div className="form-status">
-                        {isSubmitted && <span>Cambios preparados correctamente.</span>}
+                        {feedback && <span>{feedback}</span>}
+                        {errors.submit && <span className="error-message">{errors.submit}</span>}
                     </div>
-                    <button type="submit" className="submit-button">Guardar cambios</button>
+                    <button type="submit" className="submit-button" disabled={submitting}>
+                        {submitting ? "Guardando..." : "Guardar cambios"}
+                    </button>
                 </div>
             </form>
         </section>

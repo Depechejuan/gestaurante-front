@@ -65,17 +65,14 @@ export default function PlatoAdminForm({ mode = "create", initialValues = {}, on
     const validate = () => {
         const nextErrors = {};
 
-        if (!form.nombre.trim()) {
+        if (!form.nombre.trim())
             nextErrors.nombre = "El nombre del plato es obligatorio";
-        }
 
-        if (!form.descripcion.trim()) {
+        if (!form.descripcion.trim())
             nextErrors.descripcion = "Añade una descripcion para el plato";
-        }
 
-        if (form.precio !== "" && Number(form.precio) < 0) {
+        if (form.precio !== "" && Number(form.precio) < 0)
             nextErrors.precio = "El precio no puede ser negativo";
-        }
 
         setErrors(nextErrors);
         return Object.keys(nextErrors).length === 0;
@@ -83,7 +80,8 @@ export default function PlatoAdminForm({ mode = "create", initialValues = {}, on
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        if (!validate()) return;
+        if (!validate())
+            return;
         onSubmit?.(form, { setErrors });
     };
 

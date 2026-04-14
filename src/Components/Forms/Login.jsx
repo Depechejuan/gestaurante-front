@@ -3,43 +3,47 @@ import sendLogin from "../../services/login";
 import saveToken from "../../services/save-token";
 import { loginCustomer } from "../../services/customer-account";
 import { saveCustomerToken } from "../../services/customer-token-storage";
+import { resolveEmployeeRoleName } from "../../constants/roles";
 import AuthLoginForm from "./Auth-Login-Form";
 
 function Login() {
     const navigate = useNavigate();
     const location = useLocation();
-    const redirect = new URLSearchParams(location.search).get("redirect") || "/pedido-online";
+    const redirect = location.state?.redirectTo || new URLSearchParams(location.search).get("redirect") || "/pedido-online";
+    const employeeRedirect = redirect.startsWith("/dashboard") || redirect.startsWith("/staff") ? redirect : null;
 
     const handleSubmit = async (form) => {
         try {
             const response = await loginCustomer(form);
-            if (!response?.data) {
+            if (!response?.data)
                 throw new Error("No se ha podido iniciar sesión.");
-            }
 
             saveCustomerToken(response.data);
             navigate(redirect);
             return;
         } catch (error) {
-            if (error?.status !== 401) {
+            if (error?.status !== 401)
                 throw error;
-            }
 
             // Si no es una cuenta de cliente válida, probamos el acceso interno.
         }
 
         const response = await sendLogin(form);
-        if (!response?.data) {
+        if (!response?.data)
             throw new Error("No hemos podido iniciar sesión. Revisa tus credenciales e inténtalo de nuevo.");
-        }
 
         saveToken(response.data);
-        const tipo = response.data.tipo;
-        if (tipo === 0) {
+        if (employeeRedirect) {
+            navigate(employeeRedirect);
+            return;
+        }
+
+        const roleName = resolveEmployeeRoleName(response.data.tipo);
+        if (roleName === "Administrador") {
             navigate("/dashboard");
             return;
         }
-        if (tipo === 1 || tipo === 2 || tipo === 3) {
+        if (["Camarero", "Cocinero", "Repartidor"].includes(roleName)) {
             navigate("/staff");
             return;
         }

@@ -6,8 +6,7 @@ export default async function getBasicUser(token) {
             method: "GET",
             token
         });
-    } catch (err) {
-        console.error(err);
+    } catch {
         return null;
     }
 }

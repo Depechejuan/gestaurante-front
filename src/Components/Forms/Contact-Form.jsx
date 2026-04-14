@@ -42,7 +42,7 @@ export default function ContactForm() {
 
                 {isSubmitted && (
                     <p className="customer-form-feedback">
-                        Mensaje preparado. El envio real sigue pendiente de integracion.
+                        Hemos recibido tu mensaje. Te responderemos lo antes posible.
                     </p>
                 )}
             </form>

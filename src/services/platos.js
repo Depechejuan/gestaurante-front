@@ -16,6 +16,14 @@ export function updatePlato(id, body, token) {
     return authApiRequest(`/Plato/${id}`, { method: "PUT", body, token });
 }
 
+export function setPlatoDisponibilidad(id, disponible, token) {
+    return authApiRequest(`/Plato/${id}/disponibilidad`, {
+        method: "PATCH",
+        body: { disponible },
+        token
+    });
+}
+
 export function deletePlato(id, token) {
     return authApiRequest(`/Plato/${id}`, { method: "DELETE", token });
 }

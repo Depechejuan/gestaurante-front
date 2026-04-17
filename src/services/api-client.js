@@ -1,14 +1,42 @@
 import deleteToken from "./delete-token";
 import getToken from "./get-token";
 
-function resolveApiHost() {
-    const explicitHost = import.meta.env.VITE_API_HOST?.trim();
-    if (explicitHost)
-        return explicitHost.replace(/\/+$/, "");
+function isLocalHostname(hostname) {
+    return ["localhost", "127.0.0.1", "::1"].includes(String(hostname ?? "").toLowerCase());
+}
 
-    const browserHost = typeof window !== "undefined" ? window.location.hostname : "127.0.0.1";
+function normalizeHost(rawHost) {
+    return String(rawHost ?? "").trim().replace(/\/+$/, "");
+}
+
+function resolveApiHost() {
+    const explicitHost = normalizeHost(import.meta.env.VITE_API_HOST);
+    const browserLocation = typeof window !== "undefined" ? window.location : null;
+    const browserHost = browserLocation?.hostname ?? "127.0.0.1";
     const apiPort = import.meta.env.VITE_API_PORT?.trim() || "3000";
-    return `http://${browserHost}:${apiPort}`;
+
+    if (explicitHost) {
+        try {
+            const explicitUrl = new URL(explicitHost, browserLocation?.origin ?? "http://127.0.0.1");
+            if (browserLocation && !isLocalHostname(browserHost) && isLocalHostname(explicitUrl.hostname))
+                return browserLocation.origin;
+
+            return normalizeHost(explicitUrl.toString());
+        } catch {
+            if (browserLocation && !isLocalHostname(browserHost) && /localhost|127\.0\.0\.1/i.test(explicitHost))
+                return browserLocation.origin;
+
+            return explicitHost;
+        }
+    }
+
+    if (!browserLocation)
+        return `http://127.0.0.1:${apiPort}`;
+
+    if (isLocalHostname(browserHost))
+        return `http://${browserHost}:${apiPort}`;
+
+    return browserLocation.origin;
 }
 
 const host = resolveApiHost();
@@ -80,7 +108,8 @@ export async function apiRequest(path, options = {}) {
 
     let response;
     try {
-        response = await fetch(`${host}${path}`, {
+        const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+        response = await fetch(`${host}${normalizedPath}`, {
             method,
             headers: requestHeaders,
             body: body === undefined ? undefined : isFormData ? body : JSON.stringify(body)

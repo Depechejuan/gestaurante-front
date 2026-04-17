@@ -82,8 +82,8 @@ Crear [`.env`](/Users/juanleon/Documents/gestaurante/gestaurante-front/.env) a p
 Valores habituales:
 ```env
 PUBLIC_URL=http://localhost:5173
-VITE_API_HOST=http://localhost:3003
-VITE_API_PORT=3003
+VITE_API_HOST=http://localhost:3000
+VITE_API_PORT=3000
 ```
 
 ### Ejecutar en desarrollo
@@ -110,6 +110,9 @@ npm run build
 - Hay dos tipos de sesión: empleados y clientes.
 - El catálogo público debe consumirse siempre desde la API real; no se mantienen adaptadores de datos falsos en front.
 - Algunas vistas internas dependen de que el backend esté con migraciones aplicadas.
+
+## Si vas a probar o testear
+- Detén todas las instancias relacionadas y vuelve a cargarlas para poder probar todo correctamente.
 
 ## Comandos rápidos
 ```bash

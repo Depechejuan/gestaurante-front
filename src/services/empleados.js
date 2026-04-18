@@ -1,5 +1,19 @@
 import { authApiRequest } from "./api-client";
 
+export function getAuthenticatedEmployeeProfile(token) {
+    return authApiRequest("/user/me", {
+        method: "GET",
+        token
+    });
+}
+
+export function getEmpleados(token) {
+    return authApiRequest("/admin/getusers", {
+        method: "POST",
+        token
+    });
+}
+
 export function getEmpleado(id, token) {
     return authApiRequest(`/admin/user/${id}`, {
         method: "GET",

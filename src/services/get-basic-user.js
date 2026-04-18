@@ -1,11 +1,8 @@
-import { authApiRequest } from "./api-client";
+import { getAuthenticatedEmployeeProfile } from "./empleados";
 
 export default async function getBasicUser(token) {
     try {
-        return await authApiRequest("/user/me", {
-            method: "GET",
-            token
-        });
+        return await getAuthenticatedEmployeeProfile(token);
     } catch {
         return null;
     }

@@ -1,11 +1,9 @@
-import { apiRequest } from "./api-client";
+import { customerApiRequest } from "./api-client";
 
 export function createOnlineOrder(body, token) {
-    return apiRequest("/public/checkout/order", {
+    return customerApiRequest("/public/checkout/order", {
         method: "POST",
         body,
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
+        token
     });
 }

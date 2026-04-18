@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import getToken from "../../services/get-token";
 import { updateEmpleado } from "../../services/empleados";
 import { resolveEmployeeRoleValue } from "../../constants/roles";
@@ -14,7 +14,7 @@ const tipoOptions = [
 
 export default function EditUser({user, onSaved}) {
     const token = getToken();
-    const [userEdit, setUserEdit] = useState({
+    const buildUserForm = () => ({
         nombre: user.nombre ?? "",
         apellido1: user.apellido1 ?? "",
         apellido2: user.apellido2 ?? "",
@@ -25,12 +25,19 @@ export default function EditUser({user, onSaved}) {
         tipo: Number(resolveEmployeeRoleValue(user.tipo) ?? 0),
         activo: Boolean(user.activo),
         photo: null
-    })
+    });
+    const [userEdit, setUserEdit] = useState(buildUserForm);
     const [errors, setErrors] = useState({});
     const [feedback, setFeedback] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const dniRegex = /^\d{8}-?[A-Z]$/;
     const nussRegex = /^\d{2}-?\d{10}-?\d$/;
+
+    useEffect(() => {
+        setUserEdit(buildUserForm());
+        setErrors({});
+        setFeedback("");
+    }, [user?.id, user?.nombre, user?.apellido1, user?.apellido2, user?.dni, user?.nuss, user?.email, user?.tipo, user?.activo]);
 
     const handleChange = (e) => {
         const { name, value, files } = e.target;

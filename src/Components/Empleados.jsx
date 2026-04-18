@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react"
 import { Link } from "react-router-dom";
 
 import getToken from "../services/get-token"
-import getEmpleados from "../services/get-empleados";
+import { getEmpleados } from "../services/empleados";
 import PhotoContainer from "./PhotoContainer";
 import { resolveEmployeeRoleClass, resolveEmployeeRoleName, resolveEmployeeRoleValue } from "../constants/roles";
 import { formatDni, formatNuss } from "../utils/identity";
@@ -63,7 +63,8 @@ export default function Empleados() {
             try {
                 setLoading(true)
                 setError(null)
-                const data = await getEmpleados(token);
+                const response = await getEmpleados(token);
+                const data = response?.data ?? [];
                 if (isMounted) {
                     setUsers(data)
                     setLoading(false)

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import getPlatos from "../services/get-platos";
+import { getPublicCatalogItems } from "../services/public-catalog";
 
 export default function usePlatos() {
     const [platos, setPlatos] = useState([]);
@@ -13,7 +13,7 @@ export default function usePlatos() {
             try {
                 setLoading(true);
                 setError(null);
-                const data = await getPlatos();
+                const data = await getPublicCatalogItems();
                 if (isMounted)
                     setPlatos(data);
             } catch (err) {

@@ -1,7 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import useBodyClass from "../Hooks/useBodyClass";
 import { useAuth } from '../Auth/Auth-Context.jsx'
-import deleteToken from "../services/delete-token.js";
 import { useStaffNotifications } from "../Auth/Staff-Notifications-Context.jsx";
 
 export default function StaffMenu({isMenuOpen, closeMenu}) {
@@ -14,7 +13,6 @@ export default function StaffMenu({isMenuOpen, closeMenu}) {
     }
 
     const handleLogOut = () => {
-        deleteToken();
         logout();
         navigate("/", {replace: true})
     }

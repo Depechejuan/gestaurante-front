@@ -1,11 +1,8 @@
-import { authApiRequest } from "./api-client";
+import { getEmpleados as getAllEmpleados } from "./empleados";
 
 export default async function getEmpleados(token) {
     try {
-        const response = await authApiRequest("/admin/getusers", {
-            method: "POST",
-            token
-        });
+        const response = await getAllEmpleados(token);
         return response.data;
     } catch (err) {
         console.log(err);

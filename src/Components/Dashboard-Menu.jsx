@@ -1,6 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from '../Auth/Auth-Context.jsx'
-import deleteToken from "../services/delete-token.js";
 
 export default function DashboardMenu({ className = "", onNavigateLink }) {
     const navigate = useNavigate();
@@ -11,7 +10,6 @@ export default function DashboardMenu({ className = "", onNavigateLink }) {
     };
 
     const handleLogOut = () => {
-        deleteToken();
         logout();
         onNavigateLink?.();
         navigate("/", {replace: true})

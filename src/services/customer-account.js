@@ -1,10 +1,4 @@
-import { apiRequest } from "./api-client";
-
-function buildCustomerHeaders(token) {
-    return {
-        Authorization: `Bearer ${token}`
-    };
-}
+import { customerApiRequest, apiRequest } from "./api-client";
 
 export function registerCustomer(body) {
     return apiRequest("/public/account/register", { method: "POST", body });
@@ -23,45 +17,45 @@ export function loginCustomer(body) {
 }
 
 export function getCustomerProfile(token) {
-    return apiRequest("/public/account/me", { headers: buildCustomerHeaders(token) });
+    return customerApiRequest("/public/account/me", { token });
 }
 
 export function updateCustomerProfile(body, token) {
-    return apiRequest("/public/account/profile", { method: "PUT", body, headers: buildCustomerHeaders(token) });
+    return customerApiRequest("/public/account/profile", { method: "PUT", body, token });
 }
 
 export function getCustomerAddresses(token) {
-    return apiRequest("/public/account/addresses", { headers: buildCustomerHeaders(token) });
+    return customerApiRequest("/public/account/addresses", { token });
 }
 
 export function createCustomerAddress(body, token) {
-    return apiRequest("/public/account/addresses", { method: "POST", body, headers: buildCustomerHeaders(token) });
+    return customerApiRequest("/public/account/addresses", { method: "POST", body, token });
 }
 
 export function updateCustomerAddress(id, body, token) {
-    return apiRequest(`/public/account/addresses/${id}`, { method: "PUT", body, headers: buildCustomerHeaders(token) });
+    return customerApiRequest(`/public/account/addresses/${id}`, { method: "PUT", body, token });
 }
 
 export function deleteCustomerAddress(id, token) {
-    return apiRequest(`/public/account/addresses/${id}`, { method: "DELETE", headers: buildCustomerHeaders(token) });
+    return customerApiRequest(`/public/account/addresses/${id}`, { method: "DELETE", token });
 }
 
 export function getCustomerPaymentMethods(token) {
-    return apiRequest("/public/account/payment-methods", { headers: buildCustomerHeaders(token) });
+    return customerApiRequest("/public/account/payment-methods", { token });
 }
 
 export function createCustomerPaymentMethod(body, token) {
-    return apiRequest("/public/account/payment-methods", { method: "POST", body, headers: buildCustomerHeaders(token) });
+    return customerApiRequest("/public/account/payment-methods", { method: "POST", body, token });
 }
 
 export function deleteCustomerPaymentMethod(id, token) {
-    return apiRequest(`/public/account/payment-methods/${id}`, { method: "DELETE", headers: buildCustomerHeaders(token) });
+    return customerApiRequest(`/public/account/payment-methods/${id}`, { method: "DELETE", token });
 }
 
 export function getCustomerOrders(token) {
-    return apiRequest("/public/account/orders", { headers: buildCustomerHeaders(token) });
+    return customerApiRequest("/public/account/orders", { token });
 }
 
 export function getCustomerOrder(id, token) {
-    return apiRequest(`/public/account/orders/${id}`, { headers: buildCustomerHeaders(token) });
+    return customerApiRequest(`/public/account/orders/${id}`, { token });
 }

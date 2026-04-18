@@ -139,3 +139,18 @@ export async function apiRequest(path, options = {}) {
 export function authApiRequest(path, options = {}) {
     return apiRequest(path, { ...options, requireAuth: true });
 }
+
+export function customerApiRequest(path, options = {}) {
+    const { token, headers, ...restOptions } = options;
+    const tokenValue = token?.token ?? token ?? null;
+
+    return apiRequest(path, {
+        ...restOptions,
+        headers: tokenValue
+            ? {
+                ...headers,
+                Authorization: `Bearer ${tokenValue}`
+            }
+            : headers
+    });
+}

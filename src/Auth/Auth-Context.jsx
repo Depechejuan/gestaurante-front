@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import getToken from "../services/get-token";
-import getBasicUser from "../services/get-basic-user";
+import { getAuthenticatedEmployeeProfile } from "../services/empleados";
 import { SESSION_CHANGED_EVENT } from "../services/session-events";
 import deleteToken from "../services/delete-token";
 import { extractEmployeeRoleFromJwt, resolveEmployeeRoleName } from "../constants/roles";
@@ -45,7 +45,7 @@ export function AuthProvider({ children }) {
         const loadUser = async () => {
             setLoading(true);
             try {
-                const userData = await getBasicUser(token);
+                const userData = await getAuthenticatedEmployeeProfile(token);
                 const nextUser = userData?.data ?? null;
 
                 if (!nextUser) {
@@ -69,6 +69,7 @@ export function AuthProvider({ children }) {
     }, [token, hasToken]);
 
     const logout = () => {
+        deleteToken();
         setToken(getToken());
         setUser(null);
     };

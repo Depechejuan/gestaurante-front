@@ -21,7 +21,7 @@ const baseUser = {
     apellido1: "Romero",
     apellido2: "Pruebas",
     dni: "12345678Z",
-    nuss: "28-1234567890-5",
+    nuss: "28-12345678-5",
     email: "lucas.romero@gestaurante.com",
     tipo: "Camarero",
     activo: true
@@ -80,7 +80,7 @@ describe("EditUser", () => {
                     Apellido2: "Pruebas",
                     Email: "lucas.editado@gestaurante.com",
                     DNI: "12345678-Z",
-                    NUSS: "28-1234567890-5",
+                    NUSS: "28-12345678-5",
                     Tipo: 3,
                     Activo: true
                 }),

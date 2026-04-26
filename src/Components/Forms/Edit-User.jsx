@@ -31,7 +31,7 @@ export default function EditUser({user, onSaved}) {
     const [feedback, setFeedback] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const dniRegex = /^\d{8}-?[A-Z]$/;
-    const nussRegex = /^\d{2}-?\d{10}-?\d$/;
+    const nussRegex = /^\d{2}-?\d{8}-?\d$/;
 
     useEffect(() => {
         setUserEdit(buildUserForm());
@@ -88,6 +88,9 @@ export default function EditUser({user, onSaved}) {
 
         if (!nussRegex.test(userEdit.nuss.replace(/\s+/g, "")))
             newErrors.nuss = "Formato NUSS inválido (0111111111111 o 01-1111111111-1)";
+
+        if (newErrors.nuss)
+            newErrors.nuss = "Formato NUSS invalido (12-12345678-2)";
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;

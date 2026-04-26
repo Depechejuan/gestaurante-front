@@ -149,7 +149,8 @@ export default function UniquePlatoAdmin() {
                 idPlato: id,
                 nombre: formValues.nombre,
                 descripcion: formValues.descripcion,
-                imagen: "",
+                imagen: formValues.imagen ?? "",
+                photo: formValues.photo ?? null,
                 disponible: Boolean(formValues.disponible),
                 precio: Number(formValues.precio || 0),
                 idCategoria: categoria.idCategoria,
@@ -198,7 +199,13 @@ export default function UniquePlatoAdmin() {
                     <p>Cargando plato...</p>
                 </div>
             ) : (
-                <PlatoAdminForm mode="edit" initialValues={plato} onSubmit={handleSubmit} busy={saving} />
+                <PlatoAdminForm
+                    mode="edit"
+                    initialValues={plato}
+                    categorias={categorias}
+                    onSubmit={handleSubmit}
+                    busy={saving}
+                />
             )}
         </section>
     )

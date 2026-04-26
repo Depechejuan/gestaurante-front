@@ -107,7 +107,8 @@ export default function PlatosAdmin() {
             await createPlato({
                 nombre: formValues.nombre,
                 descripcion: formValues.descripcion,
-                imagen: "",
+                imagen: formValues.imagen ?? "",
+                photo: formValues.photo ?? null,
                 disponible: Boolean(formValues.disponible),
                 precio: Number(formValues.precio || 0),
                 idCategoria: categoria.idCategoria,
@@ -179,7 +180,12 @@ export default function PlatosAdmin() {
                 </div>
             )}
 
-            <PlatoAdminForm mode="create" onSubmit={handleCreate} busy={submitting} />
+            <PlatoAdminForm
+                mode="create"
+                categorias={categorias}
+                onSubmit={handleCreate}
+                busy={submitting}
+            />
 
             <section className="platos-admin-list">
                 <div className="platos-admin-list__header">

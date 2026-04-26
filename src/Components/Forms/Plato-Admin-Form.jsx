@@ -5,6 +5,7 @@ const defaultForm = {
     nombre: "",
     descripcion: "",
     imagen: "",
+    photo: null,
     precio: "",
     disponible: true,
     categoria: "",
@@ -32,11 +33,37 @@ function normalizeInitialValues(initialValues) {
     };
 }
 
-export default function PlatoAdminForm({ mode = "create", initialValues = {}, onSubmit, busy = false, submitLabel }) {
+function buildCategoriaSuggestions(categorias = []) {
+    const seen = new Set();
+
+    return categorias
+        .map((categoria) => categoria?.descripcion?.trim() ?? "")
+        .filter(Boolean)
+        .filter((descripcion) => {
+            const normalized = descripcion.toLocaleLowerCase("es");
+            if (seen.has(normalized))
+                return false;
+
+            seen.add(normalized);
+            return true;
+        })
+        .sort((left, right) => left.localeCompare(right, "es", { sensitivity: "base" }));
+}
+
+export default function PlatoAdminForm({
+    mode = "create",
+    initialValues = {},
+    categorias = [],
+    onSubmit,
+    busy = false,
+    submitLabel
+}) {
     const [form, setForm] = useState({ ...defaultForm, ...initialValues });
     const [errors, setErrors] = useState({});
 
     const isEdit = mode === "edit";
+    const categoriaSuggestions = buildCategoriaSuggestions(categorias);
+    const categoriaSuggestionsListId = `plato-categoria-suggestions-${mode}`;
 
     const initialValuesKey = JSON.stringify({
         nombre: initialValues?.nombre ?? "",
@@ -55,10 +82,14 @@ export default function PlatoAdminForm({ mode = "create", initialValues = {}, on
     }, [initialValuesKey]);
 
     const handleChange = (event) => {
-        const { name, value, type, checked } = event.target;
+        const { name, value, type, checked, files } = event.target;
         setForm((prev) => ({
             ...prev,
-            [name]: type === "checkbox" ? checked : value
+            [name]: type === "checkbox"
+                ? checked
+                : type === "file"
+                    ? (files?.[0] ?? null)
+                    : value
         }));
     };
 
@@ -131,15 +162,24 @@ export default function PlatoAdminForm({ mode = "create", initialValues = {}, on
                         />
                         {errors.descripcion && <span className="error-message">{errors.descripcion}</span>}
 
-                        <label htmlFor="imagen">URL de imagen</label>
+                        <label htmlFor="photo">Imagen del plato</label>
                         <input
-                            id="imagen"
-                            name="imagen"
-                            value={form.imagen}
+                            id="photo"
+                            name="photo"
+                            type="file"
+                            accept="image/*"
                             onChange={handleChange}
-                            placeholder="https://..."
                             disabled={busy}
                         />
+                        <p className="form-helper-text">
+                            La imagen se subira a Cloudinary y la URL quedara guardada en la base de datos.
+                        </p>
+                        {form.imagen && (
+                            <div className="plato-form-image-preview">
+                                <p>Imagen actual</p>
+                                <img src={form.imagen} alt={form.nombre || "Imagen actual del plato"} />
+                            </div>
+                        )}
                     </section>
 
                     <section className="plato-form-panel">
@@ -166,9 +206,22 @@ export default function PlatoAdminForm({ mode = "create", initialValues = {}, on
                             name="categoria"
                             value={form.categoria}
                             onChange={handleChange}
+                            list={categoriaSuggestions.length ? categoriaSuggestionsListId : undefined}
                             placeholder="Entrante, principal, postre..."
                             disabled={busy}
                         />
+                        {categoriaSuggestions.length > 0 && (
+                            <>
+                                <datalist id={categoriaSuggestionsListId}>
+                                    {categoriaSuggestions.map((categoria) => (
+                                        <option key={categoria} value={categoria} />
+                                    ))}
+                                </datalist>
+                                <p className="form-helper-text">
+                                    Puedes elegir una categoria existente o escribir una nueva.
+                                </p>
+                            </>
+                        )}
 
                         <label htmlFor="tags">Etiquetas internas</label>
                         <input

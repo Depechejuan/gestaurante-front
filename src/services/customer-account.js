@@ -4,12 +4,12 @@ export function registerCustomer(body) {
     return apiRequest("/public/account/register", { method: "POST", body });
 }
 
-export function verifyCustomerEmail(body) {
-    return apiRequest("/public/account/verify-email", { method: "POST", body });
+export function confirmCustomerEmail(body) {
+    return apiRequest("/public/account/confirm-email", { method: "POST", body });
 }
 
-export function resendCustomerCode(body) {
-    return apiRequest("/public/account/resend-code", { method: "POST", body });
+export function resendCustomerConfirmationEmail(body) {
+    return apiRequest("/public/account/resend-confirmation-email", { method: "POST", body });
 }
 
 export function loginCustomer(body) {

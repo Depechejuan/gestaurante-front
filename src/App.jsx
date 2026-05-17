@@ -35,6 +35,9 @@ import UniquePlatoPublic from './Pages/UniquePlatoPublic';
 import MesaQrMenu from './Pages/MesaQrMenu';
 import CustomerRegister from './Pages/CustomerRegister';
 import CustomerVerifyEmail from './Pages/CustomerVerifyEmail';
+import CustomerConfirmEmail from './Pages/CustomerConfirmEmail';
+import PasswordRecovery from './Pages/PasswordRecovery';
+import ResetPassword from './Pages/ResetPassword';
 import OnlineOrder from './Pages/OnlineOrder';
 import CustomerAccount from './Pages/CustomerAccount';
 import CustomerOrders from './Pages/CustomerOrders';
@@ -62,6 +65,8 @@ function App() {
 				<Route element={<LayoutCliente />}>
 					<Route path="/" element={<Home />} />
 					<Route path="/login" element={<Login />} />
+					<Route path="/recuperar-password" element={<PasswordRecovery />} />
+					<Route path="/restablecer-password" element={<ResetPassword />} />
 					<Route path="/carta" element={<PlatosPublic />} />
 					<Route path="/carta/:id" element={<UniquePlatoPublic />} />
 					<Route path="/mesa/:id" element={<MesaQrMenu />} />
@@ -69,6 +74,7 @@ function App() {
 					<Route path="/checkout" element={<OnlineOrder />} />
 					<Route path="/cuenta/register" element={<CustomerRegister />} />
 					<Route path="/cuenta/verificar-email" element={<CustomerVerifyEmail />} />
+					<Route path="/cuenta/confirmar-email" element={<CustomerConfirmEmail />} />
 					<Route path="/cuenta/login" element={<Navigate to="/login" replace />} />
 					<Route path="/about" element={<About />} />
 					<Route path="/contacto" element={<Contact />} />

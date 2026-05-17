@@ -8,6 +8,7 @@ import DashboardStaff from "./Pages/Dashboard-Staff";
 // Componentes
 import Login from './Components/Forms/Login';
 import Register from './Components/Forms/Register';
+import CookieConsentBanner from './Components/CookieConsentBanner';
 
 // Estilos
 import './styles/App.css'
@@ -38,6 +39,7 @@ import CustomerVerifyEmail from './Pages/CustomerVerifyEmail';
 import CustomerConfirmEmail from './Pages/CustomerConfirmEmail';
 import PasswordRecovery from './Pages/PasswordRecovery';
 import ResetPassword from './Pages/ResetPassword';
+import CookiePolicy from './Pages/CookiePolicy';
 import OnlineOrder from './Pages/OnlineOrder';
 import CustomerAccount from './Pages/CustomerAccount';
 import CustomerOrders from './Pages/CustomerOrders';
@@ -76,6 +78,7 @@ function App() {
 					<Route path="/cuenta/verificar-email" element={<CustomerVerifyEmail />} />
 					<Route path="/cuenta/confirmar-email" element={<CustomerConfirmEmail />} />
 					<Route path="/cuenta/login" element={<Navigate to="/login" replace />} />
+					<Route path="/politica-cookies" element={<CookiePolicy />} />
 					<Route path="/about" element={<About />} />
 					<Route path="/contacto" element={<Contact />} />
 					<Route element={<CustomerProtectedRoute />}>
@@ -128,6 +131,7 @@ function App() {
 					</Route>
 				</Route>
 			</Routes>
+			<CookieConsentBanner />
 		</>
 	)
 }

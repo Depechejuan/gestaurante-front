@@ -90,6 +90,7 @@ vi.mock("./Pages/CustomerVerifyEmail", () => createPageStub("Page:CustomerVerify
 vi.mock("./Pages/CustomerConfirmEmail", () => createPageStub("Page:CustomerConfirmEmail"));
 vi.mock("./Pages/PasswordRecovery", () => createPageStub("Page:PasswordRecovery"));
 vi.mock("./Pages/ResetPassword", () => createPageStub("Page:ResetPassword"));
+vi.mock("./Pages/CookiePolicy", () => createPageStub("Page:CookiePolicy"));
 vi.mock("./Pages/OnlineOrder", () => createPageStub("Page:OnlineOrder"));
 vi.mock("./Pages/CustomerAccount", () => createPageStub("Page:CustomerAccount"));
 vi.mock("./Pages/CustomerOrders", () => createPageStub("Page:CustomerOrders"));
@@ -133,6 +134,7 @@ const publicRoutes = [
     ["/cuenta/verificar-email", "Page:CustomerVerifyEmail"],
     ["/cuenta/confirmar-email?token=abc", "Page:CustomerConfirmEmail"],
     ["/cuenta/login", "Page:Login"],
+    ["/politica-cookies", "Page:CookiePolicy"],
     ["/about", "Page:About"],
     ["/contacto", "Page:Contact"]
 ];

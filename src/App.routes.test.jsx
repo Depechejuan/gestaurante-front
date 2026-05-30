@@ -87,6 +87,10 @@ vi.mock("./Pages/UniquePlatoPublic", () => createPageStub("Page:UniquePlatoPubli
 vi.mock("./Pages/MesaQrMenu", () => createPageStub("Page:MesaQrMenu"));
 vi.mock("./Pages/CustomerRegister", () => createPageStub("Page:CustomerRegister"));
 vi.mock("./Pages/CustomerVerifyEmail", () => createPageStub("Page:CustomerVerifyEmail"));
+vi.mock("./Pages/CustomerConfirmEmail", () => createPageStub("Page:CustomerConfirmEmail"));
+vi.mock("./Pages/PasswordRecovery", () => createPageStub("Page:PasswordRecovery"));
+vi.mock("./Pages/ResetPassword", () => createPageStub("Page:ResetPassword"));
+vi.mock("./Pages/CookiePolicy", () => createPageStub("Page:CookiePolicy"));
 vi.mock("./Pages/OnlineOrder", () => createPageStub("Page:OnlineOrder"));
 vi.mock("./Pages/CustomerAccount", () => createPageStub("Page:CustomerAccount"));
 vi.mock("./Pages/CustomerOrders", () => createPageStub("Page:CustomerOrders"));
@@ -119,6 +123,8 @@ function renderRoute(path) {
 const publicRoutes = [
     ["/", "Page:Home"],
     ["/login", "Page:Login"],
+    ["/recuperar-password", "Page:PasswordRecovery"],
+    ["/restablecer-password?token=abc", "Page:ResetPassword"],
     ["/carta", "Page:PlatosPublic"],
     ["/carta/123", "Page:UniquePlatoPublic"],
     ["/mesa/12", "Page:MesaQrMenu"],
@@ -126,7 +132,9 @@ const publicRoutes = [
     ["/checkout", "Page:OnlineOrder"],
     ["/cuenta/register", "Page:CustomerRegister"],
     ["/cuenta/verificar-email", "Page:CustomerVerifyEmail"],
+    ["/cuenta/confirmar-email?token=abc", "Page:CustomerConfirmEmail"],
     ["/cuenta/login", "Page:Login"],
+    ["/politica-cookies", "Page:CookiePolicy"],
     ["/about", "Page:About"],
     ["/contacto", "Page:Contact"]
 ];

@@ -1,6 +1,8 @@
 import deleteToken from "./delete-token";
 import getToken from "./get-token";
 
+const productionApiHost = "http://gestaurante.duckdns.org:3000";
+
 function isLocalHostname(hostname) {
     return ["localhost", "127.0.0.1", "::1"].includes(String(hostname ?? "").toLowerCase());
 }
@@ -36,7 +38,7 @@ function resolveApiHost() {
     if (isLocalHostname(browserHost))
         return `http://${browserHost}:${apiPort}`;
 
-    return browserLocation.origin;
+    return productionApiHost;
 }
 
 const host = resolveApiHost();

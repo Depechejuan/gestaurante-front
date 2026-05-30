@@ -86,6 +86,18 @@
     color: var(--color-text-customer-secondary);
 }
 
+.customer-form-link {
+    align-self: flex-start;
+    color: #ffd67a;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.customer-form-link:hover {
+    text-decoration: underline;
+}
+
 .customer-form-group input,
 .customer-form-group textarea {
     width: 100%;

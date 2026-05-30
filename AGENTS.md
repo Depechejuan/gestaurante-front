@@ -82,7 +82,7 @@ Crear [`.env`](/Users/juanleon/Documents/gestaurante/gestaurante-front/.env) a p
 Valores habituales:
 ```env
 PUBLIC_URL=http://localhost:5173
-VITE_API_HOST=http://localhost:3000
+VITE_API_HOST=http://gestaurante.duckdns.org:3000
 VITE_API_PORT=3000
 ```
 

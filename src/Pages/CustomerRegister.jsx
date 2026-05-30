@@ -36,7 +36,7 @@ export default function CustomerRegister() {
                 <div className="login-card__copy">
                     <p className="public-eyebrow login-card__eyebrow">Cuenta cliente</p>
                     <h1>Crea tu cuenta</h1>
-                    <p>Empieza solo con email y contraseña. Podrás completar dirección, datos fiscales y pago más adelante.</p>
+                    <p>Empieza solo con email y contraseña. Te enviaremos un enlace para activar la cuenta antes de iniciar sesión.</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="customer-contact-form customer-contact-form--auth login-form">

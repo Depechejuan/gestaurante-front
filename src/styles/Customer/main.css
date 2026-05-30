@@ -127,6 +127,26 @@
     gap: 1rem;
 }
 
+.cookie-policy-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: 1rem;
+}
+
+.cookie-policy-note {
+    display: grid;
+    gap: 0.55rem;
+    padding: 1.25rem;
+    border: 1px solid rgba(230, 244, 241, 0.1);
+    border-radius: 8px;
+    background: rgba(8, 35, 31, 0.66);
+}
+
+.cookie-policy-note h2,
+.cookie-policy-note p {
+    margin: 0;
+}
+
 .public-info-card {
     padding: 1.2rem;
     border: 1px solid rgba(230, 244, 241, 0.1);

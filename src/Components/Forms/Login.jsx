@@ -60,6 +60,7 @@ function Login() {
             loadingLabel="Entrando..."
             errorMessage="No hemos podido iniciar sesión. Revisa tus credenciales e inténtalo de nuevo."
             secondaryLink={{ to: `/cuenta/register?redirect=${encodeURIComponent(redirect)}`, label: "¿No tienes cuenta? Regístrate" }}
+            forgotLink={{ to: "/recuperar-password", label: "He olvidado mi contraseña" }}
             onSubmit={handleSubmit}
         />
     );

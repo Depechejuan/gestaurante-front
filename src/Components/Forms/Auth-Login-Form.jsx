@@ -10,6 +10,7 @@ export default function AuthLoginForm({
     loadingLabel = "Entrando...",
     errorMessage = "No se ha podido iniciar sesión.",
     secondaryLink,
+    forgotLink,
     onSubmit
 }) {
     const [form, setForm] = useState({ email: "", password: "" });
@@ -73,6 +74,11 @@ export default function AuthLoginForm({
                             placeholder="Introduce tu contraseña"
                             required
                         />
+                        {forgotLink ? (
+                            <Link to={forgotLink.to} className="customer-form-link">
+                                {forgotLink.label}
+                            </Link>
+                        ) : null}
                     </div>
 
                     {error && <p className="login-form__error">{error}</p>}

@@ -1,7 +1,8 @@
 import deleteToken from "./delete-token";
 import getToken from "./get-token";
 
-const productionApiHost = "http://gestaurante.duckdns.org:3000";
+const productionApiHost = "https://gestaurante.duckdns.org";
+const productionApiHostname = "gestaurante.duckdns.org";
 
 function isLocalHostname(hostname) {
     return ["localhost", "127.0.0.1", "::1"].includes(String(hostname ?? "").toLowerCase());
@@ -22,6 +23,9 @@ function resolveApiHost() {
             const explicitUrl = new URL(explicitHost, browserLocation?.origin ?? "http://127.0.0.1");
             if (browserLocation && !isLocalHostname(browserHost) && isLocalHostname(explicitUrl.hostname))
                 return browserLocation.origin;
+
+            if (browserLocation && !isLocalHostname(browserHost) && explicitUrl.protocol === "http:" && explicitUrl.hostname === productionApiHostname)
+                return productionApiHost;
 
             return normalizeHost(explicitUrl.toString());
         } catch {

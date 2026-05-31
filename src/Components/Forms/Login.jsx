@@ -6,6 +6,22 @@ import { saveCustomerToken } from "../../services/customer-token-storage";
 import { resolveEmployeeRoleName } from "../../constants/roles";
 import AuthLoginForm from "./Auth-Login-Form";
 
+const STAFF_LOGIN_ROLES = ["Camarero", "Cocinero", "Repartidor"];
+
+function resolveEmployeeDestination(roleName, employeeRedirect) {
+    if (roleName === "Administrador")
+        return employeeRedirect || "/dashboard";
+
+    if (STAFF_LOGIN_ROLES.includes(roleName)) {
+        if (employeeRedirect?.startsWith("/staff"))
+            return employeeRedirect;
+
+        return "/staff";
+    }
+
+    return "/";
+}
+
 function Login() {
     const navigate = useNavigate();
     const location = useLocation();
@@ -32,23 +48,9 @@ function Login() {
         if (!response?.data)
             throw new Error("No hemos podido iniciar sesión. Revisa tus credenciales e inténtalo de nuevo.");
 
-        saveToken(response.data);
-        if (employeeRedirect) {
-            navigate(employeeRedirect);
-            return;
-        }
-
         const roleName = resolveEmployeeRoleName(response.data.tipo);
-        if (roleName === "Administrador") {
-            navigate("/dashboard");
-            return;
-        }
-        if (["Camarero", "Cocinero", "Repartidor"].includes(roleName)) {
-            navigate("/staff");
-            return;
-        }
-
-        navigate("/");
+        saveToken(response.data);
+        navigate(resolveEmployeeDestination(roleName, employeeRedirect));
     };
 
     return (

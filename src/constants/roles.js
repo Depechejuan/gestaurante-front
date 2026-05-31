@@ -18,6 +18,9 @@ export function resolveEmployeeRoleName(value) {
 
     if (typeof value === "string") {
         const normalized = value.trim().toUpperCase();
+        if (/^\d+$/.test(normalized))
+            return EMPLOYEE_ROLE_NAMES[Number(normalized)] ?? value;
+
         return EMPLOYEE_ROLE_NAMES_BY_ENUM[normalized] ?? value;
     }
 
@@ -30,6 +33,11 @@ export function resolveEmployeeRoleValue(value) {
 
     if (typeof value === "string") {
         const normalized = value.trim().toUpperCase();
+        if (/^\d+$/.test(normalized)) {
+            const numericValue = Number(normalized);
+            return EMPLOYEE_ROLE_NAMES[numericValue] ? numericValue : null;
+        }
+
         const entry = Object.entries(EMPLOYEE_ROLE_NAMES_BY_ENUM).find(([key]) => key === normalized);
         if (entry)
             return Object.keys(EMPLOYEE_ROLE_NAMES).find((roleValue) => EMPLOYEE_ROLE_NAMES[roleValue] === entry[1]) ?? null;

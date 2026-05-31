@@ -220,4 +220,12 @@ describe("App routes", () => {
 
         expect(await screen.findByText("Page:Home")).toBeInTheDocument();
     });
+
+    it("allows repartidores into the staff area", async () => {
+        setEmployeeSession("Repartidor");
+
+        renderRoute("/staff");
+
+        expect(await screen.findByText("Page:DashboardStaff")).toBeInTheDocument();
+    });
 });

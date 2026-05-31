@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { parseLocalizedDecimal } from "../../utils/decimal";
 import "../../styles/Admin/platos.css";
 
 const defaultForm = {
@@ -102,8 +103,14 @@ export default function PlatoAdminForm({
         if (!form.descripcion.trim())
             nextErrors.descripcion = "Añade una descripcion para el plato";
 
-        if (form.precio !== "" && Number(form.precio) < 0)
+        const parsedPrice = parseLocalizedDecimal(form.precio);
+        if (form.precio !== "" && !Number.isFinite(parsedPrice))
+            nextErrors.precio = "Introduce un precio valido. Puedes usar coma o punto decimal";
+        else if (parsedPrice < 0)
             nextErrors.precio = "El precio no puede ser negativo";
+
+        if (!form.categoria.trim())
+            nextErrors.categoria = "La categoria del plato es obligatoria";
 
         setErrors(nextErrors);
         return Object.keys(nextErrors).length === 0;
@@ -189,13 +196,12 @@ export default function PlatoAdminForm({
                         <input
                             id="precio"
                             name="precio"
-                            type="number"
-                            min="0"
-                            step="0.01"
+                            type="text"
+                            inputMode="decimal"
                             value={form.precio}
                             onChange={handleChange}
                             className={errors.precio ? "error" : ""}
-                            placeholder="0.00"
+                            placeholder="0,00"
                             disabled={busy}
                         />
                         {errors.precio && <span className="error-message">{errors.precio}</span>}
@@ -209,7 +215,9 @@ export default function PlatoAdminForm({
                             list={categoriaSuggestions.length ? categoriaSuggestionsListId : undefined}
                             placeholder="Entrante, principal, postre..."
                             disabled={busy}
+                            className={errors.categoria ? "error" : ""}
                         />
+                        {errors.categoria && <span className="error-message">{errors.categoria}</span>}
                         {categoriaSuggestions.length > 0 && (
                             <>
                                 <datalist id={categoriaSuggestionsListId}>

@@ -59,4 +59,28 @@ describe("PlatoAdminForm", () => {
             );
         });
     });
+
+    it("allows comma decimal prices", async () => {
+        const onSubmit = vi.fn();
+        const user = userEvent.setup();
+
+        render(<PlatoAdminForm mode="create" onSubmit={onSubmit} />);
+
+        await user.type(screen.getByLabelText("Nombre del plato"), "Cafe Americano");
+        await user.type(screen.getByLabelText("Descripcion"), "Cafe no aprobado por Italia");
+        await user.type(screen.getByLabelText("Precio"), "2,50");
+        await user.type(screen.getByLabelText("Categoria"), "Cafes");
+        await user.click(screen.getByRole("button", { name: "Crear plato" }));
+
+        await waitFor(() => {
+            expect(onSubmit).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    precio: "2,50"
+                }),
+                expect.objectContaining({
+                    setErrors: expect.any(Function)
+                })
+            );
+        });
+    });
 });

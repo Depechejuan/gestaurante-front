@@ -6,6 +6,7 @@ import { createCategoria, getCategorias } from "../services/categorias";
 import { createIngrediente, getIngredientes } from "../services/ingredientes";
 import { createPlato, getAdminPlatos, setPlatoDisponibilidad } from "../services/platos";
 import getToken from "../services/get-token";
+import { parseLocalizedDecimal } from "../utils/decimal";
 import "../styles/Admin/platos.css";
 
 export default function PlatosAdmin() {
@@ -96,11 +97,18 @@ export default function PlatosAdmin() {
         return resolved;
     };
 
-    const handleCreate = async (formValues) => {
+    const handleCreate = async (formValues, helpers = {}) => {
         setSubmitting(true);
         setError("");
         setFeedback("");
         try {
+            const precio = parseLocalizedDecimal(formValues.precio);
+            if (!Number.isFinite(precio)) {
+                helpers.setErrors?.({ precio: "Introduce un precio valido. Puedes usar coma o punto decimal" });
+                setError("Revisa el precio del plato antes de guardar.");
+                return;
+            }
+
             const deps = await loadCatalogDependencies();
             const categoria = await resolveCategoria(formValues.categoria, deps.categorias);
             const ingredientesResolved = await resolveIngredientes(formValues.ingredientes, deps.ingredientes);
@@ -110,7 +118,7 @@ export default function PlatosAdmin() {
                 imagen: formValues.imagen ?? "",
                 photo: formValues.photo ?? null,
                 disponible: Boolean(formValues.disponible),
-                precio: Number(formValues.precio || 0),
+                precio,
                 idCategoria: categoria.idCategoria,
                 categoriaDescripcion: categoria.descripcion,
                 ingredientes: ingredientesResolved

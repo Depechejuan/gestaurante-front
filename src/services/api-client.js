@@ -48,9 +48,20 @@ function resolveApiHost() {
 
 const host = resolveApiHost();
 
-function resolveErrorMessage(payload) {
+function firstStringFromErrors(errors) {
+    if (!errors || typeof errors !== "object")
+        return null;
+
+    return Object.values(errors)
+        .flat()
+        .find((value) => typeof value === "string" && value.trim()) ?? null;
+}
+
+function resolveErrorMessage(payload, response) {
     if (!payload)
-        return "Something Went Wrong";
+        return response?.status === 413
+            ? "El archivo es demasiado grande para subirlo. Prueba con una imagen mas ligera."
+            : "No se ha podido completar la peticion.";
 
     if (typeof payload.error === "string" && payload.error.trim())
         return payload.error;
@@ -58,22 +69,24 @@ function resolveErrorMessage(payload) {
     if (typeof payload?.error?.message === "string" && payload.error.message.trim())
         return payload.error.message;
 
+    if (typeof payload?.error?.title === "string" && payload.error.title.trim())
+        return payload.error.title;
+
+    const nestedError = firstStringFromErrors(payload?.error?.errors);
+    if (nestedError)
+        return nestedError;
+
     if (typeof payload.message === "string" && payload.message.trim())
         return payload.message;
 
     if (typeof payload.title === "string" && payload.title.trim())
         return payload.title;
 
-    if (payload.errors && typeof payload.errors === "object") {
-        const firstError = Object.values(payload.errors)
-            .flat()
-            .find((value) => typeof value === "string" && value.trim());
+    const firstError = firstStringFromErrors(payload.errors);
+    if (firstError)
+        return firstError;
 
-        if (firstError)
-            return firstError;
-    }
-
-    return "Something Went Wrong";
+    return "No se ha podido completar la peticion.";
 }
 
 async function parseResponse(response) {
@@ -134,7 +147,7 @@ export async function apiRequest(path, options = {}) {
         if (requireAuth && response.status === 401)
             deleteToken();
 
-        const error = new Error(resolveErrorMessage(payload));
+        const error = new Error(resolveErrorMessage(payload, response));
         error.status = response.status;
         error.payload = payload;
         throw error;

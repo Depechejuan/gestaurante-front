@@ -25,4 +25,21 @@ describe("apiRequest", () => {
             }]
         });
     });
+
+    it("uses a helpful message for non-json upload errors", async () => {
+        server.use(
+            http.post(/\/upload-too-large$/, () => new HttpResponse("<html>too large</html>", {
+                status: 413,
+                headers: {
+                    "content-type": "text/html"
+                }
+            }))
+        );
+
+        await expect(apiRequest("/upload-too-large", { method: "POST", body: { ok: true } }))
+            .rejects.toMatchObject({
+                message: "El archivo es demasiado grande para subirlo. Prueba con una imagen mas ligera.",
+                status: 413
+            });
+    });
 });

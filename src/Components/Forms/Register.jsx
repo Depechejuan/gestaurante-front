@@ -7,6 +7,7 @@ const tipoOptions = [
     { value: 0, label: 'Administrador' },
     { value: 1, label: 'Camarero' },
     { value: 2, label: 'Cocinero' },
+    { value: 3, label: 'Repartidor' },
 ];
 
 function Register() {

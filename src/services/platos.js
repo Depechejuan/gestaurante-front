@@ -10,7 +10,8 @@ function buildPlatoFormData(body = {}) {
         formData.append(key, value);
     };
 
-    appendField("idPlato", body.idPlato ?? "");
+    if (body.idPlato)
+        appendField("idPlato", body.idPlato);
     appendField("nombre", body.nombre ?? "");
     appendField("descripcion", body.descripcion ?? "");
     appendField("imagen", body.imagen ?? "");

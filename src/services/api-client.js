@@ -79,19 +79,19 @@ function resolveErrorMessage(payload, response) {
     if (typeof payload.message === "string" && payload.message.trim())
         return payload.message;
 
-    if (typeof payload.title === "string" && payload.title.trim())
-        return payload.title;
-
     const firstError = firstStringFromErrors(payload.errors);
     if (firstError)
         return firstError;
+
+    if (typeof payload.title === "string" && payload.title.trim())
+        return payload.title;
 
     return "No se ha podido completar la peticion.";
 }
 
 async function parseResponse(response) {
     const contentType = response.headers.get("content-type") ?? "";
-    if (!contentType.includes("application/json"))
+    if (!contentType.includes("json"))
         return null;
 
     try {

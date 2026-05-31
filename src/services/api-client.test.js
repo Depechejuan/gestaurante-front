@@ -42,4 +42,27 @@ describe("apiRequest", () => {
                 status: 413
             });
     });
+
+    it("reads validation errors from problem json responses", async () => {
+        server.use(
+            http.post(/\/problem-json$/, () => HttpResponse.json({
+                title: "One or more validation errors occurred.",
+                status: 400,
+                errors: {
+                    IdPlato: ["The value '' is invalid."]
+                }
+            }, {
+                status: 400,
+                headers: {
+                    "content-type": "application/problem+json; charset=utf-8"
+                }
+            }))
+        );
+
+        await expect(apiRequest("/problem-json", { method: "POST", body: { ok: true } }))
+            .rejects.toMatchObject({
+                message: "The value '' is invalid.",
+                status: 400
+            });
+    });
 });

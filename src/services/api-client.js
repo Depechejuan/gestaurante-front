@@ -1,5 +1,6 @@
 import deleteToken from "./delete-token";
 import getToken from "./get-token";
+import { repairTextEncoding } from "../utils/text-encoding";
 
 const productionApiHost = "https://gestaurante.duckdns.org";
 const productionApiHostname = "gestaurante.duckdns.org";
@@ -81,7 +82,7 @@ async function parseResponse(response) {
         return null;
 
     try {
-        return await response.json();
+        return repairTextEncoding(await response.json());
     } catch {
         return null;
     }

@@ -56,7 +56,7 @@ function decodeBytes(bytes, fallback) {
     }
 }
 
-export function repairMojibake(value) {
+function repairMojibakeOnce(value) {
     if (typeof value !== "string" || !/[ÂÃâ]/.test(value))
         return value;
 
@@ -93,6 +93,20 @@ export function repairMojibake(value) {
 
         repaired += decodeBytes(bytes, segment);
         index += byteCount - 1;
+    }
+
+    return repaired;
+}
+
+export function repairMojibake(value) {
+    let repaired = value;
+
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+        const nextValue = repairMojibakeOnce(repaired);
+        if (nextValue === repaired)
+            return repaired;
+
+        repaired = nextValue;
     }
 
     return repaired;

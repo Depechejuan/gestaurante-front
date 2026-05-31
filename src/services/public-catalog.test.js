@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { extractCatalogItems } from "./public-catalog";
-import { repairMojibake } from "../utils/text-encoding";
+import { repairMojibake, repairTextEncoding } from "../utils/text-encoding";
 
 describe("extractCatalogItems", () => {
     it("returns a direct array response unchanged", () => {
@@ -24,9 +24,9 @@ describe("extractCatalogItems", () => {
     it("repairs mojibake text received from the catalog api", () => {
         const catalog = [{
             idPlato: "1",
-            nombre: "Croquetas de jamÃ³n",
-            descripcion: "Entrante ideal para acompaÃ±ar.",
-            ingredientes: [{ nombre: "JamÃ³n" }]
+            nombre: "Croquetas de jamÃƒÂ³n",
+            descripcion: "Entrante ideal para acompaÃƒÂ±ar.",
+            ingredientes: [{ nombre: "JamÃƒÂ³n" }]
         }];
 
         expect(extractCatalogItems({ status: 200, data: catalog })).toEqual([{
@@ -40,7 +40,27 @@ describe("extractCatalogItems", () => {
 
 describe("repairMojibake", () => {
     it("repairs common utf-8 text interpreted as windows-1252", () => {
-        expect(repairMojibake("TARTA DE QUESO DE TURRÃ“N")).toBe("TARTA DE QUESO DE TURRÓN");
-        expect(repairMojibake("azÃºcar glas Â· caÃ±a")).toBe("azúcar glas · caña");
+        expect(repairMojibake("TARTA DE QUESO DE TURRÃƒâ€œN")).toBe("TARTA DE QUESO DE TURRÓN");
+        expect(repairMojibake("azÃƒÂºcar glas Ã‚Â· caÃƒÂ±a")).toBe("azúcar glas · caña");
+    });
+});
+
+describe("repairTextEncoding", () => {
+    it("repairs nested dashboard payloads", () => {
+        const payload = {
+            data: [{
+                nombre: "Croquetas de jamÃ³n",
+                categoriaDescripcion: "Entrantes para acompaÃ±ar",
+                detalles: [{ platoNombre: "TARTA DE QUESO DE TURRÃƒâ€œN" }]
+            }]
+        };
+
+        expect(repairTextEncoding(payload)).toEqual({
+            data: [{
+                nombre: "Croquetas de jamón",
+                categoriaDescripcion: "Entrantes para acompañar",
+                detalles: [{ platoNombre: "TARTA DE QUESO DE TURRÓN" }]
+            }]
+        });
     });
 });

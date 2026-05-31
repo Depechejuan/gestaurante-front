@@ -1,4 +1,7 @@
+import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../../Auth/Auth-Context";
+import { useCustomerAuth } from "../../Auth/Customer-Auth-Context";
 import sendLogin from "../../services/login";
 import saveToken from "../../services/save-token";
 import { loginCustomer } from "../../services/customer-account";
@@ -25,8 +28,20 @@ function resolveEmployeeDestination(roleName, employeeRedirect) {
 function Login() {
     const navigate = useNavigate();
     const location = useLocation();
+    const { hasToken, roleName, loading: employeeLoading } = useAuth();
+    const { hasCustomerSession, loading: customerLoading } = useCustomerAuth();
     const redirect = location.state?.redirectTo || new URLSearchParams(location.search).get("redirect") || "/pedido-online";
     const employeeRedirect = redirect.startsWith("/dashboard") || redirect.startsWith("/staff") ? redirect : null;
+    const existingSessionDestination = hasToken && roleName
+        ? resolveEmployeeDestination(roleName, null)
+        : hasCustomerSession ? "/cuenta" : null;
+
+    useEffect(() => {
+        if (employeeLoading || customerLoading || !existingSessionDestination)
+            return;
+
+        navigate(existingSessionDestination, { replace: true });
+    }, [customerLoading, employeeLoading, existingSessionDestination, navigate]);
 
     const handleSubmit = async (form) => {
         try {
@@ -52,6 +67,9 @@ function Login() {
         saveToken(response.data);
         navigate(resolveEmployeeDestination(roleName, employeeRedirect));
     };
+
+    if (employeeLoading || customerLoading || existingSessionDestination)
+        return null;
 
     return (
         <AuthLoginForm

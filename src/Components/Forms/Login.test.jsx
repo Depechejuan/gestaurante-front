@@ -7,6 +7,25 @@ import sendLogin from "../../services/login";
 import saveToken from "../../services/save-token";
 import Login from "./Login";
 
+const authState = vi.hoisted(() => ({
+    hasToken: false,
+    roleName: null,
+    loading: false
+}));
+
+const customerAuthState = vi.hoisted(() => ({
+    hasCustomerSession: false,
+    loading: false
+}));
+
+vi.mock("../../Auth/Auth-Context", () => ({
+    useAuth: () => authState
+}));
+
+vi.mock("../../Auth/Customer-Auth-Context", () => ({
+    useCustomerAuth: () => customerAuthState
+}));
+
 vi.mock("../../services/customer-account", () => ({
     loginCustomer: vi.fn()
 }));
@@ -37,6 +56,7 @@ function renderLogin(initialEntry = "/login") {
                 <Route path="/staff" element={<div>Staff destination</div>} />
                 <Route path="/staff/online" element={<div>Staff online destination</div>} />
                 <Route path="/dashboard" element={<div>Dashboard destination</div>} />
+                <Route path="/cuenta" element={<div>Customer account destination</div>} />
                 <Route path="/pedido-online" element={<div>Customer destination</div>} />
             </Routes>
         </MemoryRouter>
@@ -53,6 +73,11 @@ async function submitLogin() {
 describe("Login", () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        authState.hasToken = false;
+        authState.roleName = null;
+        authState.loading = false;
+        customerAuthState.hasCustomerSession = false;
+        customerAuthState.loading = false;
         loginCustomer.mockImplementation(unauthorizedCustomerLogin);
         sendLogin.mockResolvedValue({
             data: {
@@ -78,5 +103,31 @@ describe("Login", () => {
         await submitLogin();
 
         expect(await screen.findByText("Staff online destination")).toBeInTheDocument();
+    });
+
+    it("redirects an already authenticated admin to dashboard", async () => {
+        authState.hasToken = true;
+        authState.roleName = "Administrador";
+
+        renderLogin();
+
+        expect(await screen.findByText("Dashboard destination")).toBeInTheDocument();
+    });
+
+    it("redirects an already authenticated employee to staff", async () => {
+        authState.hasToken = true;
+        authState.roleName = "Repartidor";
+
+        renderLogin();
+
+        expect(await screen.findByText("Staff destination")).toBeInTheDocument();
+    });
+
+    it("redirects an already authenticated customer to account", async () => {
+        customerAuthState.hasCustomerSession = true;
+
+        renderLogin();
+
+        expect(await screen.findByText("Customer account destination")).toBeInTheDocument();
     });
 });

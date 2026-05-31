@@ -14,6 +14,7 @@ import {
     translateEstadoPago,
     translatePedidoStatus
 } from "../utils/operations";
+import { formatPedidoItems, isActiveOnlineOrder, isDeliveryQueueOrder } from "../utils/online-orders";
 import "../styles/Staff/operations.css";
 
 const viewConfig = {
@@ -22,21 +23,21 @@ const viewConfig = {
         title: "Todos los pedidos online",
         empty: "No hay pedidos online activos ahora mismo.",
         roles: ["Administrador", "Camarero", "Cocinero"],
-        match: () => true
+        match: isActiveOnlineOrder
     },
     recogida: {
         label: "Recogidas",
         title: "Pedidos online para recoger",
         empty: "No hay recogidas activas ahora mismo.",
         roles: ["Administrador", "Camarero", "Cocinero"],
-        match: (pedido) => resolveTipoEntrega(pedido.tipoEntrega) === "RECOGIDA"
+        match: (pedido) => resolveTipoEntrega(pedido.tipoEntrega) === "RECOGIDA" && isActiveOnlineOrder(pedido)
     },
     reparto: {
         label: "Reparto",
         title: "Pedidos online a domicilio",
         empty: "No hay pedidos de reparto activos ahora mismo.",
         roles: ["Administrador", "Cocinero", "Repartidor"],
-        match: (pedido) => resolveTipoEntrega(pedido.tipoEntrega) === "DOMICILIO"
+        match: isDeliveryQueueOrder
     }
 };
 
@@ -146,6 +147,7 @@ export default function PedidosOnline() {
                         const deliveryType = resolveTipoEntrega(order.tipoEntrega);
                         const highlightClass = deliveryType === "DOMICILIO" ? "ops-highlight--delivery" : "ops-highlight--pickup";
                         const highlightText = deliveryType === "DOMICILIO" ? "REPARTO" : "RECOGIDA";
+                        const orderItems = formatPedidoItems(order);
 
                         return (
                             <article key={order.idPedido} className={`comanda-card ops-highlight-card ${highlightClass}`}>
@@ -169,6 +171,13 @@ export default function PedidosOnline() {
                                     <>
                                         <p className="ops-inline-meta">{order.clienteTelefono || "Sin teléfono"}</p>
                                         <p className="ops-inline-meta">{normalizeDeliveryAddress(order.clienteDireccionSnapshot) || "Sin dirección"}</p>
+                                        {orderItems.length > 0 && (
+                                            <ul className="ops-delivery-items">
+                                                {orderItems.map((item, index) => (
+                                                    <li key={`${item}-${index}`}>{item}</li>
+                                                ))}
+                                            </ul>
+                                        )}
                                     </>
                                 ) : (
                                     <p className="ops-inline-meta">{order.clienteTelefono || "Sin teléfono"}</p>

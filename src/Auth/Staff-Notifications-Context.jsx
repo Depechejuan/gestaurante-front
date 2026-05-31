@@ -53,14 +53,14 @@ function shouldWatchPickup(order) {
     const status = resolvePedidoStatus(order.estado);
     return resolveCanalPedido(order.canalPedido) === "ONLINE"
         && resolveTipoEntrega(order.tipoEntrega) === "RECOGIDA"
-        && ["PENDIENTE", "CONFIRMADO", "PREPARACION", "LISTO"].includes(status);
+        && ["PENDIENTE", "CONFIRMADO", "PREPARACION", "LISTO", "EN_ESPERA"].includes(status);
 }
 
 function shouldWatchDelivery(order) {
     const status = resolvePedidoStatus(order.estado);
     return resolveCanalPedido(order.canalPedido) === "ONLINE"
         && resolveTipoEntrega(order.tipoEntrega) === "DOMICILIO"
-        && ["PENDIENTE", "CONFIRMADO", "PREPARACION", "LISTO", "EN_CAMINO"].includes(status);
+        && ["PENDIENTE_ENTREGA", "EN_CAMINO"].includes(status);
 }
 
 function buildCounts(orders) {
@@ -106,21 +106,21 @@ function buildNotification(roleName, previousOrder, nextOrder, getMesaShortLabel
             message: `${orderLabel} ya está en cola de cocina.`
         };
 
-    if ((roleName === "Administrador" || roleName === "Camarero") && nextStatus === "LISTO" && prevStatus !== "LISTO" && ["MESA", "RECOGIDA"].includes(deliveryType))
+    if ((roleName === "Administrador" || roleName === "Camarero") && nextStatus === "LISTO" && prevStatus !== "LISTO" && deliveryType === "MESA")
         return {
             type: "listo",
-            title: deliveryType === "RECOGIDA" ? "Recogida lista" : "Pedido listo para servir",
-            message: `${orderLabel} está listo${deliveryType === "RECOGIDA" ? " para entregar" : ` en ${mesaLabel}`}.`
+            title: "Pedido listo para servir",
+            message: `${orderLabel} está listo en ${mesaLabel}.`
         };
 
-    if ((roleName === "Administrador" || roleName === "Repartidor") && orderChannel === "ONLINE" && deliveryType === "DOMICILIO" && !previousOrder)
+    if ((roleName === "Administrador" || roleName === "Camarero") && nextStatus === "EN_ESPERA" && prevStatus !== "EN_ESPERA" && deliveryType === "RECOGIDA")
         return {
-            type: "reparto",
-            title: "Nuevo pedido online",
-            message: `${orderLabel} ha entrado para reparto a domicilio.`
+            type: "listo",
+            title: "Recogida en espera",
+            message: `${orderLabel} está esperando al cliente.`
         };
 
-    if ((roleName === "Administrador" || roleName === "Repartidor") && nextStatus === "LISTO" && prevStatus !== "LISTO" && deliveryType === "DOMICILIO")
+    if ((roleName === "Administrador" || roleName === "Repartidor") && orderChannel === "ONLINE" && deliveryType === "DOMICILIO" && nextStatus === "PENDIENTE_ENTREGA" && prevStatus !== "PENDIENTE_ENTREGA")
         return {
             type: "reparto",
             title: "Pedido listo para reparto",

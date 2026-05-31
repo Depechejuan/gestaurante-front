@@ -303,9 +303,16 @@
 }
 
 .ops-badge--listo,
-.ops-badge--preparado {
+.ops-badge--preparado,
+.ops-badge--pendiente_entrega,
+.ops-badge--en_espera {
     background: rgba(18, 124, 142, 0.16);
     color: #0f6f80;
+}
+
+.ops-badge--en_camino {
+    background: rgba(34, 74, 125, 0.14);
+    color: #224a7d;
 }
 
 .ops-badge--pagado,
@@ -355,6 +362,10 @@
 .comanda-card ul {
     padding-left: 1rem;
     margin-top: 0.75rem;
+}
+
+.ops-delivery-items {
+    color: #12342b;
 }
 
 .comanda-card__footer a {

@@ -32,9 +32,12 @@ const pedidoTransitions = {
     CONFIRMADO: [{ label: "Enviar a preparacion", value: 2, roles: ["Administrador", "Cocinero"] }],
     PREPARACION: [{ label: "Marcar listo", value: 3, roles: ["Administrador", "Cocinero"] }],
     LISTO: [
-        { label: "Marcar en camino", value: 6, roles: ["Administrador", "Repartidor"], tiposEntrega: ["DOMICILIO"] },
-        { label: "Marcar entregado", value: 4, roles: ["Administrador", "Camarero"], tiposEntrega: ["RECOGIDA", "MESA"] }
+        { label: "Pasar a reparto", value: 7, roles: ["Administrador", "Camarero"], tiposEntrega: ["DOMICILIO"] },
+        { label: "Dejar en espera", value: 8, roles: ["Administrador", "Camarero"], tiposEntrega: ["RECOGIDA"] },
+        { label: "Marcar entregado", value: 4, roles: ["Administrador", "Camarero"], tiposEntrega: ["MESA"] }
     ],
+    PENDIENTE_ENTREGA: [{ label: "Marcar en camino", value: 6, roles: ["Administrador", "Repartidor"], tiposEntrega: ["DOMICILIO"] }],
+    EN_ESPERA: [{ label: "Marcar entregado", value: 4, roles: ["Administrador", "Camarero"], tiposEntrega: ["RECOGIDA"] }],
     EN_CAMINO: [{ label: "Marcar entregado", value: 4, roles: ["Administrador", "Repartidor"], tiposEntrega: ["DOMICILIO"] }]
 };
 
@@ -93,10 +96,21 @@ export default function UniquePedido() {
     const isRepartidorDeliveryOrder = roleName === "Repartidor"
         && canalPedido === "ONLINE"
         && tipoEntrega === "DOMICILIO";
+    const fulfillmentLabel = canalPedido === "ONLINE"
+        ? pedidoStatus === "PENDIENTE_ENTREGA"
+            ? "Pendiente de reparto"
+            : pedidoStatus === "EN_ESPERA"
+                ? "En espera de recogida"
+                : pedidoStatus === "EN_CAMINO"
+                    ? "En camino"
+                    : pedidoStatus === "ENTREGADO"
+                        ? "Entregado al cliente"
+                        : "Preparacion en curso"
+        : isPedidoReadyForFactura(pedido) ? "Todo entregado" : "Servicio en curso";
     const canCancelPedido = (["Administrador", "Camarero"].includes(roleName)
         && pedidoStatus !== "CANCELADO"
         && !pedido?.estaFacturado)
-        || (isRepartidorDeliveryOrder && ["LISTO", "EN_CAMINO"].includes(pedidoStatus));
+        || (isRepartidorDeliveryOrder && ["PENDIENTE_ENTREGA", "EN_CAMINO"].includes(pedidoStatus));
     const backPath = isRepartidorDeliveryOrder
         ? "/staff/online?view=reparto"
         : pedido?.idMesa ? `/staff/mesas/${pedido.idMesa}` : "/staff/pedidos";
@@ -156,9 +170,14 @@ export default function UniquePedido() {
         setError("");
         setFeedback("");
         try {
-            await updatePedido(id, { estado: nextStatus }, token);
-            setFeedback("Estado del pedido actualizado.");
-            await loadPedido();
+            const response = await updatePedido(id, { estado: nextStatus }, token);
+            setPedido(response?.data ?? pedido);
+            setFeedback(nextStatus === 4 && isRepartidorDeliveryOrder
+                ? "Pedido entregado correctamente."
+                : "Estado del pedido actualizado.");
+
+            if (!(nextStatus === 4 && isRepartidorDeliveryOrder))
+                await loadPedido();
         } catch (err) {
             setError(err.message || "No se ha podido actualizar el pedido.");
         } finally {
@@ -199,9 +218,12 @@ export default function UniquePedido() {
         setError("");
         setFeedback("");
         try {
-            await cancelPedido(id, { motivo }, token);
+            const response = await cancelPedido(id, { motivo }, token);
+            setPedido(response?.data ?? pedido);
             setFeedback("Pedido cancelado correctamente.");
-            await loadPedido();
+
+            if (!isRepartidorDeliveryOrder)
+                await loadPedido();
         } catch (err) {
             setError(err.message || "No se ha podido cancelar el pedido.");
         } finally {
@@ -403,7 +425,7 @@ export default function UniquePedido() {
                     </div>
                     <div className="ops-detail-meta">
                         <span>{resolvePedidoFacturaLabel(pedido)}</span>
-                        <span>{isPedidoReadyForFactura(pedido) ? "Todo entregado" : "Servicio en curso"}</span>
+                        <span>{fulfillmentLabel}</span>
                         <span>{translateEstadoPago(estadoPago)}</span>
                     </div>
                 </div>
@@ -508,7 +530,7 @@ export default function UniquePedido() {
                                                     ? "Preparándose en cocina"
                                                     : detailStatus === "PREPARADO"
                                                         ? "Lista para entregar"
-                                                        : "Entregada al cliente"}
+                                                        : canalPedido === "ONLINE" ? "Validada para entrega" : "Entregada al cliente"}
                                     </p>
                                 </div>
 

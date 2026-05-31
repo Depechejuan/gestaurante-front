@@ -12,7 +12,7 @@ export default function Entregas() {
         const load = async () => {
             const response = await getPedidos(token);
             const nextOrders = (response?.data ?? []).filter((order) =>
-                resolvePedidoStatus(order.estado) === "LISTO"
+                resolvePedidoStatus(order.estado) === "EN_ESPERA"
                 && resolveCanalPedido(order.canalPedido) === "ONLINE"
                 && resolveTipoEntrega(order.tipoEntrega) === "RECOGIDA"
             );

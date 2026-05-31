@@ -14,7 +14,7 @@ export default function Reparto() {
             const nextOrders = (response?.data ?? []).filter((order) =>
                 resolveCanalPedido(order.canalPedido) === "ONLINE"
                 && resolveTipoEntrega(order.tipoEntrega) === "DOMICILIO"
-                && ["LISTO", "EN_CAMINO"].includes(resolvePedidoStatus(order.estado))
+                && ["PENDIENTE_ENTREGA", "EN_CAMINO"].includes(resolvePedidoStatus(order.estado))
             );
             setOrders(nextOrders);
         };

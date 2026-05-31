@@ -1,6 +1,14 @@
 # gestaurante-front
 Front-end de la Aplicación de Gestaurante
 
+## Flujo operativo de pedido online
+- La vista `/staff/online` centraliza recogidas y domicilios.
+- Cuando sala marca todas las lineas online como ok:
+  - `DOMICILIO` queda como `PENDIENTE_ENTREGA`; el repartidor ve cliente, telefono, direccion y elementos a entregar.
+  - `RECOGIDA` queda como `EN_ESPERA`; el camarero la finaliza cuando el cliente pasa a recogerla.
+- El repartidor solo ve pedidos a domicilio en `PENDIENTE_ENTREGA` o `EN_CAMINO`, y los avanza a `EN_CAMINO` y despues a `ENTREGADO`.
+- Este flujo depende de migraciones incrementales del backend; no requiere ni permite resetear la base de datos.
+
 ## Plan pendiente: paneles internos
 
 Este bloque recoge un plan de trabajo acordado para la rama `juan-platos-public`.
@@ -27,6 +35,8 @@ Solo deben quedar aqui las piezas que siguen pendientes o a medias.
 - El marcado parcial se hace por línea de pedido.
 
 ## Roadmap futuro: experiencia cliente y pedido online
+
+Nota: el flujo base de pedido online con recogida, domicilio y reparto ya esta operativo. Este roadmap queda como referencia historica y para mejoras comerciales o de experiencia.
 
 Este bloque recoge el plan de evolución general del proyecto para la parte pública y para el futuro canal de pedido online.
 No implica que todo deba implementarse de golpe. La recomendación es hacerlo por fases.

@@ -5,7 +5,9 @@ const pedidoStatusByValue = {
     3: "LISTO",
     4: "ENTREGADO",
     5: "CANCELADO",
-    6: "EN_CAMINO"
+    6: "EN_CAMINO",
+    7: "PENDIENTE_ENTREGA",
+    8: "EN_ESPERA"
 };
 
 const detalleStatusByValue = {
@@ -100,6 +102,8 @@ export function translatePedidoStatus(status) {
         CONFIRMADO: "Pendiente",
         PREPARACION: "En preparación",
         LISTO: "Listo",
+        PENDIENTE_ENTREGA: "Pendiente de entrega",
+        EN_ESPERA: "En espera",
         EN_CAMINO: "En entrega",
         ENTREGADO: "Entregado",
         CANCELADO: "Cancelado"

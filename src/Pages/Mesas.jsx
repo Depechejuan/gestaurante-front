@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAppDialog } from "../Context/AppDialogContext";
 import getToken from "../services/get-token";
 import { createMesa, deleteMesa, getMesas, updateMesa } from "../services/mesas";
 import useMesaLabels from "../Hooks/useMesaLabels";
+import { compareMesasByPublicOrder } from "../utils/mesas";
 import { formatMoney } from "../utils/operations";
 import "../styles/Staff/operations.css";
 
@@ -75,6 +76,7 @@ export default function Mesas() {
     const [editForm, setEditForm] = useState(EMPTY_FORM);
     const { getMesaShortLabel } = useMesaLabels(Boolean(token?.token));
     const { confirm } = useAppDialog();
+    const visibleMesas = useMemo(() => [...mesas].sort(compareMesasByPublicOrder), [mesas]);
 
     const detailBasePath = isAdminView ? "/dashboard/mesas" : "/staff/mesas";
 
@@ -226,7 +228,7 @@ export default function Mesas() {
                 </div>
             ) : (
                 <section className="mesas-grid">
-                    {mesas.map((mesa) => {
+                    {visibleMesas.map((mesa) => {
                         const isEditing = editingMesaId === mesa.idMesa;
                         return (
                             <article key={mesa.idMesa} className="mesa-card">

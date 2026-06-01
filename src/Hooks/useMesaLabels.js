@@ -1,18 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import getToken from "../services/get-token";
 import { getMesas } from "../services/mesas";
-
-function compareMesas(leftMesa, rightMesa) {
-    const leftLocation = String(leftMesa.ubicacion ?? "").localeCompare(String(rightMesa.ubicacion ?? ""), "es", { sensitivity: "base" });
-    if (leftLocation !== 0)
-        return leftLocation;
-
-    const leftCapacity = Number(leftMesa.capacidad ?? 0) - Number(rightMesa.capacidad ?? 0);
-    if (leftCapacity !== 0)
-        return leftCapacity;
-
-    return String(leftMesa.idMesa ?? "").localeCompare(String(rightMesa.idMesa ?? ""), "es", { sensitivity: "base" });
-}
+import { compareMesasByPublicOrder } from "../utils/mesas";
 
 export default function useMesaLabels(enabled = true) {
     const [mesas, setMesas] = useState([]);
@@ -48,7 +37,7 @@ export default function useMesaLabels(enabled = true) {
     }, [enabled]);
 
     return useMemo(() => {
-        const orderedMesas = [...mesas].sort(compareMesas);
+        const orderedMesas = [...mesas].sort(compareMesasByPublicOrder);
         const labelMap = new Map(
             orderedMesas.map((mesa, index) => [
                 mesa.idMesa,
